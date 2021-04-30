@@ -1,0 +1,37 @@
+name = "QuantumOps"
+uuid = "d0cc4389-ef80-471f-8a8c-dd305d114ada"
+authors = ["John Lapeyre <jlapeyre@users.noreply.github.com> and contributors"]
+version = "0.1.0"
+
+[deps]
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+ElectronicStructure = "f7ec468b-4310-4c77-90aa-f73697106762"
+ILog2 = "2cd5bd5f-40a1-5050-9e10-fc8cdb6109f5"
+IsApprox = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
+LightGraphs = "093fc24a-ae57-5d10-9952-331d41423f4d"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+LoopVectorization = "bdcacae8-1622-11e9-2a5c-532679323890"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+SparseArraysN = "7d983096-c313-11eb-0b95-579bee092dbe"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+ThreadsX = "ac1d9e8a-700a-412c-b207-f0111f4b6c0d"
+ZChop = "8603256b-76ad-53fe-b511-38a38e6437cd"
+
+[compat]
+ILog2 = "0.2.2"
+IsApprox = "0.1"
+Literate = "2"
+Requires = "1"
+StaticArrays = "1"
+StatsBase = "0.33"
+ThreadsX = "0.1"
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
