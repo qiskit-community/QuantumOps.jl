@@ -3,6 +3,9 @@ uuid = "d0cc4389-ef80-471f-8a8c-dd305d114ada"
 authors = ["John Lapeyre <jlapeyre@users.noreply.github.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+
 [compat]
 julia = "1"
 
