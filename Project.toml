@@ -3,6 +3,9 @@ uuid = "d0cc4389-ef80-471f-8a8c-dd305d114ada"
 authors = ["John Lapeyre <jlapeyre@users.noreply.github.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
+
 [compat]
 julia = "1"
 

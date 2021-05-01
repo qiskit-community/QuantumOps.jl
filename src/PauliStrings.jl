@@ -1,5 +1,7 @@
 module PauliStrings
 
-# Write your package code here.
+include("pauli.jl")
+# include("pauli_string_bitarray.jl")
+# include("pauli_string_structarray.jl")
 
-end
+end # module
