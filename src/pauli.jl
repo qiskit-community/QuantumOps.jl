@@ -123,9 +123,6 @@ end
 Base.:(==)(ps1::PauliString, ps2::PauliString) = ps1.coeff == ps2.coeff && ps1.s == ps2.s
 Base.isless(ps1::PauliString, ps2::PauliString) = isless(ps1.s, ps1.s) || isless(ps1.s, ps2.s)
 
-# TODO:
-# isless
-
 function Base.show(io::IO, ps::PauliString)
     print(io, ps.coeff, " * ")
     print(io, ps.s)
