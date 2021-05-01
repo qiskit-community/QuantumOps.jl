@@ -50,8 +50,16 @@ function _pauli(::Type{PauliT}, s::AbstractChar) where PauliT
 end
 
 Base.one(::Type{PauliT}) where PauliT <: AbstractPauli = PauliT(0)
-Base.one(::PauliT) where PauliT <: AbstractPauli = PauliT(0)
+Base.one(::PauliT) where PauliT <: AbstractPauli = one(PauliT)
 
+Base.isless(p1::AbstractPauli, p2::AbstractPauli) = pauli_index(p1) < pauli_index(p2)
+
+"""
+    Vector{<:AbstractPauli}(ps::AbstractString)
+
+Construct a `Vector{<:AbstractPauli}` by parsing `ps` containing
+characters I, X, Y, Z.
+"""
 Vector{T}(ps::AbstractString) where {T <: AbstractPauli} = [T(s) for s in ps]
 
 const _pauli_chars = ('I', 'X', 'Y', 'Z')
@@ -65,8 +73,29 @@ function Base.show(io::IO, ps::AbstractArray{<:AbstractPauli})
     end
 end
 
-Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? typeof(p)(:I) : p
+Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? one(p) : p
 
+"""
+    mul(p1::AbstractPauli, p2::AbstractPauli)
+
+Multiply Paulis returning a `Tuple` of the bare product and the phase.
+See `PauliString.phase`.
+"""
+mul(p1::AbstractPauli, p2::AbstractPauli) = (p1 * p2, phase(p1, p2))
+
+function Base.:*(s1::AbstractArray{<:AbstractPauli}, s2::AbstractArray{<:AbstractPauli})
+    length(s1) != length(s2) && throw(DimensionMismatch())
+    s_out = similar(s1)
+    cum_sign_flips = 0
+    cum_imag_units = 0
+    @inbounds for i in eachindex(s1)
+        (product, phase) = mul(s1[i], s2[i])
+        cum_sign_flips += phase[:has_sign_flip]
+        cum_imag_units += phase[:has_imag_unit]
+        s_out[i] = product
+    end
+    return(s_out, (-1) ^ cum_sign_flips * im ^ cum_imag_units)
+end
 
 ####
 #### PauliString
@@ -82,7 +111,6 @@ function PauliString(::Type{T}, s::AbstractString, coeff=Complex(1, 0)) where T 
     return PauliString(Vector{T}(s), coeff)
 end
 
-
 # Forward some functions to the array containing the Pauli string
 for func in (:length, :size, :eachindex, :insert!, :push!, :popat!, :splice!, :eltype, :getindex, :setindex!)
     @eval begin
@@ -93,6 +121,7 @@ for func in (:length, :size, :eachindex, :insert!, :push!, :popat!, :splice!, :e
 end
 
 Base.:(==)(ps1::PauliString, ps2::PauliString) = ps1.coeff == ps2.coeff && ps1.s == ps2.s
+Base.isless(ps1::PauliString, ps2::PauliString) = isless(ps1.s, ps1.s) || isless(ps1.s, ps2.s)
 
 # TODO:
 # isless
@@ -134,20 +163,15 @@ Return the Pauli index in `[0,3]` of `p`.
 """
 pauli_index(p::Pauli) = 2 * p.hi + p.lo
 
-const _I = Pauli(0, 0)
-const _X = Pauli(0, 1)
-const _Y = Pauli(1, 0)
-const _Z = Pauli(1, 1)
-
 function Pauli(ind::Integer)
     if ind == 0
-        return _I
+        return Pauli(0, 0)
     elseif ind == 1
-        return _X
+        return Pauli(0, 1)
     elseif ind == 2
-        return _Y
+        return Pauli(1, 0)
     elseif ind == 3
-        return _Z
+        return Pauli(1, 1)
     else
         throw(ArgumentError("Invalid Pauli index $ind"))
     end
@@ -163,7 +187,7 @@ Multiply single-qubit operators ignoring phase.
 Base.:*(p1::Pauli, p2::Pauli) = Pauli(p1.hi ⊻ p2.hi, p1.lo ⊻ p2.lo)
 
 function phase(p1::Pauli, p2::Pauli)
-    if p1 == one(p1) || p2 == one(p1)
+    if isone(p1) || isone(p2)
         has_imag_unit = false
         has_sign_flip = false
     else
@@ -180,28 +204,6 @@ function phase(p1::Pauli, p2::Pauli)
         end
     end
     return (has_sign_flip=has_sign_flip, has_imag_unit=has_imag_unit)
-end
-
-"""
-    mul(p1::Pauli, p2::Pauli)
-
-Multiply Paulis returning a `Tuple` of the bare product and the phase.
-See `PauliString.phase`.
-"""
-mul(p1::Pauli, p2::Pauli) = (p1 * p2, phase(p1, p2))
-
-function Base.:*(s1::AbstractArray{<:Pauli}, s2::AbstractArray{<:Pauli})
-    length(s1) != length(s2) && throw(DimensionMismatch())
-    s_out = similar(s1)
-    cum_sign_flips = 0
-    cum_imag_units = 0
-    @inbounds for i in eachindex(s1)
-        (product, phase) = mul(s1[i], s2[i])
-        cum_sign_flips += phase[:has_sign_flip]
-        cum_imag_units += phase[:has_imag_unit]
-        s_out[i] = product
-    end
-    return(s_out, (-1) ^ cum_sign_flips * im ^ cum_imag_units)
 end
 
 ####
