@@ -1,148 +1,4 @@
-export Pauli, PauliString, pauli_index, phase
-
-
-####
-#### AbstractPauli
-####
-
-abstract type AbstractPauli end
-
-function _pauli(::Type{PauliT}, s::Symbol) where PauliT
-    if s == :I
-        return PauliT(0)
-    elseif s == :X
-        return PauliT(1)
-    elseif s == :Y
-        return PauliT(2)
-    elseif s == :Z
-        return PauliT(3)
-    else
-        throw(ArgumentError("Invalid Pauli symbol $s"))
-    end
-end
-
-function _pauli(::Type{PauliT}, s::AbstractString) where PauliT
-    if s == "I"
-        return PauliT(0)
-    elseif s == "X"
-        return PauliT(1)
-    elseif s == "Y"
-        return PauliT(2)
-    elseif s == "Z"
-        return PauliT(3)
-    else
-        throw(ArgumentError("Invalid Pauli symbol \"$s\""))
-    end
-end
-
-function _pauli(::Type{PauliT}, s::AbstractChar) where PauliT
-    if s == 'I'
-        return PauliT(0)
-    elseif s == 'X'
-        return PauliT(1)
-    elseif s == 'Y'
-        return PauliT(2)
-    elseif s == 'Z'
-        return PauliT(3)
-    else
-        throw(ArgumentError("Invalid Pauli Char '$s'"))
-    end
-end
-
-Base.one(::Type{PauliT}) where PauliT <: AbstractPauli = PauliT(0)
-Base.one(::PauliT) where PauliT <: AbstractPauli = one(PauliT)
-
-Base.isless(p1::AbstractPauli, p2::AbstractPauli) = pauli_index(p1) < pauli_index(p2)
-
-"""
-    Vector{<:AbstractPauli}(ps::AbstractString)
-
-Construct a `Vector{<:AbstractPauli}` by parsing `ps` containing
-characters I, X, Y, Z.
-"""
-Vector{T}(ps::AbstractString) where {T <: AbstractPauli} = [T(s) for s in ps]
-
-const _pauli_chars = ('I', 'X', 'Y', 'Z')
-
-Base.show(io::IO, p::AbstractPauli) = print(io, _pauli_chars[pauli_index(p) + 1])
-
-# May want to define `display` as well
-function Base.show(io::IO, ps::AbstractArray{<:AbstractPauli})
-    for p in ps
-        show(io, p)
-    end
-end
-
-Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? one(p) : p
-
-"""
-    mul(p1::AbstractPauli, p2::AbstractPauli)
-
-Multiply Paulis returning a `Tuple` of the bare product and the phase.
-See `PauliString.phase`.
-"""
-mul(p1::AbstractPauli, p2::AbstractPauli) = (p1 * p2, phase(p1, p2))
-
-function Base.:*(s1::AbstractArray{<:AbstractPauli}, s2::AbstractArray{<:AbstractPauli})
-    length(s1) != length(s2) && throw(DimensionMismatch())
-    s_out = similar(s1)
-    cum_sign_flips = 0
-    cum_imag_units = 0
-    @inbounds for i in eachindex(s1)
-        (product, phase) = mul(s1[i], s2[i])
-        cum_sign_flips += phase[:has_sign_flip]
-        cum_imag_units += phase[:has_imag_unit]
-        s_out[i] = product
-    end
-    return(s_out, (-1) ^ cum_sign_flips * im ^ cum_imag_units)
-end
-
-####
-#### PauliString
-####
-
-struct PauliString{W<:AbstractPauli, T<:AbstractVector{W}, V}
-    s::T
-    coeff::V
-end
-
-PauliString(s) = PauliString(s, Complex(1, 0))
-function PauliString(::Type{T}, s::AbstractString, coeff=Complex(1, 0)) where T <: AbstractPauli
-    return PauliString(Vector{T}(s), coeff)
-end
-
-# Forward some functions to the array containing the Pauli string
-for func in (:length, :size, :eachindex, :insert!, :push!, :popat!, :splice!, :eltype, :getindex, :setindex!)
-    @eval begin
-        function Base.$func(ps::PauliString, args...)
-            return $func(ps.s, args...)
-        end
-    end
-end
-
-Base.:(==)(ps1::PauliString, ps2::PauliString) = ps1.coeff == ps2.coeff && ps1.s == ps2.s
-Base.isless(ps1::PauliString, ps2::PauliString) = isless(ps1.s, ps1.s) || isless(ps1.s, ps2.s)
-
-function Base.show(io::IO, ps::PauliString)
-    print(io, ps.coeff, " * ")
-    print(io, ps.s)
-end
-
-function Base.:*(ps1::PauliString, ps2::PauliString)
-    s_new, phase = ps1.s * ps2.s
-    return PauliString(s_new, ps1.coeff * ps2.coeff * phase)
-end
-
-Base.:*(z::Number, ps::PauliString) = PauliString(ps.s, ps.coeff * z)
-Base.:*(ps::PauliString, z::Number) = z * ps
-
-Base.kron(ps1::PauliString, ps2::PauliString) = PauliString(vcat(ps1.s, ps2.s), ps1.coeff * ps2.coeff)
-
-Base.one(ps::PauliString{T}) where T = PauliString(fill(one(T), length(ps)))
-
-function Base.rand(::Type{<:PauliString{T}}, n::Integer) where {T <: AbstractPauli}
-    return PauliString([T(i) for i in rand(0:3, n)])
-end
+export Pauli
 
 ####
 #### Pauli
@@ -153,12 +9,13 @@ struct Pauli <: AbstractPauli
     lo::Bool
 end
 
-"""
-    pauli_index(p::Pauli)::Int
-
-Return the Pauli index in `[0,3]` of `p`.
-"""
 pauli_index(p::Pauli) = 2 * p.hi + p.lo
+
+# For convenience. Must be explicitly imported
+const I = Pauli(0, 0)
+const X = Pauli(0, 1)
+const Y = Pauli(1, 0)
+const Z = Pauli(1, 1)
 
 function Pauli(ind::Integer)
     if ind == 0
