@@ -4,7 +4,7 @@ authors = ["John Lapeyre <jlapeyre@users.noreply.github.com> and contributors"]
 version = "0.1.0"
 
 [deps]
-StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 julia = "1"

@@ -28,6 +28,13 @@ for func in (:length, :size, :eachindex, :insert!, :push!, :popat!, :splice!, :e
     end
 end
 
+# Huh? The follow destroys proper printing of psvec
+# convert psvec[i, j] to psvec[i][j]
+# Base.getindex(psvec::Vector{<:PauliString}, ind1::Int, ind2::Int) = psvec[ind1][ind2]
+# Base.getindex(psvec::Vector{<:PauliString}, ind1, ind2) = psvec[ind1][ind2]
+# Base.setindex!(psvec::Vector{<:PauliString}, val, ind1::Int, ind2::Int) = (psvec[ind1][ind2] = val)
+# Base.setindex!(psvec::Vector{<:PauliString}, val, ind1, ind2) = psvec[ind1][ind2]
+
 Base.:(==)(ps1::PauliString, ps2::PauliString) = ps1.coeff == ps2.coeff && ps1.s == ps2.s
 Base.isless(ps1::PauliString, ps2::PauliString) = isless(ps1.s, ps1.s) || isless(ps1.s, ps2.s)
 
