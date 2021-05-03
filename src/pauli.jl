@@ -1,9 +1,5 @@
 export Pauli
 
-####
-#### Pauli
-####
-
 # TODO: Make this a `module` to create a namespace
 
 struct Pauli <: AbstractPauli
@@ -33,33 +29,11 @@ function Pauli(ind::Integer)
     end
 end
 
-Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _pauli(Pauli, s)
+Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 
+"""
+    *(p1::Pauli, p2::Pauli) 
+
+Multiplication that returns a `Pauli`, but ignores the phase.
+"""
 Base.:*(p1::Pauli, p2::Pauli) = Pauli(p1.hi ⊻ p2.hi, p1.lo ⊻ p2.lo)
-
-function phase(p1::Pauli, p2::Pauli)
-    if isone(p1) || isone(p2)
-        has_imag_unit = false
-        has_sign_flip = false
-    else
-        d = pauli_index(p1) - pauli_index(p2)
-        if d == 0
-            has_imag_unit = false
-            has_sign_flip = false
-        elseif d == 1 || d == -2
-            has_imag_unit = true
-            has_sign_flip = true
-        else
-            has_imag_unit = true
-            has_sign_flip = false
-        end
-    end
-    return (has_sign_flip=has_sign_flip, has_imag_unit=has_imag_unit)
-end
-
-####
-#### Convenience methods making `Pauli` the default `AbstractPauli
-####
-
-PauliString(s::AbstractString, coeff=Complex(1, 0)) = PauliString(Pauli, s, coeff)
-Base.rand(::Type{PauliString}, n::Integer) = rand(PauliString{Pauli}, n)

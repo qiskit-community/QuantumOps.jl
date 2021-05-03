@@ -1,13 +1,12 @@
-####
-#### AbstractPauli
-####
-
-export AbstractPauli, pauli_index, phase
+export AbstractPauli, pauli_index, phase, weight
 import LinearAlgebra, Random
 
 abstract type AbstractPauli end
 
-function _pauli(::Type{PauliT}, s::Symbol) where PauliT
+### The following methods are called by concrete subtypes like this:
+### Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
+
+function _AbstractPauli(::Type{PauliT}, s::Symbol) where PauliT
     if s == :I
         return PauliT(0)
     elseif s == :X
@@ -21,7 +20,7 @@ function _pauli(::Type{PauliT}, s::Symbol) where PauliT
     end
 end
 
-function _pauli(::Type{PauliT}, s::AbstractString) where PauliT
+function _AbstractPauli(::Type{PauliT}, s::AbstractString) where PauliT
     if s == "I"
         return PauliT(0)
     elseif s == "X"
@@ -35,7 +34,7 @@ function _pauli(::Type{PauliT}, s::AbstractString) where PauliT
     end
 end
 
-function _pauli(::Type{PauliT}, s::AbstractChar) where PauliT
+function _AbstractPauli(::Type{PauliT}, s::AbstractChar) where PauliT
     if s == 'I'
         return PauliT(0)
     elseif s == 'X'
@@ -93,7 +92,8 @@ Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? one(p) : p
 
 Multiply Paulis returning a  `NamedTuple` with members
 `:bare_pauli`, `:has_sign_flip`, `:has_imag_unit`.
-See `PauliString.phase`.
+
+See `PauliStrings.phase`.
 """
 function mul(p1::AbstractPauli, p2::AbstractPauli)
     bare_pauli = p1 * p2
@@ -119,6 +119,8 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{PauliT}) wher
     return PauliT(rand(rng, 0:3))
 end
 
+weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> pauli_index(pauli) != 0, v)
+
 ####
 #### Subtypes of AbstractPauli must implement these
 ####
@@ -143,7 +145,25 @@ of the product of `p1` and `p2`. The elements are `:has_sign_flip`
 and `:has_imag_unit`. The phase can be reconstructed as
 `im^has_imag_unit * (-1)^has_sign_flip`.
 """
-function phase end
+function phase(p1::AbstractPauli, p2::AbstractPauli)
+    if isone(p1) || isone(p2)
+        has_imag_unit = false
+        has_sign_flip = false
+    else
+        d = pauli_index(p1) - pauli_index(p2)
+        if d == 0
+            has_imag_unit = false
+            has_sign_flip = false
+        elseif d == 1 || d == -2
+            has_imag_unit = true
+            has_sign_flip = true
+        else
+            has_imag_unit = true
+            has_sign_flip = false
+        end
+    end
+    return (has_sign_flip=has_sign_flip, has_imag_unit=has_imag_unit)
+end
 
 """
     pauli_index(p::AbstractPauli)::Int
@@ -171,6 +191,3 @@ or the `AbstractString`s `"I", "X", "Y", "Z"` or the `AbstractChar`s `'I', 'X', 
 In general creating `AbstractPauli`s with `String`s is slower than with the other types.
 """
 function AbstractPauli end
-
-# The second method above can be implemented like this.
-# Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _pauli(Pauli, s)

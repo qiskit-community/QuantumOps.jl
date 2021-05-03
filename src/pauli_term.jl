@@ -1,0 +1,81 @@
+export PauliTerm
+
+struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V}
+    paulis::T
+    coeff::V
+end
+
+const _default_coeff = Complex(1, 0)
+
+PauliTerm(s) = PauliTerm(s, _default_coeff)
+function PauliTerm(::Type{T}, s::AbstractString, coeff=_default_coeff) where T <: AbstractPauli
+    return PauliTerm(Vector{T}(s), coeff)
+end
+
+PauliTerm(ps::Tuple, coeff=_default_coeff) = PauliTerm([ps...], coeff)
+
+# Forward some functions to the array containing the Pauli string
+for func in (:length, :size, :eachindex, :insert!, :push!, :popat!, :splice!, :eltype, :getindex, :setindex!,
+             :iterate)
+    @eval begin
+        function Base.$func(ps::PauliTerm, args...)
+            return $func(ps.paulis, args...)
+        end
+    end
+end
+
+# Huh? The follow destroys proper printing of psvec
+# convert psvec[i, j] to psvec[i][j]
+# Base.getindex(psvec::Vector{<:PauliTerm}, ind1::Int, ind2::Int) = psvec[ind1][ind2]
+# Base.getindex(psvec::Vector{<:PauliTerm}, ind1, ind2) = psvec[ind1][ind2]
+# Base.setindex!(psvec::Vector{<:PauliTerm}, val, ind1::Int, ind2::Int) = (psvec[ind1][ind2] = val)
+# Base.setindex!(psvec::Vector{<:PauliTerm}, val, ind1, ind2) = psvec[ind1][ind2]
+
+Base.:(==)(ps1::PauliTerm, ps2::PauliTerm) = ps1.coeff == ps2.coeff && ps1.paulis == ps2.paulis
+Base.isless(ps1::PauliTerm, ps2::PauliTerm) = isless(ps1.paulis, ps1.paulis) || isless(ps1.paulis, ps2.paulis)
+
+weight(ps::PauliTerm) = weight(ps.paulis)
+
+function Base.show(io::IO, ps::PauliTerm)
+    print(io, ps.coeff, " * ")
+    print(io, ps.paulis)
+end
+
+function Base.:*(ps1::PauliTerm, ps2::PauliTerm)
+    s_new, phase = multiply_keeping_phase(ps1.paulis, ps2.paulis)
+    return PauliTerm(s_new, ps1.coeff * ps2.coeff * phase)
+end
+
+Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
+Base.:*(ps::PauliTerm, z::Number) = z * ps
+
+Base.kron(ps1::PauliTerm, ps2::PauliTerm) = PauliTerm(vcat(ps1.paulis, ps2.paulis), ps1.coeff * ps2.coeff)
+
+Base.one(ps::PauliTerm{T}) where T = PauliTerm(fill(one(T), length(ps)))
+
+# TODO: Probably get rid of this
+function Base.rand(::Type{<:PauliTerm{T}}, n::Integer) where {T <: AbstractPauli}
+    return PauliTerm(rand(T, n))
+end
+
+function Base.kron(paulis::AbstractPauli...)
+    return PauliTerm([paulis...])
+end
+
+function Base.kron(ps::Union{PauliTerm, AbstractPauli}...)
+    v = eltype(ps[1])[]
+    coeffs = []
+    for x in ps
+        if x isa PauliTerm
+            push!(coeffs, x.coeff)
+            append!(v, x)
+        else
+            push!(v, x)
+        end
+    end
+    if isempty(coeffs)
+        return PauliTerm(v)
+    else
+        return PauliTerm(v, *(coeffs...))
+    end
+end
