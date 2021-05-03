@@ -27,6 +27,7 @@ end
 # For testing. Sometimes twice slower than constructing all at once
 # Testing that this gives the same result as standard construction
 # is a good idea
+# TODO: move this to test suite
 function make_pauli_sum(strings)
     s = PauliSum([first(strings)])
     for i in 2:length(strings)
@@ -81,6 +82,14 @@ end
 # don't check if all strings are already unique
 sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
 
+# Modeled on code in unique!
+"""
+    sum_duplicates!(paulis, coeffs)
+
+Find groups of terms whose members differ only in the coefficient.
+Replace each group by one term carrying the sum of the coefficients
+in that group.
+"""
 function sum_duplicates!(paulis, coeffs)
     last_pauli::eltype(paulis) = first(paulis)
     coeff = first(coeffs)
@@ -156,12 +165,12 @@ the `ps`, `psum` will be left sorted and with no duplicates.
 function add!(psum::PauliSum, ps::PauliTerm...)
     for p in ps
         inds = searchsorted(psum.strings, p.paulis)
-        if length(inds) == 0
+        if length(inds) == 0 # p.paulis not found
             insert!(psum.strings, first(inds), p.paulis)
             insert!(psum.coeffs, first(inds), p.coeff)
-        elseif length(inds) == 1
-            i = first(inds)
-            psum.coeffs[i] += p.coeff
+        elseif length(inds) == 1 # one element equal to p.paulis
+            i = first(inds) # get the (single) index
+            psum.coeffs[i] += p.coeff # add p to existing term
             if isapprox(psum.coeffs[i], zero(psum.coeffs[i]))
                 deleteat!(psum.coeffs, [i])
                 deleteat!(psum.strings, [i])
