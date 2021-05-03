@@ -11,6 +11,9 @@ function __init__()
     @require PyCall="438e738f-606a-5dbb-bf0a-cddfbfd45ab0" begin
         include("pycall.jl")
     end
+    @require Symbolics="0c5d862f-8b57-4792-8d23-62f2024744c7" begin
+        include("symbolics.jl")
+    end
 end
 
 include("abstract_pauli.jl")

@@ -71,8 +71,18 @@ function remove_zeros!(psum::PauliSum)
     return psum
 end
 
+"""
+    isapprox_zero(x::Number)
+
+Define methods for this function for symbolic
+libraries, for example.
+"""
+function isapprox_zero(x::Number)
+    return isapprox(x, zero(x))
+end
+
 function remove_zeros!(terms, coeffs)
-    inds = findall(x -> isapprox(x, zero(x)), coeffs)
+    inds = findall(x -> isapprox_zero(x), coeffs)
     deleteat!(coeffs, inds)
     deleteat!(terms, inds)
     return nothing
@@ -171,7 +181,7 @@ function add!(psum::PauliSum, ps::PauliTerm...)
         elseif length(inds) == 1 # one element equal to p.paulis
             i = first(inds) # get the (single) index
             psum.coeffs[i] += p.coeff # add p to existing term
-            if isapprox(psum.coeffs[i], zero(psum.coeffs[i]))
+            if isapprox_zero(psum.coeffs[i])
                 deleteat!(psum.coeffs, [i])
                 deleteat!(psum.strings, [i])
             end
