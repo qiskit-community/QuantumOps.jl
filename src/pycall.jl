@@ -5,4 +5,4 @@ function Base.zero(x::PyCall.PyObject)
     return sympy.core.numbers.Zero
 end
 
-Base.isapprox(x::PyObject, y::PyObject) = x == y # a hack
+Base.isapprox(x::PyCall.PyObject, y::PyCall.PyObject) = x == y # a hack
