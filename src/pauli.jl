@@ -2,6 +2,11 @@ export Pauli
 
 # TODO: Make this a `module` to create a namespace
 
+"""
+    struct Pauli <: AbstractPauli
+
+This is the only implementation of `AbstractPauli`
+"""
 struct Pauli <: AbstractPauli
     hi::Bool
     lo::Bool

@@ -24,13 +24,6 @@ for func in (:length, :size, :eachindex, :insert!, :push!, :popat!, :splice!, :e
     end
 end
 
-# Huh? The follow destroys proper printing of psvec
-# convert psvec[i, j] to psvec[i][j]
-# Base.getindex(psvec::Vector{<:PauliTerm}, ind1::Int, ind2::Int) = psvec[ind1][ind2]
-# Base.getindex(psvec::Vector{<:PauliTerm}, ind1, ind2) = psvec[ind1][ind2]
-# Base.setindex!(psvec::Vector{<:PauliTerm}, val, ind1::Int, ind2::Int) = (psvec[ind1][ind2] = val)
-# Base.setindex!(psvec::Vector{<:PauliTerm}, val, ind1, ind2) = psvec[ind1][ind2]
-
 Base.:(==)(ps1::PauliTerm, ps2::PauliTerm) = ps1.coeff == ps2.coeff && ps1.paulis == ps2.paulis
 Base.isless(ps1::PauliTerm, ps2::PauliTerm) = isless(ps1.paulis, ps1.paulis) || isless(ps1.paulis, ps2.paulis)
 

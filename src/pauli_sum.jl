@@ -1,4 +1,4 @@
-export PauliSum, add!
+export PauliSum, add!, mul!
 
 struct PauliSum{StringT, CoeffT}
     strings::StringT
@@ -22,21 +22,21 @@ end
 PauliSum(strings) = PauliSum(strings, fill(_default_coeff, length(strings)))
 
 function PauliSum(v::AbstractArray{<:PauliTerm})
-    strings = getproperty.(v, :paulis)
-    coeffs = getproperty.(v, :coeff)
+    strings = [x.paulis for x in v]
+    coeffs = [x.coeff for x in v]
     return PauliSum(strings, coeffs)
 end
 
-sort_and_sum_duplicates!(psum::PauliSum) = sort_and_sum_duplicates!(psum.paulis, psum.coeffs)
+sort_and_sum_duplicates!(psum::PauliSum) = sort_and_sum_duplicates!(psum.strings, psum.coeffs)
 function sort_and_sum_duplicates!(paulis, coeffs)
     sort_pauli_sum!(paulis, coeffs)
     sum_duplicates!(paulis, coeffs)
     return nothing
 end
 
-sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.paulis, psum.coeffs)
+sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
 function sum_duplicates!(paulis, coeffs)
-    last_pauli = first(paulis)
+    last_pauli::eltype(paulis) = first(paulis)
     coeff = first(coeffs)
     k = 2
     for j in 2:length(paulis)
@@ -53,7 +53,7 @@ function sum_duplicates!(paulis, coeffs)
     return nothing
 end
 
-sort_pauli_sum!(psum::PauliSum) = sort_pauli_sum!(psum.paulis, psum.coeffs)
+sort_pauli_sum!(psum::PauliSum) = sort_pauli_sum!(psum.strings, psum.coeffs)
 function sort_pauli_sum!(strings, coeffs)
     p = sortperm(strings)
     permute!(strings, p)
@@ -61,12 +61,20 @@ function sort_pauli_sum!(strings, coeffs)
     return nothing
 end
 
-for func in (:length, :eachindex)
+for func in (:length, :eachindex, :lastindex, :firstindex)
     @eval begin
         function Base.$func(ps::PauliSum, args...)
             return $func(ps.coeffs, args...)
         end
     end
+end
+
+function Base.size(psum::PauliSum)
+    return (length(psum), 1)
+end
+
+function Base.size(psum::PauliSum, i::Integer)
+    return size(psum)[i]
 end
 
 Base.getindex(psum::PauliSum, i::Integer) = PauliTerm(psum.strings[i], psum.coeffs[i])
@@ -109,14 +117,32 @@ function add!(psum::PauliSum, ps::PauliTerm...)
             throw(ErrorException("Duplicate terms found in `PauliSum`."))
         end
     end
-    return nothing
+    return psum
 end
 
-Base.:+(ps::PauliTerm...) = PauliSum(collect(ps))
+function mul!(psum::PauliSum, n)
+    psum.coeffs .= n .* psum.coeffs
+    return psum
+end
+
+#Base.:+(ps::PauliTerm...)::PauliSum = PauliSum(collect(ps))
+Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
 
 function Base.show(io::IO, psum::PauliSum)
     for i in eachindex(psum)
         show(io, psum[i])
         print(io, "\n")
     end
+end
+
+function Base.iterate(psum::PauliSum, state=1)
+    if state > lastindex(psum)
+        return nothing
+    end
+    return (psum[state], state + 1)
+end
+
+# Enables using `findall`, for instance
+function Base.keys(psum::PauliSum)
+    return eachindex(psum)
 end
