@@ -39,4 +39,9 @@ end
     @test PauliTerm("XYZ") * PauliTerm("ZYX") == PauliTerm("YIY")
     @test PauliTerm("XYZX") * PauliTerm("ZYXZ") == -im * PauliTerm("YIYY")
     @test PauliTerm("ZYXZ") * PauliTerm("XYZX") == im * PauliTerm("YIYY")
+    t = PauliTerm("ZYXZ", 3)
+    @test t^3 == t.coeff^2 * t
+    @test t^4 == t.coeff^4 * one(t)
+    @test PauliTerm("IXYZ") == PauliTerm([0, 1, 2, 3])
+    @test PauliTerm("IXYZ", 2) == PauliTerm([0, 1, 2, 3], 2)
 end

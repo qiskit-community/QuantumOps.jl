@@ -12,7 +12,8 @@ function PauliTerm(::Type{T}, s::AbstractString, coeff=_default_coeff) where T <
     return PauliTerm(Vector{T}(s), coeff)
 end
 
-PauliTerm(ps::Tuple, coeff=_default_coeff) = PauliTerm([ps...], coeff)
+# Probably don't need to provide this.
+# PauliTerm(ps::Tuple, coeff=_default_coeff) = PauliTerm([ps...], coeff)
 
 # Forward some functions to the array containing the Pauli string
 for func in (:length, :size, :eachindex, :insert!, :push!, :popat!, :splice!, :eltype, :getindex, :setindex!,
@@ -45,6 +46,15 @@ Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
 Base.:*(p::AbstractPauli, z::Number) = z * p
 
 Base.:-(p::PauliTerm) = PauliTerm(p.paulis, -p.coeff)
+
+function Base.:^(p::PauliTerm, n::Integer)
+    new_coeff = p.coeff^n
+    if iseven(n)
+        return PauliTerm(fill(Pauli(:I), length(p)), new_coeff)
+    else
+        return PauliTerm(p.paulis, new_coeff)
+    end
+end
 
 Base.kron(ps1::PauliTerm, ps2::PauliTerm) = PauliTerm(vcat(ps1.paulis, ps2.paulis), ps1.coeff * ps2.coeff)
 
