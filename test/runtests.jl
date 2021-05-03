@@ -28,4 +28,15 @@ end
     (I, X, Y, Z) = Pauli.(0:3)
     @test X ⊗ Y == PauliTerm("XY")
     @test PauliTerm("XY", 3).coeff == 3
+
+    for (a, b, c, phase) in ((:I, :I, :I, 1), (:I, :X, :X, 1), (:I, :Y, :Y, 1), (:I, :Z, :Z, 1),
+                             (:X, :I, :X, 1), (:X, :X, :I, 1), (:X, :Y, :Z, im), (:X, :Z, :Y, -im),
+                             (:Y, :I, :Y, 1), (:Y, :X, :Z, -im), (:Y, :Y, :I, 1), (:Y, :Z, :X, im),
+                             (:Z, :I, :Z, 1), (:Z, :X, :Y, im), (:Z, :Y, :X, -im), (:Z, :Z, :I, 1))
+        (as, bs, cs) = String.((a, b, c))
+        @test PauliTerm(as) * PauliTerm(bs) == phase * PauliTerm(cs)
+    end
+    @test PauliTerm("XYZ") * PauliTerm("ZYX") == PauliTerm("YIY")
+    @test PauliTerm("XYZX") * PauliTerm("ZYXZ") == -im * PauliTerm("YIYY")
+    @test PauliTerm("ZYXZ") * PauliTerm("XYZX") == im * PauliTerm("YIYY")
 end

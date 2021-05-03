@@ -44,6 +44,8 @@ Base.:*(ps::PauliTerm, z::Number) = z * ps
 Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
 Base.:*(p::AbstractPauli, z::Number) = z * p
 
+Base.:-(p::PauliTerm) = PauliTerm(p.paulis, -p.coeff)
+
 Base.kron(ps1::PauliTerm, ps2::PauliTerm) = PauliTerm(vcat(ps1.paulis, ps2.paulis), ps1.coeff * ps2.coeff)
 
 Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(ps.coeff))
