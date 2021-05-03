@@ -19,11 +19,23 @@ function Base.:*(x::IPhase, y::IPhase)
     return IPhase(imag, sign)
 end
 
-Base.:*(x::Union{Integer, Complex{<:Integer}}, y::IPhase) = convert(IPhase, x) * y
-Base.:*(y::IPhase, x::Union{Integer, Complex{<:Integer}}) = x * y
+const ConvertableNumber = Union{Integer, Complex{<:Integer}}
 
-IPhase(x::Union{Integer, Complex{<:Integer}}) = convert(IPhase, x)
-function Base.convert(::Type{IPhase}, x::Union{Integer, Complex{<:Integer}})
+Base.:*(x::ConvertableNumber, y::IPhase) = convert(IPhase, x) * y
+Base.:*(y::IPhase, x::ConvertableNumber) = x * y
+
+# function Base.:^(x::IPhase, n::Integer)
+#     nr = mod(n, 5)
+#     if nr == 0
+#         ip = IPhase(1)
+#     elseif nr == 1
+#         ip = IPhase(im)
+#     elseif nr == 2
+#         ip = IPhase(-im)
+# end
+
+IPhase(x::ConvertableNumber) = convert(IPhase, x)
+function Base.convert(::Type{IPhase}, x::ConvertableNumber)
     if isreal(x)
         isone(x) && return one(IPhase)
         isone(-x) && return -one(IPhase)

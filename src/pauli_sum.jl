@@ -53,14 +53,29 @@ function PauliSum(v::AbstractArray{<:PauliTerm})
     return PauliSum(strings, coeffs)
 end
 
-sort_and_sum_duplicates!(psum::PauliSum) = sort_and_sum_duplicates!(psum.strings, psum.coeffs)
-function sort_and_sum_duplicates!(paulis, coeffs)
-    sort_pauli_sum!(paulis, coeffs)
-    sum_duplicates!(paulis, coeffs)
+function sort_and_sum_duplicates!(psum::PauliSum)
+    sort_and_sum_duplicates!(psum.strings, psum.coeffs)
+    return psum
+end
+
+function sort_and_sum_duplicates!(terms, coeffs)
+    sort_pauli_sum!(terms, coeffs)
+    sum_duplicates!(terms, coeffs)
+    remove_zeros!(terms, coeffs)
     return nothing
 end
 
-### TODO: implement removing zeros or near zeros
+function remove_zeros!(psum::PauliSum)
+    remove_zeros!(psum.strings, psum.coeffs)
+    return psum
+end
+
+function remove_zeros!(terms, coeffs)
+    inds = findall(x -> isapprox(x, zero(x)), coeffs)
+    deleteat!(coeffs, inds)
+    deleteat!(terms, inds)
+    return nothing
+end
 
 # This is 10x faster than the sorting step, even though we
 # don't check if all strings are already unique
@@ -131,7 +146,7 @@ end
 """
     add!(psum::PauliSum, ps::PauliTerm...)
 
-Add `PauliTerm`s to `psum`, assuming `psum` is sorted and
+Add `PauliTerm`s to `psum` in place, assuming `psum` is sorted and
 has no repeated strings. Either a new term is inserted, or
 the coefficient is added to an existing term. After adding
 the `ps`, `psum` will be left sorted and with no duplicates.
@@ -151,6 +166,12 @@ function add!(psum::PauliSum, ps::PauliTerm...)
     return psum
 end
 
+"""
+    add!(psum1::PauliSum, psum2::PauliSum)
+
+Add the terms in `psum2` to `psum1` in place.
+`psum1` is mutated. `psum2` is not.
+"""
 function add!(psum1::PauliSum, psum2::PauliSum)
     for p in psum2
         add!(psum1, p)
@@ -173,7 +194,8 @@ Base.one(psum::PauliSum) = one(first(psum))
 
 Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
 
-Base.:-(psum::PauliSum) = PauliSum(psum.strings, -1 .* psum.coeffs)
+
+Base.:-(psum::PauliSum) = PauliSum(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs)
 
 function Base.:(==)(psum1::PauliSum, psum2::PauliSum)
     if length(psum1) != length(psum2)
