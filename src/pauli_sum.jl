@@ -24,6 +24,17 @@ struct PauliSum{StringT, CoeffT}
     end
 end
 
+# For testing. Sometimes twice slower than constructing all at once
+# Testing that this gives the same result as standard construction
+# is a good idea
+function make_pauli_sum(strings)
+    s = PauliSum([first(strings)])
+    for i in 2:length(strings)
+        add!(s, strings[i])
+    end
+    return s
+end
+
 """
     PauliSum(strings)
 
@@ -49,6 +60,8 @@ function sort_and_sum_duplicates!(paulis, coeffs)
     return nothing
 end
 
+# This is 10x faster than the sorting step, even though we
+# don't check if all strings are already unique
 sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
 function sum_duplicates!(paulis, coeffs)
     last_pauli::eltype(paulis) = first(paulis)
@@ -68,9 +81,10 @@ function sum_duplicates!(paulis, coeffs)
     return nothing
 end
 
+# This is expensive. Most time is spent in sortperm
 sort_pauli_sum!(psum::PauliSum) = sort_pauli_sum!(psum.strings, psum.coeffs)
 function sort_pauli_sum!(strings, coeffs)
-    p = sortperm(strings)
+    p = sortperm(strings) # alg=MergeSort is 50% faster for 1000x10 strings
     permute!(strings, p)
     permute!(coeffs, p)
     return nothing
@@ -149,6 +163,13 @@ end
 Base.one(psum::PauliSum) = one(first(psum))
 
 Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
+
+function Base.:(==)(psum1::PauliSum, psum2::PauliSum)
+    if length(psum1) != length(psum2)
+        return false
+    end
+    return all(i -> psum1[i] == psum2[i], eachindex(psum1))
+end
 
 function Base.show(io::IO, psum::PauliSum)
     for i in eachindex(psum)
