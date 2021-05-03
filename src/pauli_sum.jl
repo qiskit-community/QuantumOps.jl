@@ -60,6 +60,8 @@ function sort_and_sum_duplicates!(paulis, coeffs)
     return nothing
 end
 
+### TODO: implement removing zeros or near zeros
+
 # This is 10x faster than the sorting step, even though we
 # don't check if all strings are already unique
 sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
@@ -149,6 +151,13 @@ function add!(psum::PauliSum, ps::PauliTerm...)
     return psum
 end
 
+function add!(psum1::PauliSum, psum2::PauliSum)
+    for p in psum2
+        add!(psum1, p)
+    end
+    return psum1
+end
+
 # TODO: May want to make this a method of LinearAlgebra.mul!
 """
     mul!(psum::PauliSum, n)
@@ -163,6 +172,8 @@ end
 Base.one(psum::PauliSum) = one(first(psum))
 
 Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
+
+Base.:-(psum::PauliSum) = PauliSum(psum.strings, -1 .* psum.coeffs)
 
 function Base.:(==)(psum1::PauliSum, psum2::PauliSum)
     if length(psum1) != length(psum2)
