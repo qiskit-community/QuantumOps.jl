@@ -80,6 +80,7 @@ end
 # This is 10x faster than the sorting step, even though we
 # don't check if all strings are already unique
 sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
+
 function sum_duplicates!(paulis, coeffs)
     last_pauli::eltype(paulis) = first(paulis)
     coeff = first(coeffs)
@@ -124,6 +125,7 @@ function Base.size(psum::PauliSum, i::Integer)
 end
 
 Base.getindex(psum::PauliSum, i::Integer) = PauliTerm(psum.strings[i], psum.coeffs[i])
+
 Base.getindex(psum::PauliSum, inds) = PauliSum(psum.strings[inds], psum.coeffs[inds])
 
 # TODO: Should we check that the length of the PauliTerm is correct ?
@@ -193,7 +195,6 @@ end
 Base.one(psum::PauliSum) = one(first(psum))
 
 Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
-
 
 Base.:-(psum::PauliSum) = PauliSum(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs)
 
