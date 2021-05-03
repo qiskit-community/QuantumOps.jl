@@ -160,7 +160,12 @@ function add!(psum::PauliSum, ps::PauliTerm...)
             insert!(psum.strings, first(inds), p.paulis)
             insert!(psum.coeffs, first(inds), p.coeff)
         elseif length(inds) == 1
-            psum.coeffs[first(inds)] += p.coeff
+            i = first(inds)
+            psum.coeffs[i] += p.coeff
+            if isapprox(psum.coeffs[i], zero(psum.coeffs[i]))
+                deleteat!(psum.coeffs, [i])
+                deleteat!(psum.strings, [i])
+            end
         else
             throw(ErrorException("Duplicate terms found in `PauliSum`."))
         end

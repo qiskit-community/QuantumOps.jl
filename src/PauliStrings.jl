@@ -11,6 +11,10 @@ function __init__()
     @require PyCall="438e738f-606a-5dbb-bf0a-cddfbfd45ab0" begin
         Base.:*(z::PyCall.PyObject, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
         Base.:*(ps::PauliTerm, z::PyCall.PyObject) = *(z, ps)
+        function Base.zero(x::PyCall.PyObject)
+            return sympy.core.numbers.Zero
+        end
+        Base.isapprox(x::PyObject, y::PyObject) = x == y # a hack
     end
 end
 
