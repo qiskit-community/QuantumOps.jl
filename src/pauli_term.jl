@@ -91,3 +91,14 @@ function Base.kron(ps::Union{PauliTerm, AbstractPauli}...)
         return PauliTerm(v, reduce(*, coeffs))
     end
 end
+
+function Base.Matrix(pt::PauliTerm)
+    if length(pt) == 1
+        matrix = Matrix(only(pt.paulis))
+    else
+        matrix = kron(Matrix.(pt.paulis)...)
+    end
+    # inplace multiplication requires same types in operands
+    # So, we use multiplication with copy.
+    return pt.coeff * matrix
+end

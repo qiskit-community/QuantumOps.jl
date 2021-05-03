@@ -183,16 +183,16 @@ function add!(psum::PauliSum, ps::PauliTerm...)
 end
 
 """
-    add!(psum1::PauliSum, psum2::PauliSum)
+    add!(to::PauliSum, from::PauliSum)
 
-Add the terms in `psum2` to `psum1` in place.
-`psum1` is mutated. `psum2` is not.
+Add the terms in `from` to `to` in place.
+`to` is mutated. `from` is not.
 """
-function add!(psum1::PauliSum, psum2::PauliSum)
-    for p in psum2
-        add!(psum1, p)
+function add!(to::PauliSum, from::PauliSum)
+    for p in from
+        add!(to, p)
     end
-    return psum1
+    return to
 end
 
 # TODO: May want to make this a method of LinearAlgebra.mul!
@@ -201,7 +201,7 @@ end
 
 Multiply the coefficient of `psum` by `n` in place.
 """
-function mul!(psum::PauliSum, n)
+function LinearAlgebra.mul!(psum::PauliSum, n)
     psum.coeffs .= n .* psum.coeffs
     return psum
 end
@@ -222,7 +222,9 @@ end
 function Base.show(io::IO, psum::PauliSum)
     for i in eachindex(psum)
         show(io, psum[i])
-        print(io, "\n")
+        if i != lastindex(psum)
+            print(io, "\n")
+        end
     end
 end
 
@@ -238,3 +240,5 @@ end
 function Base.keys(psum::PauliSum)
     return eachindex(psum)
 end
+
+Base.Matrix(ps::PauliSum) = sum(Matrix(p) for p in ps)

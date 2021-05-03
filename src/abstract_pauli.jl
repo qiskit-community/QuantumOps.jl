@@ -165,6 +165,24 @@ function phase(p1::AbstractPauli, p2::AbstractPauli)
     return (has_sign_flip=has_sign_flip, has_imag_unit=has_imag_unit)
 end
 
+const _Imat = [1 0; 0 1]
+const _Xmat = [0 1; 1 0]
+const _Ymat = [0 -im; im 0]
+const _Zmat = [1 0; 0 -1]
+
+function Base.Matrix(p::AbstractPauli)
+    n = pauli_index(p)
+    if n == 0
+        return _Imat
+    elseif n == 1
+        return _Xmat
+    elseif n == 2
+        return _Ymat
+    else
+        return _Zmat
+    end
+end
+
 """
     pauli_index(p::AbstractPauli)::Int
 
