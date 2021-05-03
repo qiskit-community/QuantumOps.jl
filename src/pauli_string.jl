@@ -5,7 +5,7 @@ export PauliString
 ####
 
 struct PauliString{W<:AbstractPauli, T<:AbstractVector{W}, V}
-    s::T
+    paulis::T
     coeff::V
 end
 
@@ -23,7 +23,7 @@ for func in (:length, :size, :eachindex, :insert!, :push!, :popat!, :splice!, :e
              :iterate)
     @eval begin
         function Base.$func(ps::PauliString, args...)
-            return $func(ps.s, args...)
+            return $func(ps.paulis, args...)
         end
     end
 end
@@ -35,28 +35,29 @@ end
 # Base.setindex!(psvec::Vector{<:PauliString}, val, ind1::Int, ind2::Int) = (psvec[ind1][ind2] = val)
 # Base.setindex!(psvec::Vector{<:PauliString}, val, ind1, ind2) = psvec[ind1][ind2]
 
-Base.:(==)(ps1::PauliString, ps2::PauliString) = ps1.coeff == ps2.coeff && ps1.s == ps2.s
-Base.isless(ps1::PauliString, ps2::PauliString) = isless(ps1.s, ps1.s) || isless(ps1.s, ps2.s)
+Base.:(==)(ps1::PauliString, ps2::PauliString) = ps1.coeff == ps2.coeff && ps1.paulis == ps2.paulis
+Base.isless(ps1::PauliString, ps2::PauliString) = isless(ps1.paulis, ps1.paulis) || isless(ps1.paulis, ps2.paulis)
 
 function Base.show(io::IO, ps::PauliString)
     print(io, ps.coeff, " * ")
-    print(io, ps.s)
+    print(io, ps.paulis)
 end
 
 function Base.:*(ps1::PauliString, ps2::PauliString)
-    s_new, phase = ps1.s * ps2.s
+    s_new, phase = multiply_keeping_phase(ps1.paulis, ps2.paulis)
     return PauliString(s_new, ps1.coeff * ps2.coeff * phase)
 end
 
-Base.:*(z::Number, ps::PauliString) = PauliString(ps.s, ps.coeff * z)
+Base.:*(z::Number, ps::PauliString) = PauliString(ps.paulis, ps.coeff * z)
 Base.:*(ps::PauliString, z::Number) = z * ps
 
-Base.kron(ps1::PauliString, ps2::PauliString) = PauliString(vcat(ps1.s, ps2.s), ps1.coeff * ps2.coeff)
+Base.kron(ps1::PauliString, ps2::PauliString) = PauliString(vcat(ps1.paulis, ps2.paulis), ps1.coeff * ps2.coeff)
 
 Base.one(ps::PauliString{T}) where T = PauliString(fill(one(T), length(ps)))
 
+# TODO: Probably get rid of this
 function Base.rand(::Type{<:PauliString{T}}, n::Integer) where {T <: AbstractPauli}
-    return PauliString([T(i) for i in rand(0:3, n)])
+    return PauliString(rand(T, n))
 end
 
 function Base.kron(paulis::AbstractPauli...)

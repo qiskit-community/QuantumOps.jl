@@ -4,6 +4,8 @@ export Pauli
 #### Pauli
 ####
 
+# TODO: Make this a `module` to create a namespace
+
 struct Pauli <: AbstractPauli
     hi::Bool
     lo::Bool
@@ -33,11 +35,6 @@ end
 
 Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _pauli(Pauli, s)
 
-"""
-    p1::Pauli * p2::Pauli
-
-Multiply single-qubit operators ignoring phase.
-"""
 Base.:*(p1::Pauli, p2::Pauli) = Pauli(p1.hi ⊻ p2.hi, p1.lo ⊻ p2.lo)
 
 function phase(p1::Pauli, p2::Pauli)

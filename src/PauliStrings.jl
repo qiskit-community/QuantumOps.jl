@@ -16,6 +16,8 @@ end
 
 include("abstract_pauli.jl")
 include("pauli_string.jl")
+include("pauli_sum.jl")
 include("pauli.jl")
+
 
 end # module
