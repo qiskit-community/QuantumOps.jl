@@ -18,4 +18,14 @@ using Test
                       (:Z, :I, :Z), (:Z, :X, :Y), (:Z, :Y, :X), (:Z, :Z, :I))
         @test Pauli(a) * Pauli(b) == Pauli(c)
     end
+
+    m = rand(Pauli, (2, 2))
+    @test typeof(m) == Matrix{Pauli}
+    size(m) == (2, 2)
+end
+
+@testset "PauliTerm" begin
+    (I, X, Y, Z) = Pauli.(0:3)
+    @test X ⊗ Y == PauliTerm("XY")
+    @test PauliTerm("XY", 3).coeff == 3
 end

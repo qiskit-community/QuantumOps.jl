@@ -20,7 +20,12 @@ const X = Pauli(0, 1)
 const Y = Pauli(1, 0)
 const Z = Pauli(1, 1)
 
-function Pauli(ind::Integer)
+"""
+    Pauli(ind::Union{Integer, Symbol, AbstractString, AbstractChar})
+
+Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
+"""
+function Pauli(ind::Integer)::Pauli
     if ind == 0
         return Pauli(0, 0)
     elseif ind == 1
@@ -37,7 +42,7 @@ end
 Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 
 """
-    *(p1::Pauli, p2::Pauli) 
+    *(p1::Pauli, p2::Pauli)
 
 Multiplication that returns a `Pauli`, but ignores the phase.
 """

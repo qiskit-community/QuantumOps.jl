@@ -1,5 +1,10 @@
 export PauliSum, add!, mul!
 
+"""
+    struct PauliSum{StringT, CoeffT}
+
+Represents a weighted sum of multi-qubit Pauli strings.
+"""
 struct PauliSum{StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
@@ -19,8 +24,18 @@ struct PauliSum{StringT, CoeffT}
     end
 end
 
+"""
+    PauliSum(strings)
+
+Construct a sum from `strings` with coefficients all equal to one.
+"""
 PauliSum(strings) = PauliSum(strings, fill(_default_coeff, length(strings)))
 
+"""
+    PauliSum(v::AbstractArray{<:PauliTerm})
+
+Construct a sum from an array of `PauliTerm`s.
+"""
 function PauliSum(v::AbstractArray{<:PauliTerm})
     strings = [x.paulis for x in v]
     coeffs = [x.coeff for x in v]
@@ -120,12 +135,19 @@ function add!(psum::PauliSum, ps::PauliTerm...)
     return psum
 end
 
+# TODO: May want to make this a method of LinearAlgebra.mul!
+"""
+    mul!(psum::PauliSum, n)
+
+Multiply the coefficient of `psum` by `n` in place.
+"""
 function mul!(psum::PauliSum, n)
     psum.coeffs .= n .* psum.coeffs
     return psum
 end
 
-#Base.:+(ps::PauliTerm...)::PauliSum = PauliSum(collect(ps))
+Base.one(psum::PauliSum) = one(first(psum))
+
 Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
 
 function Base.show(io::IO, psum::PauliSum)
@@ -142,7 +164,8 @@ function Base.iterate(psum::PauliSum, state=1)
     return (psum[state], state + 1)
 end
 
-# Enables using `findall`, for instance
+# Enables using `findall`, for instance.
+# Fallback methods for `values` and `pairs` are OK.
 function Base.keys(psum::PauliSum)
     return eachindex(psum)
 end

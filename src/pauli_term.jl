@@ -41,10 +41,12 @@ end
 
 Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
 Base.:*(ps::PauliTerm, z::Number) = z * ps
+Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
+Base.:*(p::AbstractPauli, z::Number) = z * p
 
 Base.kron(ps1::PauliTerm, ps2::PauliTerm) = PauliTerm(vcat(ps1.paulis, ps2.paulis), ps1.coeff * ps2.coeff)
 
-Base.one(ps::PauliTerm{T}) where T = PauliTerm(fill(one(T), length(ps)))
+Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(ps.coeff))
 
 # TODO: Probably get rid of this
 function Base.rand(::Type{<:PauliTerm{T}}, n::Integer) where {T <: AbstractPauli}
@@ -55,8 +57,13 @@ function Base.kron(paulis::AbstractPauli...)
     return PauliTerm([paulis...])
 end
 
+# TODO: @code_warntype shows red here
 function Base.kron(ps::Union{PauliTerm, AbstractPauli}...)
-    v = eltype(ps[1])[]
+    if ps[1] isa AbstractPauli
+        v = typeof(ps[1])[]
+    else
+        v = eltype(ps[1])[]
+    end
     coeffs = []
     for x in ps
         if x isa PauliTerm
@@ -69,6 +76,6 @@ function Base.kron(ps::Union{PauliTerm, AbstractPauli}...)
     if isempty(coeffs)
         return PauliTerm(v)
     else
-        return PauliTerm(v, *(coeffs...))
+        return PauliTerm(v, reduce(*, coeffs))
     end
 end
