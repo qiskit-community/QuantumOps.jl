@@ -51,6 +51,7 @@ Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
 Base.:*(ps::PauliTerm, z::Number) = z * ps
 Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
 Base.:*(p::AbstractPauli, z::Number) = z * p
+Base.:/(ps::PauliTerm, z::Number) = PauliTerm(ps.paulis, ps.coeff / z)
 
 Base.:-(p::PauliTerm) = PauliTerm(p.paulis, -p.coeff)
 

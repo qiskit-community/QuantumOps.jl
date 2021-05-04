@@ -1,4 +1,4 @@
-export PauliSum, add!, lmul!
+export PauliSum, add!, lmul!, numeric_function
 
 """
     struct PauliSum{StringT, CoeffT}
@@ -283,6 +283,11 @@ function Base.:*(n, psum::PauliSum)
     PauliSum(psum.strings, n .* psum.coeffs, already_sorted)
 end
 
+function Base.:/(psum::PauliSum, n)
+    already_sorted = true
+    PauliSum(psum.strings, psum.coeffs ./ n, already_sorted)
+end
+
 function Base.:*(pterm::PauliTerm, psum::PauliSum)
     new_coeffs = similar(psum.coeffs)
     new_strings = similar(psum.strings)
@@ -299,6 +304,51 @@ function Base.:(==)(psum1::PauliSum, psum2::PauliSum)
         return false
     end
     return all(i -> psum1[i] == psum2[i], eachindex(psum1))
+end
+
+"""
+    cis(p::PauliTerm)::PauliSum
+
+Compute ``\\exp(i p)``
+"""
+function Base.cis(pt::PauliTerm)
+    # constructing PauliTerms here is not zero cost at run time !
+    # ct = PauliTerm(one(pt).paulis, cos(pt.coeff))
+    # st = PauliTerm(copy(pt.paulis), im * sin(pt.coeff))
+    # return PauliSum([ct, st])
+    return PauliSum([one(pt).paulis, copy(pt.paulis)], [cos(pt.coeff), im * sin(pt.coeff)])
+end
+
+"""
+    exp(p::PauliTerm)::PauliSum
+
+Compute ``\\exp(p)``
+"""
+function Base.exp(pt::PauliTerm)
+    coeff = im * pt.coeff
+    # constructing PauliTerms here is not zero cost at run time !
+    # ct = PauliTerm(one(pt).paulis, cos(coeff))
+    # st = PauliTerm(copy(pt.paulis), -im * sin(coeff))
+    # return PauliSum([ct, st])
+    return PauliSum([one(pt).paulis, copy(pt.paulis)], [cos(coeff), -im * sin(coeff)])
+end
+
+"""
+    numeric_function(pt::PauliTerm, f)::PauliSum
+
+Compute `f(pt)` by decomposing `f` into odd and even terms.
+"""
+function numeric_function(pt::PauliTerm, f)
+    c = pt.coeff
+    fe = (f(c) + f(-c)) / 2
+    fo = (f(c) - f(-c)) / 2
+    return PauliSum([one(pt).paulis, copy(pt.paulis)], [fe, fo])
+end
+
+for f in (:tan, :sqrt, :sind, :sinpi, :cospi, :cispi, :sinh, :tanh,
+          :acos, :asin, :atan, :sec, :csc, :cot, :log, :log2, :log10,
+          :log1p)
+    @eval Base.$f(pt::PauliTerm) = numeric_function(pt, $f)
 end
 
 Base.Matrix(ps::PauliSum) = sum(Matrix(p) for p in ps)

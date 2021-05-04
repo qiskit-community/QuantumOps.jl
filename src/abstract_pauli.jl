@@ -125,6 +125,7 @@ end
 
 """
     weight(v::AbstractArray{<:AbstractPauli})
+    weight(ps::PauliTerm)
 
 Count the number of Paulis in the string that are not the identity.
 """
