@@ -21,6 +21,6 @@ include("pauli_term.jl")
 include("pauli_sum.jl")
 include("pauli.jl")
 include("default_types.jl")
-include("iphase.jl")
+include("igroup.jl")
 
 end # module

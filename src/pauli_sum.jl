@@ -35,6 +35,12 @@ function Base.show(io::IO, psum::PauliSum)
     end
 end
 
+function Base.copy(ps::PauliSum)
+    (new_strings, new_coeffs) = (copy.(ps.strings), copy(ps.coeffs))
+    already_sorted = true
+    return PauliSum(new_strings, new_coeffs, already_sorted)
+end
+
 ####
 #### Constructors
 ####
@@ -91,8 +97,9 @@ end
 """
     isapprox_zero(x::Number)
 
-Define methods for this function for symbolic
-libraries, for example.
+This function exists because we define
+methods for special cases, such as symbolic
+libraries.
 """
 function isapprox_zero(x::Number)
     return isapprox(x, zero(x))
