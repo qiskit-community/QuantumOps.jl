@@ -1,4 +1,4 @@
-export PauliSum, add!, mul!
+export PauliSum, add!, lmul!
 
 """
     struct PauliSum{StringT, CoeffT}
@@ -205,13 +205,12 @@ function add!(to::PauliSum, from::PauliSum)
     return to
 end
 
-# TODO: May want to make this a method of LinearAlgebra.mul!
 """
-    mul!(psum::PauliSum, n)
+    lmul!(psum::PauliSum, n)
 
-Multiply the coefficient of `psum` by `n` in place.
+Left multiply the coefficient of `psum` by `n` in place.
 """
-function LinearAlgebra.mul!(psum::PauliSum, n)
+function LinearAlgebra.lmul!(psum::PauliSum, n)
     psum.coeffs .= n .* psum.coeffs
     return psum
 end
