@@ -24,18 +24,6 @@ struct PauliSum{StringT, CoeffT}
     end
 end
 
-# For testing. Sometimes twice slower than constructing all at once
-# Testing that this gives the same result as standard construction
-# is a good idea
-# TODO: move this to test suite
-function make_pauli_sum(strings)
-    s = PauliSum([first(strings)])
-    for i in 2:length(strings)
-        add!(s, strings[i])
-    end
-    return s
-end
-
 """
     PauliSum(strings)
 
@@ -44,13 +32,23 @@ Construct a sum from `strings` with coefficients all equal to one.
 PauliSum(strings) = PauliSum(strings, fill(_default_coeff, length(strings)))
 
 """
-    PauliSum(v::AbstractArray{<:PauliTerm})
+    PauliSum(v::AbstractVector{<:PauliTerm})
 
 Construct a sum from an array of `PauliTerm`s.
 """
-function PauliSum(v::AbstractArray{<:PauliTerm})
+function PauliSum(v::AbstractVector{<:PauliTerm})
     strings = [x.paulis for x in v]
     coeffs = [x.coeff for x in v]
+    return PauliSum(strings, coeffs)
+end
+
+"""
+    PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_default_coeff, size(v, 1)))
+
+Construct a sum from a matrix of single-qubit Pauli operators.
+"""
+function PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_default_coeff, size(v, 1)))
+    strings = [v[i,:] for i in 1:size(v,1)]
     return PauliSum(strings, coeffs)
 end
 
@@ -135,16 +133,17 @@ for func in (:length, :eachindex, :lastindex, :firstindex)
     end
 end
 
+# Fails for empty psum
 function Base.size(psum::PauliSum)
-    return (length(psum), 1)
+    return (length(psum), length(first(psum)))
 end
 
 function Base.size(psum::PauliSum, i::Integer)
     return size(psum)[i]
 end
 
-Base.getindex(psum::PauliSum, i::Integer) = PauliTerm(psum.strings[i], psum.coeffs[i])
-
+Base.getindex(psum::PauliSum, j::Integer) = PauliTerm(psum.strings[j], psum.coeffs[j])
+Base.getindex(psum::PauliSum, j::Integer, k::Integer) = psum.strings[j][k]
 Base.getindex(psum::PauliSum, inds) = PauliSum(psum.strings[inds], psum.coeffs[inds])
 
 # TODO: Should we check that the length of the PauliTerm is correct ?
@@ -205,6 +204,7 @@ function add!(to::PauliSum, from::PauliSum)
     return to
 end
 
+# We use lmul! because that's how LinearAlgebra offers "scaling" of a Matrix (or rmul!)
 """
     lmul!(psum::PauliSum, n)
 
@@ -215,6 +215,7 @@ function LinearAlgebra.lmul!(psum::PauliSum, n)
     return psum
 end
 
+# This will fail for an empty `psum`. Use type info instead.
 Base.one(psum::PauliSum) = one(first(psum))
 
 Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
@@ -237,6 +238,7 @@ function Base.show(io::IO, psum::PauliSum)
     end
 end
 
+# Iterate uses getindex to return `PauliTerm`s.
 function Base.iterate(psum::PauliSum, state=1)
     if state > lastindex(psum)
         return nothing
