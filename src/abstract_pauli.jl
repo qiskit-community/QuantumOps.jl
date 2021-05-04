@@ -48,12 +48,12 @@ function _AbstractPauli(::Type{PauliT}, s::AbstractChar) where PauliT
     end
 end
 
-Base.one(::Type{PauliT}) where PauliT <: AbstractPauli = PauliT(0)
+Base.one(::Type{PauliT}) where PauliT <: AbstractPauli = PauliT(:I)
 Base.one(::PauliT) where PauliT <: AbstractPauli = one(PauliT)
 LinearAlgebra.ishermitian(::PauliT) where PauliT <: AbstractPauli = true
-LinearAlgebra.isposdef(::PauliT) where PauliT <: AbstractPauli = p === PauliT(0)
-LinearAlgebra.isdiag(p::PauliT) where PauliT <: AbstractPauli = p === PauliT(0)
-LinearAlgebra.issymmetric(p::PauliT) where PauliT <: AbstractPauli = p != PauliT(2)
+LinearAlgebra.isposdef(::PauliT) where PauliT <: AbstractPauli = p === PauliT(:I)
+LinearAlgebra.isdiag(p::PauliT) where PauliT <: AbstractPauli = (p === PauliT(:I) || p === PauliT(:Z))
+LinearAlgebra.issymmetric(p::PauliT) where PauliT <: AbstractPauli = p != PauliT(:Y)
 
 # TODO: This function is not defined in Julia Base and stdlibs
 # We need to decide which package should own it.
