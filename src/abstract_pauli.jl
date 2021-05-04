@@ -112,7 +112,9 @@ function multiply_keeping_phase(s1::AbstractArray{<:AbstractPauli}, s2::Abstract
         cum_imag_units += product[:has_imag_unit]
         s_out[i] = product[:bare_pauli]
     end
-    return(s_out, (-1) ^ cum_sign_flips * im ^ cum_imag_units)
+    sign = iseven(cum_sign_flips) ? 1 : -1
+    cum_imag_units = mod(cum_imag_units, 4)
+    return(s_out, sign * im ^ cum_imag_units)
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{PauliT}) where {PauliT <: AbstractPauli}
