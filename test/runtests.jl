@@ -45,3 +45,15 @@ end
     @test PauliTerm("IXYZ") == PauliTerm([0, 1, 2, 3])
     @test PauliTerm("IXYZ", 2) == PauliTerm([0, 1, 2, 3], 2)
 end
+
+# For testing. Sometimes twice slower than constructing all at once
+# Testing that this gives the same result as standard construction
+# is a good idea
+# TODO: move this to test suite
+# function make_pauli_sum(strings)
+#     s = PauliSum([first(strings)])
+#     for i in 2:length(strings)
+#         add!(s, strings[i])
+#     end
+#     return s
+# end

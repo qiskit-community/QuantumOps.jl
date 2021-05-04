@@ -9,7 +9,7 @@ struct PauliSum{StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
-    function PauliSum(strings, coeffs)
+    function PauliSum(strings, coeffs, already_sorted=false)
         if length(strings) != length(coeffs)
             throw(DimensionMismatch("bad dims"))
         end
@@ -18,23 +18,26 @@ struct PauliSum{StringT, CoeffT}
             if ! all(x -> length(x) == n, strings)
                 throw(DimensionMismatch("Pauli strings are of differing lengths."))
             end
-            sort_and_sum_duplicates!(strings, coeffs)
+            if ! already_sorted
+                sort_and_sum_duplicates!(strings, coeffs)
+            end
         end
         return new{typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
 
-# For testing. Sometimes twice slower than constructing all at once
-# Testing that this gives the same result as standard construction
-# is a good idea
-# TODO: move this to test suite
-function make_pauli_sum(strings)
-    s = PauliSum([first(strings)])
-    for i in 2:length(strings)
-        add!(s, strings[i])
+function Base.show(io::IO, psum::PauliSum)
+    for i in eachindex(psum)
+        show(io, psum[i])
+        if i != lastindex(psum)
+            print(io, "\n")
+        end
     end
-    return s
 end
+
+####
+#### Constructors
+####
 
 """
     PauliSum(strings)
@@ -44,15 +47,29 @@ Construct a sum from `strings` with coefficients all equal to one.
 PauliSum(strings) = PauliSum(strings, fill(_default_coeff, length(strings)))
 
 """
-    PauliSum(v::AbstractArray{<:PauliTerm})
+    PauliSum(v::AbstractVector{<:PauliTerm})
 
 Construct a sum from an array of `PauliTerm`s.
 """
-function PauliSum(v::AbstractArray{<:PauliTerm})
+function PauliSum(v::AbstractVector{<:PauliTerm})
     strings = [x.paulis for x in v]
     coeffs = [x.coeff for x in v]
     return PauliSum(strings, coeffs)
 end
+
+"""
+    PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_default_coeff, size(v, 1)))
+
+Construct a sum from a matrix of single-qubit Pauli operators.
+"""
+function PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_default_coeff, size(v, 1)))
+    strings = [v[i,:] for i in 1:size(v,1)]
+    return PauliSum(strings, coeffs)
+end
+
+####
+#### Canonicalization / sorting
+####
 
 function sort_and_sum_duplicates!(psum::PauliSum)
     sort_and_sum_duplicates!(psum.strings, psum.coeffs)
@@ -127,6 +144,10 @@ function sort_pauli_sum!(strings, coeffs)
     return nothing
 end
 
+####
+#### Array-like functions
+####
+
 for func in (:length, :eachindex, :lastindex, :firstindex)
     @eval begin
         function Base.$func(ps::PauliSum, args...)
@@ -135,17 +156,37 @@ for func in (:length, :eachindex, :lastindex, :firstindex)
     end
 end
 
+# Fails for empty psum
 function Base.size(psum::PauliSum)
-    return (length(psum), 1)
+    return (length(psum), length(first(psum)))
 end
 
 function Base.size(psum::PauliSum, i::Integer)
     return size(psum)[i]
 end
 
-Base.getindex(psum::PauliSum, i::Integer) = PauliTerm(psum.strings[i], psum.coeffs[i])
-
+Base.getindex(psum::PauliSum, j::Integer) = PauliTerm(psum.strings[j], psum.coeffs[j])
+Base.getindex(psum::PauliSum, j::Integer, k::Integer) = psum.strings[j][k]
+# TODO: Use already_sorted flag ?
 Base.getindex(psum::PauliSum, inds) = PauliSum(psum.strings[inds], psum.coeffs[inds])
+
+# Iterate uses getindex to return `PauliTerm`s.
+function Base.iterate(psum::PauliSum, state=1)
+    if state > lastindex(psum)
+        return nothing
+    end
+    return (psum[state], state + 1)
+end
+
+# Enables using `findall`, for instance.
+# Fallback methods for `values` and `pairs` are OK.
+function Base.keys(psum::PauliSum)
+    return eachindex(psum)
+end
+
+####
+#### Updating / adding elements
+####
 
 # TODO: Should we check that the length of the PauliTerm is correct ?
 """
@@ -175,7 +216,7 @@ the `ps`, `psum` will be left sorted and with no duplicates.
 function add!(psum::PauliSum, ps::PauliTerm...)
     for p in ps
         inds = searchsorted(psum.strings, p.paulis)
-        if length(inds) == 0 # p.paulis not found
+        if length(inds) == 0 # p.paulis not found, add a new term
             insert!(psum.strings, first(inds), p.paulis)
             insert!(psum.coeffs, first(inds), p.coeff)
         elseif length(inds) == 1 # one element equal to p.paulis
@@ -205,6 +246,11 @@ function add!(to::PauliSum, from::PauliSum)
     return to
 end
 
+####
+#### Algebra / mathematical operations
+####
+
+# We use lmul! because that's how LinearAlgebra offers "scaling" of a Matrix (or rmul!)
 """
     lmul!(psum::PauliSum, n)
 
@@ -215,39 +261,37 @@ function LinearAlgebra.lmul!(psum::PauliSum, n)
     return psum
 end
 
+# This will fail for an empty `psum`. Use type info instead.
 Base.one(psum::PauliSum) = one(first(psum))
 
 Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
 
-Base.:-(psum::PauliSum) = PauliSum(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs)
+function Base.:-(psum::PauliSum)
+    already_sorted = true
+    PauliSum(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
+end
+
+function Base.:*(n, psum::PauliSum)
+    already_sorted = true
+    PauliSum(psum.strings, n .* psum.coeffs, already_sorted)
+end
+
+function Base.:*(pterm::PauliTerm, psum::PauliSum)
+    new_coeffs = similar(psum.coeffs)
+    new_strings = similar(psum.strings)
+    @inbounds for j in eachindex(psum)
+        new_term = pterm * psum[j]
+        new_coeffs[j] = new_term.coeff
+        new_strings[j] = new_term.paulis
+    end
+    return PauliSum(new_strings, new_coeffs)
+end
 
 function Base.:(==)(psum1::PauliSum, psum2::PauliSum)
     if length(psum1) != length(psum2)
         return false
     end
     return all(i -> psum1[i] == psum2[i], eachindex(psum1))
-end
-
-function Base.show(io::IO, psum::PauliSum)
-    for i in eachindex(psum)
-        show(io, psum[i])
-        if i != lastindex(psum)
-            print(io, "\n")
-        end
-    end
-end
-
-function Base.iterate(psum::PauliSum, state=1)
-    if state > lastindex(psum)
-        return nothing
-    end
-    return (psum[state], state + 1)
-end
-
-# Enables using `findall`, for instance.
-# Fallback methods for `values` and `pairs` are OK.
-function Base.keys(psum::PauliSum)
-    return eachindex(psum)
 end
 
 Base.Matrix(ps::PauliSum) = sum(Matrix(p) for p in ps)

@@ -3,6 +3,15 @@ import LinearAlgebra, Random
 
 abstract type AbstractPauli end
 
+Base.show(io::IO, p::AbstractPauli) = print(io, _pauli_chars[pauli_index(p) + 1])
+
+# May want to define `display` as well
+function Base.show(io::IO, ps::AbstractArray{<:AbstractPauli})
+    for p in ps
+        show(io, p)
+    end
+end
+
 ### The following methods are called by concrete subtypes like this:
 ### Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 
@@ -75,15 +84,6 @@ characters I, X, Y, Z.
 Vector{T}(ps::AbstractString) where {T <: AbstractPauli} = [T(s) for s in ps]
 
 const _pauli_chars = ('I', 'X', 'Y', 'Z')
-
-Base.show(io::IO, p::AbstractPauli) = print(io, _pauli_chars[pauli_index(p) + 1])
-
-# May want to define `display` as well
-function Base.show(io::IO, ps::AbstractArray{<:AbstractPauli})
-    for p in ps
-        show(io, p)
-    end
-end
 
 Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? one(p) : p
 
