@@ -121,23 +121,12 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{PauliT}) wher
     return PauliT(rand(rng, 0:3))
 end
 
+"""
+    weight(v::AbstractArray{<:AbstractPauli})
+
+Count the number of Paulis in the string that are not the identity.
+"""
 weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> pauli_index(pauli) != 0, v)
-
-####
-#### Subtypes of AbstractPauli must implement these
-####
-
-# The function `*` must return only the bare Pauli. That is the phase +-im must
-# be discarded
-
-"""
-    p1::AbstractPauli * p2::AbstractPauli
-
-Multiply single-qubit operators ignoring phase.
-"""
-function Base.:*(p1::AbstractPauli, p2::AbstractPauli)
-    throw(MethodError(*, (p1, p2)))
-end
 
 """
     phase(p1::AbstractPauli, p2::AbstractPauli)
@@ -183,6 +172,22 @@ function Base.Matrix(p::AbstractPauli)
     else
         return _Zmat
     end
+end
+
+####
+#### Subtypes of AbstractPauli must implement these
+####
+
+# The function `*` must return only the bare Pauli. That is the phase +-im must
+# be discarded
+
+"""
+    p1::AbstractPauli * p2::AbstractPauli
+
+Multiply single-qubit operators ignoring phase.
+"""
+function Base.:*(p1::AbstractPauli, p2::AbstractPauli)
+    throw(MethodError(*, (p1, p2)))
 end
 
 """
