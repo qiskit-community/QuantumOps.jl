@@ -48,12 +48,12 @@ function _AbstractPauli(::Type{PauliT}, s::AbstractChar) where PauliT
     end
 end
 
-Base.one(::Type{PauliT}) where PauliT <: AbstractPauli = PauliT(0)
+Base.one(::Type{PauliT}) where PauliT <: AbstractPauli = PauliT(:I)
 Base.one(::PauliT) where PauliT <: AbstractPauli = one(PauliT)
 LinearAlgebra.ishermitian(::PauliT) where PauliT <: AbstractPauli = true
-LinearAlgebra.isposdef(::PauliT) where PauliT <: AbstractPauli = p === PauliT(0)
-LinearAlgebra.isdiag(p::PauliT) where PauliT <: AbstractPauli = p === PauliT(0)
-LinearAlgebra.issymmetric(p::PauliT) where PauliT <: AbstractPauli = p != PauliT(2)
+LinearAlgebra.isposdef(::PauliT) where PauliT <: AbstractPauli = p === PauliT(:I)
+LinearAlgebra.isdiag(p::PauliT) where PauliT <: AbstractPauli = (p === PauliT(:I) || p === PauliT(:Z))
+LinearAlgebra.issymmetric(p::PauliT) where PauliT <: AbstractPauli = p != PauliT(:Y)
 
 # TODO: This function is not defined in Julia Base and stdlibs
 # We need to decide which package should own it.
@@ -112,30 +112,21 @@ function multiply_keeping_phase(s1::AbstractArray{<:AbstractPauli}, s2::Abstract
         cum_imag_units += product[:has_imag_unit]
         s_out[i] = product[:bare_pauli]
     end
-    return(s_out, (-1) ^ cum_sign_flips * im ^ cum_imag_units)
+    sign = iseven(cum_sign_flips) ? 1 : -1
+    cum_imag_units = mod(cum_imag_units, 4)
+    return(s_out, sign * im ^ cum_imag_units)
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{PauliT}) where {PauliT <: AbstractPauli}
     return PauliT(rand(rng, 0:3))
 end
 
+"""
+    weight(v::AbstractArray{<:AbstractPauli})
+
+Count the number of Paulis in the string that are not the identity.
+"""
 weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> pauli_index(pauli) != 0, v)
-
-####
-#### Subtypes of AbstractPauli must implement these
-####
-
-# The function `*` must return only the bare Pauli. That is the phase +-im must
-# be discarded
-
-"""
-    p1::AbstractPauli * p2::AbstractPauli
-
-Multiply single-qubit operators ignoring phase.
-"""
-function Base.:*(p1::AbstractPauli, p2::AbstractPauli)
-    throw(MethodError(*, (p1, p2)))
-end
 
 """
     phase(p1::AbstractPauli, p2::AbstractPauli)
@@ -181,6 +172,22 @@ function Base.Matrix(p::AbstractPauli)
     else
         return _Zmat
     end
+end
+
+####
+#### Subtypes of AbstractPauli must implement these
+####
+
+# The function `*` must return only the bare Pauli. That is the phase +-im must
+# be discarded
+
+"""
+    p1::AbstractPauli * p2::AbstractPauli
+
+Multiply single-qubit operators ignoring phase.
+"""
+function Base.:*(p1::AbstractPauli, p2::AbstractPauli)
+    throw(MethodError(*, (p1, p2)))
 end
 
 """
