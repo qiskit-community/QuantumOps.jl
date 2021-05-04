@@ -5,10 +5,13 @@ struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V}
     coeff::V
 end
 
-function Base.show(io::IO, ps::PauliTerm)
+# type params only to get correct dispatch. There must be a better way
+function Base.show(io::IO, ps::PauliTerm{T,V,W}) where {T,V,W}
     print(io, ps.coeff, " * ")
     print(io, ps.paulis)
 end
+
+Base.copy(pt::PauliTerm) = PauliTerm(copy(pt.paulis), copy(pt.coeff))
 
 const _default_coeff = Complex(1, 0)
 
@@ -102,7 +105,7 @@ function Base.Matrix(pt::PauliTerm)
     else
         matrix = kron(Matrix.(pt.paulis)...)
     end
-    # inplace multiplication requires same types in operands
+    # Inplace multiplication requires same types in operands.
     # So, we use multiplication with copy.
     return pt.coeff * matrix
 end
