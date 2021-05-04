@@ -14,6 +14,8 @@ end
 
 pauli_index(p::Pauli) = 2 * p.hi + p.lo
 
+Base.copy(p::Pauli) = p
+
 # For convenience. Must be explicitly imported
 const I = Pauli(0, 0)
 const X = Pauli(0, 1)

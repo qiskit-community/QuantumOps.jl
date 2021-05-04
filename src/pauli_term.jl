@@ -5,6 +5,11 @@ struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V}
     coeff::V
 end
 
+function Base.show(io::IO, ps::PauliTerm)
+    print(io, ps.coeff, " * ")
+    print(io, ps.paulis)
+end
+
 const _default_coeff = Complex(1, 0)
 
 PauliTerm(s) = PauliTerm(s, _default_coeff)
@@ -33,11 +38,6 @@ Base.:(==)(ps1::PauliTerm, ps2::PauliTerm) = ps1.coeff == ps2.coeff && ps1.pauli
 Base.isless(ps1::PauliTerm, ps2::PauliTerm) = isless(ps1.paulis, ps1.paulis) || isless(ps1.paulis, ps2.paulis)
 
 weight(ps::PauliTerm) = weight(ps.paulis)
-
-function Base.show(io::IO, ps::PauliTerm)
-    print(io, ps.coeff, " * ")
-    print(io, ps.paulis)
-end
 
 function Base.:*(ps1::PauliTerm, ps2::PauliTerm)
     s_new, phase = multiply_keeping_phase(ps1.paulis, ps2.paulis)
