@@ -345,7 +345,7 @@ function numeric_function(pt::PauliTerm, f)
     return PauliSum([one(pt).paulis, copy(pt.paulis)], [fe, fo])
 end
 
-for f in (:tan, :sqrt, :sind, :sinpi, :cospi, :cispi, :sinh, :tanh,
+for f in (:cos, :sin, :tan, :sqrt, :sind, :sinpi, :cospi, :cispi, :sinh, :tanh,
           :acos, :asin, :atan, :sec, :csc, :cot, :log, :log2, :log10,
           :log1p)
     @eval Base.$f(pt::PauliTerm) = numeric_function(pt, $f)
