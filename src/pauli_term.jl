@@ -54,6 +54,8 @@ Base.:*(p::AbstractPauli, z::Number) = z * p
 
 Base.:-(p::PauliTerm) = PauliTerm(p.paulis, -p.coeff)
 
+Base.inv(p::PauliTerm) = PauliTerm(p.paulis, inv(p.coeff))
+
 function Base.:^(p::PauliTerm, n::Integer)
     new_coeff = p.coeff^n
     if iseven(n)

@@ -64,6 +64,8 @@ LinearAlgebra.isposdef(::PauliT) where PauliT <: AbstractPauli = p === PauliT(:I
 LinearAlgebra.isdiag(p::PauliT) where PauliT <: AbstractPauli = (p === PauliT(:I) || p === PauliT(:Z))
 LinearAlgebra.issymmetric(p::PauliT) where PauliT <: AbstractPauli = p != PauliT(:Y)
 
+Base.inv(p::AbstractPauli) = p
+
 # TODO: This function is not defined in Julia Base and stdlibs
 # We need to decide which package should own it.
 isunitary(::PauliT) where PauliT <: AbstractPauli = true
