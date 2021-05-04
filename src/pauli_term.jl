@@ -12,6 +12,10 @@ function PauliTerm(::Type{T}, s::AbstractString, coeff=_default_coeff) where T <
     return PauliTerm(Vector{T}(s), coeff)
 end
 
+function PauliTerm(::Type{T}, s::Symbol, coeff=_default_coeff) where T <: AbstractPauli
+    return PauliTerm(Vector{T}(String(s)), coeff)
+end
+
 # Probably don't need to provide this.
 # PauliTerm(ps::Tuple, coeff=_default_coeff) = PauliTerm([ps...], coeff)
 

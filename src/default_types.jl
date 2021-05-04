@@ -3,6 +3,7 @@
 ####
 
 PauliTerm(s::AbstractString, coeff=_default_coeff) = PauliTerm(Pauli, s, coeff)
+PauliTerm(s::Symbol, coeff=_default_coeff) = PauliTerm(Pauli, s, coeff)
 
 """
     PauliTerm(inds::AbstractVector{<:Integer}, coeff=_default_coeff)
