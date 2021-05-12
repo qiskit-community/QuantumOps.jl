@@ -27,17 +27,17 @@ end
 """
     z4group0(n::Integer)::Z4Group0
 
-Perform zero-based index `n` into `(1, -1, i, -i, 0)`.
+Perform one-based index `n` into `(1, -1, i, -i, 0)`.
 """
 function z4group0(n::Integer)
-    if n == 4
+    if n == 5
         return zero(Z4Group0)
     end
     return Z4Group0(z4group(n), true)
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Z4Group0})
-    return z4group0(rand(rng, 0:4))
+    return z4group0(rand(rng, 1:5))
 end
 
 ####

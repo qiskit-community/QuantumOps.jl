@@ -37,6 +37,7 @@ const Z4GROUP_ELEMENTS = (Z4GROUP_i, Z4GROUP_minus_one, Z4GROUP_minus_i, Z4GROUP
 """
     z4group(n::Integer)::Z4Group
 
+One based ??
 Perform zero-based index `n` into `(i, -1, -i, 1)`.
 """
 z4group(n::Integer) = Z4GROUP_ELEMENTS[n]
