@@ -1,3 +1,5 @@
+export PauliSum2
+
 """
     struct PauliSum{StringT, CoeffT}
 
@@ -74,6 +76,10 @@ Construct a Pauli decomposition of `matrix`, that is,
 a `PauliSum` representing `matrix`.
 """
 function PauliSum(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
+    return pauli_sum_from_matrix_threaded(PauliT, matrix)
+end
+
+function pauli_sum_from_matrix_one_thread(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
     nside = LinearAlgebra.checksquare(matrix)
     n_qubits = checkispow2(nside)
     denom = 2^n_qubits  # == nside
@@ -86,6 +92,26 @@ function PauliSum(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
         end
     end
     return s
+end
+
+function pauli_sum_from_matrix_threaded(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
+    nside = LinearAlgebra.checksquare(matrix)
+    n_qubits = checkispow2(nside)
+    denom = 2^n_qubits  # == nside
+    sums = [PauliSum(PauliT) for i in 1:Threads.nthreads()]
+    Threads.@threads for j in 0:(4^n_qubits - 1)
+        threadid = Threads.threadid()
+        pauli = PauliTerm(PauliT, j, n_qubits)
+        mp = SparseArrays.sparse(pauli)  # Much faster than dense
+        coeff = LinearAlgebra.dot(mp, matrix)
+        if ! isapprox_zero(coeff)
+            push!(sums[threadid], (pauli.paulis, coeff / denom))
+        end
+    end
+    for ind in 2:length(sums)
+        add!(sums[1], sums[ind])
+    end
+    return sums[1]
 end
 
 function Base.copy(ps::PauliSum)
