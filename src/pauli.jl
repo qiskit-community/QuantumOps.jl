@@ -65,6 +65,6 @@ Base.isone(p::Pauli) = p === one(Pauli)
 
 Multiplication that returns a `Pauli`, but ignores the phase.
 """
-Base.:*(p1::Pauli, p2::Pauli) = Pauli(p1.hi ⊻ p2.hi, p1.lo ⊻ p2.lo)
+@inline Base.:*(p1::Pauli, p2::Pauli) = Pauli(p1.hi ⊻ p2.hi, p1.lo ⊻ p2.lo)
 
 end # module Paulis
