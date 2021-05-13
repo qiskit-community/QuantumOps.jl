@@ -68,10 +68,10 @@ function PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF
 end
 
 """
-    PauliSum(::Type{PauliT}, matrix::AbstractMatrix{<:Number})
+    PauliSum(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true)
 
-Construct a Pauli decomposition of `matrix`, that is,
-a `PauliSum` representing `matrix`.
+Construct a Pauli decomposition of `matrix`, that is, a `PauliSum` representing `matrix`.
+If `thread` is `true`, use a multi-threaded algorithm for increased performance.
 """
 function PauliSum(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true) where PauliT
     if threads
