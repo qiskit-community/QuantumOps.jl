@@ -1,8 +1,11 @@
 ####
-#### Convenience methods making `PauliDefault` the default `AbstractPauli
+#### Convenience methods making one subtype of `AbstractPauli` the default.
 ####
 
-const PauliDefault = PauliI
+## Choose one of the subtypes of `AbstractPauli`; `Pauli`, or `PauliI`.
+## Reducing a large array with `*` is 5x faster with Pauli than PauliI
+
+const PauliDefault = Pauli
 
 PauliTerm(s::AbstractString, coeff=_DEFAULT_COEFF) = PauliTerm(PauliDefault, s, coeff)
 PauliTerm(s::Symbol, coeff=_DEFAULT_COEFF) = PauliTerm(PauliDefault, s, coeff)
