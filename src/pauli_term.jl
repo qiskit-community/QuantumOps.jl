@@ -38,6 +38,10 @@ function PauliTerm(paulis::AbstractPauli...; coeff=_DEFAULT_COEFF) where T <: Ab
     return PauliTerm([paulis...], coeff)
 end
 
+function PauliTerm(::Type{T}, inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    return PauliTerm(T.(inds), coeff)
+end
+
 Base.copy(pt::PauliTerm) = PauliTerm(copy(pt.paulis), copy(pt.coeff))
 
 ### This is simple, but not flexible

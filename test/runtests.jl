@@ -55,6 +55,7 @@ end
     @test t^4 == t.coeff^4 * one(t)
     @test PauliTerm("IXYZ") == PauliTerm([0, 1, 2, 3])
     @test PauliTerm("IXYZ", 2) == PauliTerm([0, 1, 2, 3], 2)
+    @test PauliTerm(X, Y, Z) == PauliTerm("XYZ")
 end
 
 @testset "PauliSum" begin
