@@ -111,14 +111,24 @@ const _Xmat = float.([0 1; 1 0])
 const _Ymat = float.([0 -im; im 0])
 const _Zmat = float.([1 0; 0 -1])
 
+const _Isparse = SparseArrays.sparse(_Imat)
+const _Xsparse = SparseArrays.sparse(_Xmat)
+const _Ysparse = SparseArrays.sparse(_Ymat)
+const _Zsparse = SparseArrays.sparse(_Zmat)
+
 const _SImat = @SMatrix [1.0 0; 0 1]
 const _SXmat = @SMatrix [0.0 1; 1 0]
 const _SYmat = @SMatrix [0.0 -im; im 0]
 const _SZmat = @SMatrix [1.0 0; 0 -1]
 
 function Base.Matrix(p::AbstractPauli)
-    PAULI_MATRICES =   (_Imat, _Xmat, _Ymat, _Zmat)
-    return PAULI_MATRICES[pauli_index(p) + 1]
+    matrices = (_Imat, _Xmat, _Ymat, _Zmat)
+    return matrices[pauli_index(p) + 1]
+end
+
+function SparseArrays.sparse(p::AbstractPauli)
+    matrices = (_Isparse, _Xsparse, _Ysparse, _Zsparse)
+    return matrices[pauli_index(p) + 1]
 end
 
 ####
@@ -128,8 +138,8 @@ end
 Base.size(::AbstractPauli) = (2, 2)
 
 function smatrix(p::AbstractPauli)
-    STATIC_PAULI_MATRICES = (_SImat, _SXmat, _SYmat, _SZmat)
-    return STATIC_PAULI_MATRICES[pauli_index(p) + 1]
+    static = (_SImat, _SXmat, _SYmat, _SZmat)
+    return static[pauli_index(p) + 1]
 end
 
 Base.getindex(p::AbstractPauli, i, j) = smatrix(p)[i, j]
