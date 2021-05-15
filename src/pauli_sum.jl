@@ -3,8 +3,8 @@
 
 Represents a weighted sum (ie a linear combination) of multi-qubit Pauli strings.
 
-By default `PauliSum`s are constructed and maintained with terms sorted in a
-canonical order and with no duplicate Pauli strings. All constructors
+By default `PauliSum`s are constructed and maintained with terms sorted in a canonical order
+and with no duplicate Pauli strings.
 """
 struct PauliSum{StringT, CoeffT}
     strings::StringT
@@ -202,8 +202,35 @@ end
 ##### Conversion
 #####
 
+"""
+    Matrix(ps::PauliSum)
+
+Convert `ps` to a dense `Matrix`.
+
+# Examples
+
+We convert a matrix to a `PauliSum` and then back to a matrix.
+```jldoctest
+julia> m = [0.1 0.2; 0.3 0.4];
+
+julia> PauliSum(m)
+(0.25 + 0.0im) * I
+(0.25 + 0.0im) * X
+(0.0 - 0.04999999999999999im) * Y
+(-0.15000000000000002 + 0.0im) * Z
+
+julia> Matrix(PauliSum(m)) ≈ m
+true
+```
+"""
 Base.Matrix(ps::PauliSum) = Matrix(SparseArrays.sparse(ps))
+
 ## ThreadsX helps enormously for large sums. 22x faster for 4^8 terms
+"""
+    sparse(ps::PauliSum)
+
+Convert `ps` to a sparse matrix.
+"""
 SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
 
 # Using Z4Group0 is 30% faster in many tests, for dense matrices

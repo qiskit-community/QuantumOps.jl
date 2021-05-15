@@ -1,5 +1,8 @@
-# TODO: Allow Tuple as well as Vector
-# struct PauliTerm{W<:AbstractPauli, T, V}
+"""
+    struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V}
+
+Represents a Pauli string (tensor product of Paulis) with a coefficient.
+"""
 struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V}
     paulis::T
     coeff::V
@@ -17,18 +20,37 @@ Construct a `PauliTerm` with default coefficient.
 PauliTerm(s) = PauliTerm(s, _DEFAULT_COEFF)
 
 """
-    PauliTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF)
+    PauliTerm(::Type{T}=PauliDefault, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
 
-Construct a `PauliTerm`, where `s` is of the form "XYZ", etc.
+Construct a `PauliTerm`, where `s` is of the form "XYZ", etc. If `::Type{T}` is
+ommited the default implementation of `AbstractPauli` is used.
+
+# Examples
+```jldoctest
+julia> PauliTerm("XX")
+(1 + 0im) * XX
+
+julia> PauliTerm(Pauli, "IXYZ")
+(1 + 0im) * IXYZ
+
+julia> PauliTerm(Pauli, "IXYZ", 2.0)
+2.0 * IXYZ
+```
 """
 function PauliTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
     return PauliTerm(Vector{T}(s), coeff)
 end
 
 """
-    PauliTerm(::Type{T}, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    PauliTerm(::Type{T}=PauliDefault, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
 
 Construct a `PauliTerm`, where `s` is of the form `:XYZ`, etc.
+
+# Examples
+```jldoctest
+julia> PauliTerm(Pauli, :IZXY)
+(1 + 0im) * IZXY
+```
 """
 function PauliTerm(::Type{T}, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
     return PauliTerm(Vector{T}(String(s)), coeff)
@@ -107,13 +129,13 @@ end
 SparseArrays.sparse(pt::PauliTerm) = SparseArrays.sparse(Float64, pt)
 
 function SparseArrays.sparse(::Type{Float64}, pt::PauliTerm)
-        matrix = _kron(SparseArrays.sparse.(Matrix.(pt.paulis))...)  # TODO: precompute sparse arrays.
+    matrix = _kron(SparseArrays.sparse.(pt.paulis)...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
 # FIXME: broken, should throw inexact error earlier rather than return wrong type
 function SparseArrays.sparse(::Type{Z4Group0}, pt::PauliTerm)
-    matrix = _kron((Z4Group0.(m) for m in SparseArrays.sparse.(Matrix.(pt.paulis)))...)
+    matrix = _kron((Z4Group0.(m) for m in SparseArrays.sparse.(pt.paulis))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
