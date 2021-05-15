@@ -9,7 +9,19 @@ end
 #### Constructors
 ####
 
+"""
+    PauliTerm(s)
+
+Construct a `PauliTerm` with default coefficient.
+"""
 PauliTerm(s) = PauliTerm(s, _DEFAULT_COEFF)
+
+
+"""
+    PauliTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF)
+
+Construct a `PauliTerm`, where `s` is of the form "XYZ", etc.
+"""
 function PauliTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
     return PauliTerm(Vector{T}(s), coeff)
 end
@@ -20,6 +32,10 @@ end
 
 function PauliTerm(::Type{T}, index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
     return PauliTerm(pauli_vector(T, index, n_paulis), coeff)
+end
+
+function PauliTerm(paulis::AbstractPauli...; coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    return PauliTerm([paulis...], coeff)
 end
 
 Base.copy(pt::PauliTerm) = PauliTerm(copy(pt.paulis), copy(pt.coeff))

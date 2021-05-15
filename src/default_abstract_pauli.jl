@@ -17,7 +17,7 @@ PauliTerm(s::Symbol, coeff=_DEFAULT_COEFF) = PauliTerm(PauliDefault, s, coeff)
 """
     PauliTerm(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF)
 
-Initialize a `PauliTerm` from a vector of integers in `[0, 3]`.
+Construct a `PauliTerm` from a vector of integers in `[0, 3]`.
 """
 PauliTerm(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) = PauliTerm(PauliDefault.(inds), coeff)
 
