@@ -70,6 +70,8 @@ end
     m = rand(8, 8)
     s = PauliSum(m)
     @test m ≈ Matrix(s)
+
+    @test numeric_function(PauliTerm("XX"), x -> x^2 + 2.0 * x^3) == PauliSum([PauliTerm("II"), PauliTerm("XX", 2)])
 end
 
 @testset "Z4Group0" begin

@@ -97,9 +97,14 @@ end
 #### IO
 ####
 
-# type params only to get correct dispatch. There must be a better way
-function Base.show(io::IO, ps::PauliTerm{T,V,W}) where {T,V,W}
-    print(io, ps.coeff, " * ")
+## type params only to get correct dispatch. There must be a better way
+function Base.show(io::IO, ps::PauliTerm{T,V,CoeffT}) where {T,V,CoeffT}
+    if ps.coeff isa Real  # could use CoeffT here.
+        print(io, ps.coeff)
+    else
+        print(io, "(", ps.coeff, ")")
+    end
+    print(io, " * ")
     print(io, ps.paulis)
 end
 

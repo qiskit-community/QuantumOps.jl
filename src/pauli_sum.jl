@@ -83,7 +83,7 @@ end
 
 function pauli_sum_from_matrix_one_thread(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
     nside = LinearAlgebra.checksquare(matrix)
-    n_qubits = checkispow2(nside)
+    n_qubits = ILog2.checkispow2(nside)
     denom = 2^n_qubits  # == nside
     s = PauliSum(PauliT)
     for pauli in pauli_basis(PauliT, n_qubits)
@@ -98,8 +98,9 @@ end
 
 function pauli_sum_from_matrix_threaded(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
     nside = LinearAlgebra.checksquare(matrix)
-    n_qubits = checkispow2(nside)
+    n_qubits = ILog2.checkispow2(nside)
     denom = 2^n_qubits  # == nside
+    ## Create a PauliSum for each thread, for accumulation.
     sums = [PauliSum(PauliT) for i in 1:Threads.nthreads()]
     Threads.@threads for j in 0:(4^n_qubits - 1)
         pauli = PauliTerm(PauliT, j, n_qubits)

@@ -1,3 +1,10 @@
+"""
+    _kron(mats...)
+
+Same as `kron`, but, at least for Pauli matrices, it is faster by
+up to a factor of two. Also, `kron(one_matrix)` returns `one_matrix`
+rather than throwing an error.
+"""
 function _kron(mats...)
     if length(mats) == 1
         return only(mats)
@@ -42,18 +49,4 @@ libraries.
 """
 function isapprox_zero(x::Number)
     return isapprox(x, zero(x))
-end
-
-# TODO: When new ILog2 is registered, remove this.
-"""
-    checkispow2(n::Number)
-
-Return base-2 logarithm of `n` if `n` is a power of two.
-Otherwise throw a `DomainError`.
-"""
-function checkispow2(n::Number)
-    if ! ispow2(n)
-        throw(DomainError(n, "$n is not a power of two."))
-    end
-    return ILog2.ilog2(n)
 end
