@@ -16,7 +16,6 @@ Construct a `PauliTerm` with default coefficient.
 """
 PauliTerm(s) = PauliTerm(s, _DEFAULT_COEFF)
 
-
 """
     PauliTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF)
 
@@ -26,6 +25,11 @@ function PauliTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <
     return PauliTerm(Vector{T}(s), coeff)
 end
 
+"""
+    PauliTerm(::Type{T}, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+
+Construct a `PauliTerm`, where `s` is of the form `:XYZ`, etc.
+"""
 function PauliTerm(::Type{T}, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
     return PauliTerm(Vector{T}(String(s)), coeff)
 end

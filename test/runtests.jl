@@ -56,6 +56,7 @@ end
     @test PauliTerm("IXYZ") == PauliTerm([0, 1, 2, 3])
     @test PauliTerm("IXYZ", 2) == PauliTerm([0, 1, 2, 3], 2)
     @test PauliTerm(X, Y, Z) == PauliTerm("XYZ")
+    @test PauliTerm(:XYZ) == PauliTerm("XYZ")
 end
 
 @testset "PauliSum" begin
