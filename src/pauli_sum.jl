@@ -60,7 +60,8 @@ end
 """
     PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
 
-Construct a sum from a matrix of single-qubit Pauli operators.
+Construct a sum from a matrix of single-qubit Pauli operators. If `size(v) == (m, n)`, then
+the the sum has `m` terms with `n` Paulis in each string.
 """
 function PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
     strings = @inbounds [v[i,:] for i in 1:size(v,1)]
