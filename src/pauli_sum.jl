@@ -427,7 +427,7 @@ end
 Left multiplies the coefficient of `psum` by `n` in place.
 """
 function LinearAlgebra.lmul!(psum::PauliSum, n)
-    psum.coeffs .= n .* psum.coeffs
+    @. psum.coeffs = n * psum.coeffs
     return psum
 end
 
