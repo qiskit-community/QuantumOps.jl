@@ -1,3 +1,8 @@
+"""
+    PaulisI
+
+This module contains `PauliI <: AbstractPauli` and supporting code.
+"""
 module PaulisI
 
 import ..AbstractPauli
@@ -11,7 +16,10 @@ export PauliI
 """
     struct PauliI <: AbstractPauli
 
-Another implementation of `AbstractPauli`
+Another implementation of `AbstractPauli`.
+
+This implementation encodes the Pauli operators via the index `0-3`
+in a single byte.
 """
 struct PauliI <: AbstractPauli{Complex{Int}}
     ind::Int8

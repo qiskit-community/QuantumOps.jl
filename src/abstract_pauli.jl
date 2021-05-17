@@ -220,10 +220,9 @@ end
 """
     phase(p1::AbstractPauli, p2::AbstractPauli)
 
-Return a `NamedTuple` of two `Bool`s representing the phase
-of the product of `p1` and `p2`. The elements are `:has_sign_flip`
-and `:has_imag_unit`. The phase can be reconstructed as
-`im^has_imag_unit * (-1)^has_sign_flip`.
+Return a `NamedTuple` of two `Bool`s representing the phase of the product of `p1` and
+`p2`. The elements are `:has_sign_flip` and `:has_imag_unit`. The phase can be reconstructed
+as `im^has_imag_unit * (-1)^has_sign_flip`.
 """
 function phase(p1::AbstractPauli, p2::AbstractPauli)
     if isone(p1) || isone(p2)

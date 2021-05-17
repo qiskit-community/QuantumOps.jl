@@ -7,6 +7,16 @@
 
 const PauliDefault = Pauli
 
+"""
+    PauliDefault
+
+An alias for the default implementation of `AbstractPauli`. Functions that that take
+an optional argument that is a subtype of `AbstractPauli` default to `PauliDefault`
+if this argument is omitted. There are currently two implementations of `AbstractPauli`:
+`Pauli` and `PauliI`.
+"""
+PauliDefault
+
 ####
 #### PauliTerm
 ####
