@@ -12,7 +12,7 @@ import ILog2
 import SparseArrays
 
 export isunitary
-export PauliTerm, pauli_basis, mul!
+export PauliTerm, pauli_basis, mul!, rand_pauli_term, rand_pauli_sum
 export AbstractPauli, pauli_index, phase, weight, pauli_vector
 export Pauli, PauliI
 export PauliSum, add!, lmul!, numeric_function

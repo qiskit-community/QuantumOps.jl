@@ -123,6 +123,19 @@ function Base.copy(ps::PauliSum)
     return PauliSum(new_strings, new_coeffs, already_sorted)
 end
 
+"""
+    rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer) where {PauliT <: AbstractPauli}
+
+Return a `PauliSum` if `n_terms` terms of `n_factors` factors each. The coefficients are all equal to one.
+"""
+function rand_pauli_sum(::Type{PauliT}, n_factors::Integer, n_terms::Integer) where {PauliT <: AbstractPauli}
+    paulis = [rand(PauliT, n_factors) for i in 1:n_terms]
+    coeffs = fill(_DEFAULT_COEFF, n_terms)
+    return PauliSum(paulis, coeffs)
+end
+
+rand_pauli_sum(n_factors::Integer, n_terms::Integer) = rand_pauli_sum(PauliDefault, n_factors, n_terms)
+
 ####
 #### Canonicalization / sorting
 ####
@@ -135,12 +148,20 @@ function sort_and_sum_duplicates!(psum::PauliSum)
 end
 
 function sort_and_sum_duplicates!(terms, coeffs)
-    sort!(terms, coeffs)
+    sort_sums!(terms, coeffs)
     sum_duplicates!(terms, coeffs)
     remove_zeros!(terms, coeffs)
     return nothing
 end
 
+"""
+    remove_zeros!(psum::PauliSum)
+    remove_zeros!(terms, coeffs)
+
+Remove terms from `psum` with coefficient (approximately) equal to zero.
+If `terms` and `coeffs` are supplied, then elements are deleted from both `terms`
+and `coeffs` at indices corresponding to vanishing elements of `coeff`.
+"""
 function remove_zeros!(psum::PauliSum)
     remove_zeros!(psum.strings, psum.coeffs)
     return psum
@@ -168,7 +189,7 @@ sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
 
 Find groups of terms whose members differ only in the coefficient.
 Replace each group by one term carrying the sum of the coefficients
-in that group.
+in that group. This routine assumes that `paulis` are sorted.
 """
 function sum_duplicates!(paulis, coeffs)
     last_pauli::eltype(paulis) = first(paulis)
@@ -190,8 +211,8 @@ end
 
 ## This is expensive. Most time is spent in sortperm.
 ## There is no ThreadsX.sortperm, only sort.
-Base.sort!(psum::PauliSum) = Base.sort!(psum.strings, psum.coeffs)
-function Base.sort!(strings, coeffs)
+Base.sort!(psum::PauliSum) = sort_sums!(psum.strings, psum.coeffs)
+function sort_sums!(strings, coeffs)
     p = sortperm(strings; alg=MergeSort) # alg=MergeSort is 50% faster for 1000x10 strings
     permute!(strings, p)
     permute!(coeffs, p)
@@ -500,7 +521,7 @@ end
 """
     numeric_function(pt::PauliTerm, f)::PauliSum
 
-Compute `f(pt)` by decomposing `f` into odd and even terms.
+Compute `f(pt)` by decomposing `f` into odd and even functions.
 """
 function numeric_function(pt::PauliTerm, f)
     c = pt.coeff

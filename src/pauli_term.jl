@@ -71,9 +71,21 @@ end
 Base.copy(pt::PauliTerm) = PauliTerm(copy(pt.paulis), copy(pt.coeff))
 
 ### This is simple, but not flexible
-function Base.rand(::Type{<:PauliTerm{PauliT}}, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
+# function Base.rand(::Type{<:PauliTerm{PauliT}}, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
+#     return PauliTerm(rand(PauliT, n), coeff)
+# end
+
+"""
+    rand_pauli_term(::Type{PauliT}=PauliDefault, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
+
+Return a random `PauliTerm` of `n` tensor factors.
+"""
+function rand_pauli_term(::Type{PauliT}, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
     return PauliTerm(rand(PauliT, n), coeff)
 end
+
+rand_pauli_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_pauli_term(PauliDefault, n, coeff=coeff)
+
 
 ###
 ### The following is partially broken. It works, except the a vector of random PauliTerms will
@@ -205,9 +217,18 @@ function Base.isless(ps1::PauliTerm, ps2::PauliTerm)
     return isless(ps1.paulis, ps1.paulis) || isless(ps1.paulis, ps2.paulis)
 end
 
-# Fails until new IsApprox is registered
+"""
+    isunitary(pt::PauliTerm)
+
+Return `true` if `pt` is a unitary operator.
+"""
 IsApprox.isunitary(pt::PauliTerm) = IsApprox.isunitary(pt.coeff)
 
+"""
+    ishermitian(pt::PauliTerm)
+
+Return `true` if `pt` is a Hermitian operator.
+"""
 LinearAlgebra.ishermitian(pt::PauliTerm) = isreal(pt.coeff)
 
 ## TODO: Symptectic has a faster way, I think
