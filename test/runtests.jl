@@ -1,5 +1,6 @@
 using PauliStrings
 using Test
+import SparseArrays
 
 @testset "Z4Group" begin
     for (n, x) in zip(1:4, (im, -1, -im, 1))
@@ -76,6 +77,12 @@ end
     @test m ≈ Matrix(s)
 
     @test numeric_function(PauliTerm("XX"), x -> x^2 + 2.0 * x^3) == PauliSum([PauliTerm("II"), PauliTerm("XX", 2)])
+
+    a = rand_pauli_sum(10, 3)
+    b = rand_pauli_sum(10, 3)
+    sa = SparseArrays.sparse(a)
+    sb = SparseArrays.sparse(b)
+    @test SparseArrays.sparse(a * b * a) == sa * sb * sa
 end
 
 @testset "Z4Group0" begin

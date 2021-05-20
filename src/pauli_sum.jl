@@ -124,17 +124,39 @@ function Base.copy(ps::PauliSum)
 end
 
 """
-    rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer) where {PauliT <: AbstractPauli}
+    rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
 
-Return a `PauliSum` if `n_terms` terms of `n_factors` factors each. The coefficients are all equal to one.
+Return a `PauliSum` of `n_terms` terms of `n_factors` factors each.
+
+If `coeff_func` is `nothing`, then the coefficients are all equal to one. Otherwise `coeff_func` must be a function that
+takes one argument `n_terms`, and returns `n_terms` coefficients.
+
+# Examples
+```julia
+julia> rand_pauli_sum(4, 3)
+(1 + 0im) * IIYX
+(1 + 0im) * IIZY
+(1 + 0im) * ZXIX
+
+julia> rand_pauli_sum(3, 4; coeff_func=randn)
+-0.1929668228083002 * XZY
+-0.5661154429051878 * YXX
+0.01820960911335266 * YXZ
+-0.33717575080125783 * ZII
+```
 """
-function rand_pauli_sum(::Type{PauliT}, n_factors::Integer, n_terms::Integer) where {PauliT <: AbstractPauli}
+function rand_pauli_sum(::Type{PauliT}, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
     paulis = [rand(PauliT, n_factors) for i in 1:n_terms]
-    coeffs = fill(_DEFAULT_COEFF, n_terms)
+    if coeff_func == nothing
+        coeffs = fill(_DEFAULT_COEFF, n_terms)
+    else
+        coeffs = coeff_func(n_terms)
+    end
     return PauliSum(paulis, coeffs)
 end
 
-rand_pauli_sum(n_factors::Integer, n_terms::Integer) = rand_pauli_sum(PauliDefault, n_factors, n_terms)
+rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
+    rand_pauli_sum(PauliDefault, n_factors, n_terms; coeff_func=coeff_func)
 
 ####
 #### Canonicalization / sorting
@@ -211,7 +233,7 @@ end
 
 ## This is expensive. Most time is spent in sortperm.
 ## There is no ThreadsX.sortperm, only sort.
-Base.sort!(psum::PauliSum) = sort_sums!(psum.strings, psum.coeffs)
+Base.sort!(psum::PauliSum) = (sort_sums!(psum.strings, psum.coeffs); psum)
 function sort_sums!(strings, coeffs)
     p = sortperm(strings; alg=MergeSort) # alg=MergeSort is 50% faster for 1000x10 strings
     permute!(strings, p)
@@ -321,8 +343,7 @@ function Base.reverse!(ps::PauliSum)
     @inbounds for i in eachindex(strings)
         reverse!(strings[i])
     end
-    Base.sort!(ps)
-    return ps
+    return Base.sort!(ps)
 end
 
 ####
@@ -493,6 +514,33 @@ function Base.:*(pterm::PauliTerm, psum::PauliSum)
         new_strings[j] = new_term.paulis
     end
     return PauliSum(new_strings, new_coeffs)
+end
+
+"""
+    *(ps1::PauliSum, ps2::PauliSum)
+
+Multiply `ps1` and `ps2` returning another `PauliSum`
+
+# Examples
+```jldoctest
+julia> a = rand_pauli_sum(5, 3);
+
+julia> b = rand_pauli_sum(5, 3);
+
+julia> a = rand_pauli_sum(5, 3); ma = Matrix(a);
+
+julia> b = rand_pauli_sum(5, 3); mb = Matrix(b);
+
+julia> Matrix(a * b * a) == ma * mb * ma
+true
+```
+"""
+function Base.:*(ps1::PauliSum, ps2::PauliSum)
+    psum_out = ps1[1] * ps2
+    for i in 2:length(ps1)
+        add!(psum_out, ps1[i] * ps2)
+    end
+    return psum_out
 end
 
 ####
