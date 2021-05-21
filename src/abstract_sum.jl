@@ -156,6 +156,28 @@ Base.getindex(asum::AbstractSum, j::Integer, k::Integer) = asum.strings[j][k]
 
 Base.getindex(asum::AbstractSum, inds) = typeof(asum)(asum.strings[inds], asum.coeffs[inds])
 
+####
+#### Compare / predicates
+####
+
+# This will fail for an empty `psum`. Use type info instead.
+# There no well-defined `one` for `PauliSum`. It depends on the
+# width of the string.
+function Base.one(asum::AbstractSum)
+    t = one(first(asum))
+    already_sorted = true
+    typeof(asum)([op_string(t)], [t.coeff], already_sorted)
+end
+
+function Base.:(==)(asum1::AbstractSum, asum2::AbstractSum)
+    if length(asum1) != length(asum2)
+        return false
+    end
+    # This is 8x faster for large arrays, 10^4 or 5.
+    return ThreadsX.all(i -> asum1[i] == asum2[i], eachindex(asum1))
+end
+
+
 """
     reverse(ps::AbstractSum)
 
@@ -203,6 +225,10 @@ function add!(asum::AbstractSum, op_string, coeff)
     return asum
 end
 
+####
+#### Updating / adding elements
+####
+
 """
     insert!(ps::AbstractSum, ind, p::AbstractTerm)
 
@@ -214,4 +240,31 @@ Base.insert!(ps::AbstractSum, ind, p::AbstractTerm) = insert!(ps, ind, (op_strin
     insert!(ps.strings, ind, paulis)
     insert!(ps.coeffs, ind, coeff)
     return ps
+end
+
+function Base.deleteat!(ps::AbstractSum, args...)
+    deleteat!(ps.coeffs, args...)
+    deleteat!(ps.strings, args...)
+    return ps
+end
+
+"""
+    push!(psum::AbstractSum, ps::AbstractTerm...)
+
+Push `ps` to the end of `psum` without regard to order
+or possible duplication.
+
+See `sort_and_sum_duplicates!`.
+"""
+function Base.push!(psum::AbstractSum, ps::AbstractTerm...)
+    for p in ps
+        push!(psum.strings, op_string(p))
+        push!(psum.coeffs, p.coeff)
+    end
+    return ps
+end
+
+function Base.push!(psum::AbstractSum, (string, coeff))
+    push!(psum.strings, string)
+    push!(psum.coeffs, coeff)
 end

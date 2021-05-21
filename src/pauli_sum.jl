@@ -217,11 +217,11 @@ SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for 
 #### Updating / adding elements
 ####
 
-function Base.deleteat!(ps::PauliSum, args...)
-    deleteat!(ps.coeffs, args...)
-    deleteat!(ps.strings, args...)
-    return ps
-end
+# function Base.deleteat!(ps::PauliSum, args...)
+#     deleteat!(ps.coeffs, args...)
+#     deleteat!(ps.strings, args...)
+#     return ps
+# end
 
 # """
 #     insert!(ps::PauliSum, ind, p::PauliTerm)
@@ -237,26 +237,26 @@ end
 # end
 
 # TODO: Should we check that the length of the PauliTerm is correct ?
-"""
-    push!(psum::PauliSum, ps::PauliTerm...)
+# """
+#     push!(psum::PauliSum, ps::PauliTerm...)
 
-Push `ps` to the end of `psum` without regard to order
-or possible duplication.
+# Push `ps` to the end of `psum` without regard to order
+# or possible duplication.
 
-See `sort_and_sum_duplicates!`.
-"""
-function Base.push!(psum::PauliSum, ps::PauliTerm...)
-    for p in ps
-        push!(psum.strings, p.paulis)
-        push!(psum.coeffs, p.coeff)
-    end
-    return ps
-end
+# See `sort_and_sum_duplicates!`.
+# """
+# function Base.push!(psum::PauliSum, ps::PauliTerm...)
+#     for p in ps
+#         push!(psum.strings, p.paulis)
+#         push!(psum.coeffs, p.coeff)
+#     end
+#     return ps
+# end
 
-function Base.push!(psum::PauliSum, (string, coeff))
-    push!(psum.strings, string)
-    push!(psum.coeffs, coeff)
-end
+# function Base.push!(psum::PauliSum, (string, coeff))
+#     push!(psum.strings, string)
+#     push!(psum.coeffs, coeff)
+# end
 
 ####
 #### Compare / predicates
@@ -265,19 +265,19 @@ end
 # This will fail for an empty `psum`. Use type info instead.
 # There no well-defined `one` for `PauliSum`. It depends on the
 # width of the string.
-function Base.one(psum::PauliSum)
-    t = one(first(psum))
-    already_sorted = true
-    PauliSum([t.paulis], [t.coeff], already_sorted)
-end
+# function Base.one(psum::PauliSum)
+#     t = one(first(psum))
+#     already_sorted = true
+#     PauliSum([t.paulis], [t.coeff], already_sorted)
+# end
 
-function Base.:(==)(psum1::PauliSum, psum2::PauliSum)
-    if length(psum1) != length(psum2)
-        return false
-    end
-    # This is 8x faster for large arrays, 10^4 or 5.
-    return ThreadsX.all(i -> psum1[i] == psum2[i], eachindex(psum1))
-end
+# function Base.:(==)(psum1::PauliSum, psum2::PauliSum)
+#     if length(psum1) != length(psum2)
+#         return false
+#     end
+#     # This is 8x faster for large arrays, 10^4 or 5.
+#     return ThreadsX.all(i -> psum1[i] == psum2[i], eachindex(psum1))
+# end
 
 ####
 #### Algebra / mathematical operations
