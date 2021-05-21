@@ -254,18 +254,15 @@ SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for 
 # Using Z4Group0 is 30% faster in many tests, for dense matrices
 # Base.Matrix(ps::PauliSum) = ThreadsX.sum(Matrix(Z4Group0, ps[i]) for i in eachindex(ps))
 
-####
-#### IO
-####
 
-function Base.show(io::IO, psum::PauliSum)
-    for i in eachindex(psum)
-        show(io, psum[i])
-        if i != lastindex(psum)
-            print(io, "\n")
-        end
-    end
-end
+# function Base.show(io::IO, psum::PauliSum)
+#     for i in eachindex(psum)
+#         show(io, psum[i])
+#         if i != lastindex(psum)
+#             print(io, "\n")
+#         end
+#     end
+# end
 
 ####
 #### Container interface

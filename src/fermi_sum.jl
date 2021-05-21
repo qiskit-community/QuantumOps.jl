@@ -26,16 +26,6 @@ function FermiSum(v::AbstractVector{<:FermiTerm}, already_sorted=false)
     return FermiSum(strings, coeffs, already_sorted)
 end
 
-## TODO: Factor this out
-function Base.show(io::IO, fsum::FermiSum)
-    for i in eachindex(fsum)
-        show(io, fsum[i])
-        if i != lastindex(fsum)
-            print(io, "\n")
-        end
-    end
-end
-
 ## Factor this out
 function sort_and_sum_duplicates!(fsum::FermiSum)
     sort_and_sum_duplicates!(fsum.strings, fsum.coeffs)

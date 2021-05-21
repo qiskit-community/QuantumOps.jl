@@ -1,5 +1,18 @@
 abstract type AbstractSum end
 
+####
+#### IO
+####
+
+function Base.show(io::IO, asum::AbstractSum)
+    for i in eachindex(asum)
+        show(io, asum[i])
+        if i != lastindex(asum)
+            print(io, "\n")
+        end
+    end
+end
+
 ## Factor this out
 function sort_and_sum_duplicates!(terms, coeffs)
     sort_sums!(terms, coeffs)
