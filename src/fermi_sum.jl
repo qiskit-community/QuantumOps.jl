@@ -45,30 +45,30 @@ end
 sum_duplicates!(fsum::FermiSum) = sum_duplicates!(fsum.strings, fsum.coeffs)
 
 ## Modeled on code in unique!
-"""
-    sum_duplicates!(op_string, coeffs)
+# """
+#     sum_duplicates!(op_string, coeffs)
 
-Find groups of terms whose members differ only in the coefficient.
-Replace each group by one term carrying the sum of the coefficients
-in that group.
-"""
-function sum_duplicates!(op_string, coeffs)
-    last_pauli::eltype(op_string) = first(op_string)
-    coeff = first(coeffs)
-    k = 2
-    @inbounds for j in 2:length(op_string)
-        if op_string[j] != last_pauli
-            last_pauli = op_string[k] = op_string[j]
-            coeffs[k] = coeffs[j]
-            k += 1
-        else
-            coeffs[k-1] += coeffs[j]
-        end
-    end
-    resize!(op_string, k-1)
-    resize!(coeffs, k-1)
-    return nothing
-end
+# Find groups of terms whose members differ only in the coefficient.
+# Replace each group by one term carrying the sum of the coefficients
+# in that group.
+# """
+# function sum_duplicates!(op_string, coeffs)
+#     last_pauli::eltype(op_string) = first(op_string)
+#     coeff = first(coeffs)
+#     k = 2
+#     @inbounds for j in 2:length(op_string)
+#         if op_string[j] != last_pauli
+#             last_pauli = op_string[k] = op_string[j]
+#             coeffs[k] = coeffs[j]
+#             k += 1
+#         else
+#             coeffs[k-1] += coeffs[j]
+#         end
+#     end
+#     resize!(op_string, k-1)
+#     resize!(coeffs, k-1)
+#     return nothing
+# end
 
 ## TODO: Factor this out
 Base.sort!(fsum::FermiSum) = (sort_sums!(fsum.strings, fsum.coeffs); fsum)
@@ -87,8 +87,6 @@ function remove_zeros!(psum::FermiSum)
     return fsum
 end
 
-
-
 ## Factor this out
 for func in (:length, :eachindex, :lastindex, :firstindex)
     @eval begin
@@ -102,14 +100,14 @@ end
 Base.getindex(fsum::FermiSum, j::Integer) = FermiTerm(fsum.strings[j], fsum.coeffs[j])
 
 
-## Factor out
-"""
-    isapprox_zero(x::Number)
+# ## Factor out
+# """
+#     isapprox_zero(x::Number)
 
-This function exists because we define
-methods for special cases, such as symbolic
-libraries.
-"""
-function isapprox_zero(x::Number)
-    return isapprox(x, zero(x))
-end
+# This function exists because we define
+# methods for special cases, such as symbolic
+# libraries.
+# """
+# function isapprox_zero(x::Number)
+#     return isapprox(x, zero(x))
+# end

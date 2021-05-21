@@ -24,3 +24,29 @@ function remove_zeros!(terms, coeffs)
     deleteat!(terms, inds)
     return nothing
 end
+
+## Modeled on code in unique!
+"""
+    sum_duplicates!(op_strings, coeffs)
+
+Find groups of terms whose members differ only in the coefficient.
+Replace each group by one term carrying the sum of the coefficients
+in that group. This routine assumes that `op_strings` are sorted.
+"""
+function sum_duplicates!(op_strings, coeffs)
+    last_pauli::eltype(op_strings) = first(op_strings)
+    coeff = first(coeffs)
+    k = 2
+    @inbounds for j in 2:length(op_strings)
+        if op_strings[j] != last_pauli
+            last_pauli = op_strings[k] = op_strings[j]
+            coeffs[k] = coeffs[j]
+            k += 1
+        else
+            coeffs[k-1] += coeffs[j]
+        end
+    end
+    resize!(op_strings, k-1)
+    resize!(coeffs, k-1)
+    return nothing
+end

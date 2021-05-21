@@ -205,31 +205,6 @@ end
 ## strings are already unique.
 sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
 
-## Modeled on code in unique!
-"""
-    sum_duplicates!(paulis, coeffs)
-
-Find groups of terms whose members differ only in the coefficient.
-Replace each group by one term carrying the sum of the coefficients
-in that group. This routine assumes that `paulis` are sorted.
-"""
-function sum_duplicates!(paulis, coeffs)
-    last_pauli::eltype(paulis) = first(paulis)
-    coeff = first(coeffs)
-    k = 2
-    @inbounds for j in 2:length(paulis)
-        if paulis[j] != last_pauli
-            last_pauli = paulis[k] = paulis[j]
-            coeffs[k] = coeffs[j]
-            k += 1
-        else
-            coeffs[k-1] += coeffs[j]
-        end
-    end
-    resize!(paulis, k-1)
-    resize!(coeffs, k-1)
-    return nothing
-end
 
 ## This is expensive. Most time is spent in sortperm.
 ## There is no ThreadsX.sortperm, only sort.
