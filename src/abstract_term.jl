@@ -42,3 +42,10 @@ for func in (:push!, :pushfirst!, :insert!)
         Base.$func(ps::AbstractTerm, args...) = ($func(op_string(ps), args...); ps)
     end
 end
+
+####
+#### Algebra
+####
+
+Base.:*(z::Number, term::AbstractTerm) = typeof(term)(op_string(term), term.coeff * z)
+Base.:*(ps::AbstractTerm, z::Number) = z * ps

@@ -248,8 +248,8 @@ function Base.:*(ps1::PauliTerm, ps2::PauliTerm)
     return mul!(similar(ps1.paulis), ps1, ps2)
 end
 
-Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
-Base.:*(ps::PauliTerm, z::Number) = z * ps
+# Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
+# Base.:*(ps::PauliTerm, z::Number) = z * ps
 
 Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
 Base.:*(p::AbstractPauli, z::Number) = z * p
