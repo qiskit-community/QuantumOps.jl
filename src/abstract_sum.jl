@@ -176,6 +176,17 @@ function Base.reverse!(as::AbstractSum)
     return Base.sort!(as)
 end
 
+"""
+    add!(psum::AbstractSum, pt::AbstractTerm...)
+
+Add `AbstractTerm`s to `psum` in place, assuming `psum` is sorted and has no repeated
+strings. Either a new term is inserted, or the coefficient is added to an existing
+term. After adding the `pt`, `psum` will be left sorted, with no duplicates, and
+no zero coefficients. Use `push!` to insert a term at the end of `psum` with no
+simplification performed.
+"""
+add!(asum::AbstractSum, term::AbstractTerm) = add!(asum, op_string(term), term.coeff)
+
 function add!(asum::AbstractSum, op_string, coeff)
     inds = searchsorted(asum.strings, op_string)
     if length(inds) == 0 # op_string not found, add a new term

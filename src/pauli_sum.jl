@@ -50,6 +50,8 @@ function PauliSum(v::AbstractVector{<:PauliTerm}, already_sorted=false)
     return PauliSum(strings, coeffs, already_sorted)
 end
 
+PauliSum{T,V}(v, c, already_sorted) where {T, V} = PauliSum(v, c, already_sorted)
+
 """
     PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
 
@@ -110,11 +112,11 @@ function pauli_sum_from_matrix_threaded(::Type{PauliT}, matrix::AbstractMatrix{<
     return sums[1]
 end
 
-function Base.copy(ps::PauliSum)
-    (new_strings, new_coeffs) = (copy.(ps.strings), copy(ps.coeffs))
-    already_sorted = true
-    return PauliSum(new_strings, new_coeffs, already_sorted)
-end
+# function Base.copy(ps::PauliSum)
+#     (new_strings, new_coeffs) = (copy.(ps.strings), copy(ps.coeffs))
+#     already_sorted = true
+#     return PauliSum(new_strings, new_coeffs, already_sorted)
+# end
 
 """
     rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
@@ -293,23 +295,30 @@ function add!(to::PauliSum, from::PauliSum)
     return to
 end
 
-"""
-    add!(psum::PauliSum, pt::PauliTerm...)
+# """
+#     add!(psum::PauliSum, pt::PauliTerm...)
 
-Add `PauliTerm`s to `psum` in place, assuming `psum` is sorted and has no repeated
-strings. Either a new term is inserted, or the coefficient is added to an existing
-term. After adding the `pt`, `psum` will be left sorted, with no duplicates, and
-no zero coefficients. Use `push!` to insert a term at the end of `psum` with no
-simplification performed.
-"""
-function add!(psum::PauliSum, pt::PauliTerm...)
-    for p in pt
-        add!(psum, p)
-    end
-    return psum
-end
+# Add `PauliTerm`s to `psum` in place, assuming `psum` is sorted and has no repeated
+# strings. Either a new term is inserted, or the coefficient is added to an existing
+# term. After adding the `pt`, `psum` will be left sorted, with no duplicates, and
+# no zero coefficients. Use `push!` to insert a term at the end of `psum` with no
+# simplification performed.
+# """
+# function add!(asum::AbstractSum, pt::AbstractTerm...)
+#     for p in pt
+#         add!(psum, p)
+#     end
+#     return psum
+# end
 
-add!(psum::PauliSum, pt::PauliTerm) = add!(psum, pt.paulis, pt.coeff)
+# function add!(psum::PauliSum, pt::PauliTerm...)
+#     for p in pt
+#         add!(psum, p)
+#     end
+#     return psum
+# end
+
+#add!(psum::PauliSum, pt::PauliTerm) = add!(psum, pt.paulis, pt.coeff)
 
 # Moved this to abstract_sum.jl
 # function add!(psum::PauliSum, paulis, coeff)

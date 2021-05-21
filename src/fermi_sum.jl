@@ -21,6 +21,8 @@ function FermiSum(v::AbstractVector{<:FermiTerm}, already_sorted=false)
     return FermiSum(strings, coeffs, already_sorted)
 end
 
+FermiSum{T,V}(v, c, already_sorted) where {T, V} = FermiSum(v, c, already_sorted)
+
 # function FermiSum(two_body::AbstractArray{T,4}) where T
 #     n_modes = first(size(two_body))
 #     fsum = FermiSum{FermiOp, Vector{Vector{FermiOp}}, eltype(two_body)}()
