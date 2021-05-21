@@ -27,6 +27,10 @@ struct PauliSum{StringT, CoeffT} <: AbstractSum
     end
 end
 
+function term_type(::Type{T}) where T <: PauliSum
+    return PauliTerm
+end
+
 ####
 #### Constructors
 ####
@@ -164,10 +168,10 @@ rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
 
 ### These are helpers for constructors
 
-function sort_and_sum_duplicates!(psum::PauliSum)
-    sort_and_sum_duplicates!(psum.strings, psum.coeffs)
-    return psum
-end
+# function sort_and_sum_duplicates!(psum::PauliSum)
+#     sort_and_sum_duplicates!(psum.strings, psum.coeffs)
+#     return psum
+# end
 
 # function sort_and_sum_duplicates!(terms, coeffs)
 #     sort_sums!(terms, coeffs)
@@ -176,18 +180,18 @@ end
 #     return nothing
 # end
 
-"""
-    remove_zeros!(psum::PauliSum)
-    remove_zeros!(terms, coeffs)
+# """
+#     remove_zeros!(psum::PauliSum)
+#     remove_zeros!(terms, coeffs)
 
-Remove terms from `psum` with coefficient (approximately) equal to zero.
-If `terms` and `coeffs` are supplied, then elements are deleted from both `terms`
-and `coeffs` at indices corresponding to vanishing elements of `coeff`.
-"""
-function remove_zeros!(psum::PauliSum)
-    remove_zeros!(psum.strings, psum.coeffs)
-    return psum
-end
+# Remove terms from `psum` with coefficient (approximately) equal to zero.
+# If `terms` and `coeffs` are supplied, then elements are deleted from both `terms`
+# and `coeffs` at indices corresponding to vanishing elements of `coeff`.
+# """
+# function remove_zeros!(psum::PauliSum)
+#     remove_zeros!(psum.strings, psum.coeffs)
+#     return psum
+# end
 
 # function remove_zeros!(terms, coeffs)
 #     # ThreadsX is very slow for small arrays. We need to discriminate
@@ -203,12 +207,9 @@ end
 
 ## This is 10x faster than the sorting step, even though we don't check if all
 ## strings are already unique.
-sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
+#sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
 
 
-## This is expensive. Most time is spent in sortperm.
-## There is no ThreadsX.sortperm, only sort.
-Base.sort!(psum::PauliSum) = (sort_sums!(psum.strings, psum.coeffs); psum)
 # function sort_sums!(strings, coeffs)
 #     p = sortperm(strings; alg=MergeSort) # alg=MergeSort is 50% faster for 1000x10 strings
 #     permute!(strings, p)
@@ -254,16 +255,6 @@ SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for 
 # Using Z4Group0 is 30% faster in many tests, for dense matrices
 # Base.Matrix(ps::PauliSum) = ThreadsX.sum(Matrix(Z4Group0, ps[i]) for i in eachindex(ps))
 
-
-# function Base.show(io::IO, psum::PauliSum)
-#     for i in eachindex(psum)
-#         show(io, psum[i])
-#         if i != lastindex(psum)
-#             print(io, "\n")
-#         end
-#     end
-# end
-
 ####
 #### Container interface
 ####
@@ -273,12 +264,12 @@ Base.size(psum::PauliSum) = (length(psum), length(first(psum)))
 
 Base.size(psum::PauliSum, i::Integer) = size(psum)[i]
 
-Base.getindex(psum::PauliSum, j::Integer) = PauliTerm(psum.strings[j], psum.coeffs[j])
+#Base.getindex(psum::PauliSum, j::Integer) = PauliTerm(psum.strings[j], psum.coeffs[j])
 
-Base.getindex(psum::PauliSum, j::Integer, k::Integer) = psum.strings[j][k]
-# TODO: Use already_sorted flag ?
+# Base.getindex(psum::PauliSum, j::Integer, k::Integer) = psum.strings[j][k]
+# # TODO: Use already_sorted flag ?
 
-Base.getindex(psum::PauliSum, inds) = PauliSum(psum.strings[inds], psum.coeffs[inds])
+# Base.getindex(psum::PauliSum, inds) = PauliSum(psum.strings[inds], psum.coeffs[inds])
 
 # Iterate uses getindex to return `PauliTerm`s.
 function Base.iterate(psum::PauliSum, state=1)
@@ -286,17 +277,14 @@ function Base.iterate(psum::PauliSum, state=1)
     return (psum[state], state + 1)
 end
 
-# Enables using `findall`, for instance.
-# Fallback methods for `values` and `pairs` are OK.
-Base.keys(psum::PauliSum) = eachindex(psum)
 
-for func in (:length, :eachindex, :lastindex, :firstindex)
-    @eval begin
-        function Base.$func(ps::PauliSum, args...)
-            return $func(ps.coeffs, args...)
-        end
-    end
-end
+# for func in (:length, :eachindex, :lastindex, :firstindex)
+#     @eval begin
+#         function Base.$func(ps::PauliSum, args...)
+#             return $func(ps.coeffs, args...)
+#         end
+#     end
+# end
 
 """
     reverse(ps::PauliSum)

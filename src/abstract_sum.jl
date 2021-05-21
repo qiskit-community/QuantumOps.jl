@@ -13,7 +13,13 @@ function Base.show(io::IO, asum::AbstractSum)
     end
 end
 
-## Factor this out
+function sort_and_sum_duplicates!(asum::AbstractSum)
+    sort_and_sum_duplicates!(fsum.strings, fsum.coeffs)
+    return fsum
+end
+
+sum_duplicates!(asum::AbstractSum) = sum_duplicates!(fsum.strings, fsum.coeffs)
+
 function sort_and_sum_duplicates!(terms, coeffs)
     sort_sums!(terms, coeffs)
     sum_duplicates!(terms, coeffs)
@@ -21,11 +27,28 @@ function sort_and_sum_duplicates!(terms, coeffs)
     return nothing
 end
 
+## This is expensive. Most time is spent in sortperm.
+## There is no ThreadsX.sortperm, only sort.
+Base.sort!(asum::AbstractSum) = (sort_sums!(asum.strings, asum.coeffs); asum)
+
 function sort_sums!(strings, coeffs)
     p = sortperm(strings; alg=MergeSort)
     permute!(strings, p)
     permute!(coeffs, p)
     return nothing
+end
+
+"""
+    remove_zeros!(asum::AbstractSum)
+    remove_zeros!(terms, coeffs)
+
+Remove terms from `asum` with coefficient (approximately) equal to zero.
+If `terms` and `coeffs` are supplied, then elements are deleted from both `terms`
+and `coeffs` at indices corresponding to vanishing elements of `coeff`.
+"""
+function remove_zeros!(asum::AbstractSum)
+    remove_zeros!(asum.strings, asum.coeffs)
+    return asum
 end
 
 function remove_zeros!(terms, coeffs)
@@ -65,3 +88,23 @@ function sum_duplicates!(op_strings, coeffs)
     resize!(coeffs, k-1)
     return nothing
 end
+
+# Enables using `findall`, for instance.
+# Fallback methods for `values` and `pairs` are OK.
+Base.keys(asum::AbstractSum) = eachindex(asum)
+
+for func in (:length, :eachindex, :lastindex, :firstindex)
+    @eval begin
+        function Base.$func(as::AbstractSum, args...)
+            return $func(as.coeffs, args...)
+        end
+    end
+end
+
+Base.getindex(asum::AbstractSum, j::Integer) =
+    term_type(typeof(asum))(asum.strings[j], asum.coeffs[j])
+
+Base.getindex(asum::AbstractSum, j::Integer, k::Integer) = asum.strings[j][k]
+# TODO: Use already_sorted flag ?
+
+Base.getindex(asum::AbstractSum, inds) = typeof(asum)(asum.strings[inds], asum.coeffs[inds])
