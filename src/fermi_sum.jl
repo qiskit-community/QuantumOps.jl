@@ -22,15 +22,17 @@ function FermiSum(v::AbstractVector{<:FermiTerm}, already_sorted=false)
 end
 
 FermiSum{T,V}(v, c, already_sorted) where {T, V} = FermiSum(v, c, already_sorted)
+FermiSum{T,V}(v, c) where {T, V} = FermiSum(v, c, false)
 
-# function FermiSum(two_body::AbstractArray{T,4}) where T
-#     n_modes = first(size(two_body))
-#     fsum = FermiSum{FermiOp, Vector{Vector{FermiOp}}, eltype(two_body)}()
-#     for ind in CartesianIndices(two_body)
-#         if (ind[1] == ind[2] || ind[3] == ind[4]) || two_body[ind] == 0
-#             continue
-#         end
-#         add!(fsum, ferm_term(ind.I, two_body[ind], n_modes)
-#     end
-#     return terms
-# end
+function FermiSum(two_body::AbstractArray{T,4}) where T
+    n_modes = first(size(two_body))
+    fsum = FermiSum{Vector{Vector{FermiOp}}, Vector{eltype(two_body)}}(Vector{FermiOp}[], eltype(two_body)[])
+    for ind in CartesianIndices(two_body)
+        if (ind[1] == ind[2] || ind[3] == ind[4]) || two_body[ind] == 0
+            continue
+        end
+        add!(fsum, FermiTerm(ind.I, two_body[ind], n_modes))
+#        add!(fsum, ferm_term(ind.I, two_body[ind], n_modes)
+    end
+    return fsum
+end

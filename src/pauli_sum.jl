@@ -223,18 +223,18 @@ function Base.deleteat!(ps::PauliSum, args...)
     return ps
 end
 
-"""
-    insert!(ps::PauliSum, ind, p::PauliTerm)
+# """
+#     insert!(ps::PauliSum, ind, p::PauliTerm)
 
-Insert `p` into `ps` without sorting resulting `ps`.
-"""
-Base.insert!(ps::PauliSum, ind, p::PauliTerm) = insert!(ps, ind, (p.paulis, p.coeff))
+# Insert `p` into `ps` without sorting resulting `ps`.
+# """
+# Base.insert!(ps::PauliSum, ind, p::PauliTerm) = insert!(ps, ind, (p.paulis, p.coeff))
 
-@inline function Base.insert!(ps::PauliSum, ind, (paulis, coeff))
-    insert!(ps.strings, ind, paulis)
-    insert!(ps.coeffs, ind, coeff)
-    return ps
-end
+# @inline function Base.insert!(ps::PauliSum, ind, (paulis, coeff))
+#     insert!(ps.strings, ind, paulis)
+#     insert!(ps.coeffs, ind, coeff)
+#     return ps
+# end
 
 # TODO: Should we check that the length of the PauliTerm is correct ?
 """

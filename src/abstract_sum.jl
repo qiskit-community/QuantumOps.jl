@@ -202,3 +202,16 @@ function add!(asum::AbstractSum, op_string, coeff)
     end
     return asum
 end
+
+"""
+    insert!(ps::AbstractSum, ind, p::AbstractTerm)
+
+Insert `p` into `ps` without sorting resulting `ps`.
+"""
+Base.insert!(ps::AbstractSum, ind, p::AbstractTerm) = insert!(ps, ind, (op_string(p), p.coeff))
+
+@inline function Base.insert!(ps::AbstractSum, ind, (paulis, coeff))
+    insert!(ps.strings, ind, paulis)
+    insert!(ps.coeffs, ind, coeff)
+    return ps
+end
