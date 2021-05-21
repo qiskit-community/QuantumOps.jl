@@ -214,7 +214,10 @@ Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(p
 Base.:(==)(ps1::PauliTerm, ps2::PauliTerm) = ps1.coeff == ps2.coeff && ps1.paulis == ps2.paulis
 
 function Base.isless(ps1::PauliTerm, ps2::PauliTerm)
-    return isless(ps1.paulis, ps1.paulis) || isless(ps1.paulis, ps2.paulis)
+    if ps1.paulis == ps2.paulis
+        return isless(ps1.coeff, ps2.coeff)
+    end
+    return isless(ps1.paulis, ps2.paulis)
 end
 
 """

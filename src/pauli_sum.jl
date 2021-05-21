@@ -503,6 +503,11 @@ function Base.:/(psum::PauliSum, n)
     PauliSum(psum.strings, psum.coeffs ./ n, already_sorted)
 end
 
+## TODO: new_coeffs may be a Vector{<:Real}, but because of phase
+## we need to set a coefficient to a complex type, which errors out.
+## Currently, the user needs to make the coefficients of psum complex.
+## We could also widen the type here somehow, say through promotion.
+## A similar situation arises in other places in this library.
 function Base.:*(pterm::PauliTerm, psum::PauliSum)
     new_coeffs = similar(psum.coeffs)
     new_strings = similar(psum.strings)
