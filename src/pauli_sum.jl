@@ -112,12 +112,6 @@ function pauli_sum_from_matrix_threaded(::Type{PauliT}, matrix::AbstractMatrix{<
     return sums[1]
 end
 
-# function Base.copy(ps::PauliSum)
-#     (new_strings, new_coeffs) = (copy.(ps.strings), copy(ps.coeffs))
-#     already_sorted = true
-#     return PauliSum(new_strings, new_coeffs, already_sorted)
-# end
-
 """
     rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
 
@@ -152,7 +146,6 @@ end
 
 rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
     rand_pauli_sum(PauliDefault, n_factors, n_terms; coeff_func=coeff_func)
-
 
 #####
 ##### Conversion
@@ -193,148 +186,19 @@ SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for 
 # Base.Matrix(ps::PauliSum) = ThreadsX.sum(Matrix(Z4Group0, ps[i]) for i in eachindex(ps))
 
 ####
-#### Container interface
-####
-
-
-#Base.getindex(psum::PauliSum, j::Integer) = PauliTerm(psum.strings[j], psum.coeffs[j])
-
-# Base.getindex(psum::PauliSum, j::Integer, k::Integer) = psum.strings[j][k]
-# # TODO: Use already_sorted flag ?
-
-# Base.getindex(psum::PauliSum, inds) = PauliSum(psum.strings[inds], psum.coeffs[inds])
-
-# for func in (:length, :eachindex, :lastindex, :firstindex)
-#     @eval begin
-#         function Base.$func(ps::PauliSum, args...)
-#             return $func(ps.coeffs, args...)
-#         end
-#     end
-# end
-
-
-####
-#### Updating / adding elements
-####
-
-# function Base.deleteat!(ps::PauliSum, args...)
-#     deleteat!(ps.coeffs, args...)
-#     deleteat!(ps.strings, args...)
-#     return ps
-# end
-
-# """
-#     insert!(ps::PauliSum, ind, p::PauliTerm)
-
-# Insert `p` into `ps` without sorting resulting `ps`.
-# """
-# Base.insert!(ps::PauliSum, ind, p::PauliTerm) = insert!(ps, ind, (p.paulis, p.coeff))
-
-# @inline function Base.insert!(ps::PauliSum, ind, (paulis, coeff))
-#     insert!(ps.strings, ind, paulis)
-#     insert!(ps.coeffs, ind, coeff)
-#     return ps
-# end
-
-# TODO: Should we check that the length of the PauliTerm is correct ?
-# """
-#     push!(psum::PauliSum, ps::PauliTerm...)
-
-# Push `ps` to the end of `psum` without regard to order
-# or possible duplication.
-
-# See `sort_and_sum_duplicates!`.
-# """
-# function Base.push!(psum::PauliSum, ps::PauliTerm...)
-#     for p in ps
-#         push!(psum.strings, p.paulis)
-#         push!(psum.coeffs, p.coeff)
-#     end
-#     return ps
-# end
-
-# function Base.push!(psum::PauliSum, (string, coeff))
-#     push!(psum.strings, string)
-#     push!(psum.coeffs, coeff)
-# end
-
-####
-#### Compare / predicates
-####
-
-# This will fail for an empty `psum`. Use type info instead.
-# There no well-defined `one` for `PauliSum`. It depends on the
-# width of the string.
-# function Base.one(psum::PauliSum)
-#     t = one(first(psum))
-#     already_sorted = true
-#     PauliSum([t.paulis], [t.coeff], already_sorted)
-# end
-
-# function Base.:(==)(psum1::PauliSum, psum2::PauliSum)
-#     if length(psum1) != length(psum2)
-#         return false
-#     end
-#     # This is 8x faster for large arrays, 10^4 or 5.
-#     return ThreadsX.all(i -> psum1[i] == psum2[i], eachindex(psum1))
-# end
-
-####
 #### Algebra / mathematical operations
 ####
 
-"""
-    add!(to::PauliSum, from::PauliSum)
-
-Adds the terms in `from` to `to` in place. `to` is mutated. `from` is not.
-"""
-function add!(to::PauliSum, from::PauliSum)
-    for p in from
-        add!(to, p)
-    end
-    return to
-end
-
 # """
-#     add!(psum::PauliSum, pt::PauliTerm...)
+#     add!(to::PauliSum, from::PauliSum)
 
-# Add `PauliTerm`s to `psum` in place, assuming `psum` is sorted and has no repeated
-# strings. Either a new term is inserted, or the coefficient is added to an existing
-# term. After adding the `pt`, `psum` will be left sorted, with no duplicates, and
-# no zero coefficients. Use `push!` to insert a term at the end of `psum` with no
-# simplification performed.
+# Adds the terms in `from` to `to` in place. `to` is mutated. `from` is not.
 # """
-# function add!(asum::AbstractSum, pt::AbstractTerm...)
-#     for p in pt
-#         add!(psum, p)
+# function add!(to::PauliSum, from::PauliSum)
+#     for p in from
+#         add!(to, p)
 #     end
-#     return psum
-# end
-
-# function add!(psum::PauliSum, pt::PauliTerm...)
-#     for p in pt
-#         add!(psum, p)
-#     end
-#     return psum
-# end
-
-#add!(psum::PauliSum, pt::PauliTerm) = add!(psum, pt.paulis, pt.coeff)
-
-# Moved this to abstract_sum.jl
-# function add!(psum::PauliSum, paulis, coeff)
-#     inds = searchsorted(psum.strings, paulis)
-#     if length(inds) == 0 # paulis not found, add a new term
-#         insert!(psum, first(inds), (paulis, coeff))
-#     elseif length(inds) == 1 # one element equal to paulis
-#         i = first(inds) # get the (single) index
-#         @inbounds psum.coeffs[i] += coeff # add p to existing term
-#         @inbounds if isapprox_zero(psum.coeffs[i])
-#             @inbounds deleteat!(psum, [i])
-#         end
-#     else
-#         throw(ErrorException("Duplicate terms found in operator sum."))
-#     end
-#     return psum
+#     return to
 # end
 
 # We use lmul! because that's how LinearAlgebra offers "scaling" of a Matrix (or rmul!)

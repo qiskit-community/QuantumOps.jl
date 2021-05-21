@@ -225,6 +225,18 @@ function add!(asum::AbstractSum, op_string, coeff)
     return asum
 end
 
+"""
+    add!(to::AbstractSum, from::AbstractSum)
+
+Adds the terms in `from` to `to` in place. `to` is mutated. `from` is not.
+"""
+function add!(to::AbstractSum, from::AbstractSum)
+    for p in from
+        add!(to, p)
+    end
+    return to
+end
+
 ####
 #### Updating / adding elements
 ####
