@@ -11,18 +11,19 @@ struct PauliSum{StringT, CoeffT} <: AbstractSum
     coeffs::CoeffT
 
     function PauliSum(strings, coeffs, already_sorted=false)
-        if length(strings) != length(coeffs)
-            throw(DimensionMismatch("bad dims"))
-        end
-        if ! isempty(strings)
-            n = length(first(strings))
-            if ! all(x -> length(x) == n, strings)
-                throw(DimensionMismatch("Pauli strings are of differing lengths."))
-            end
-            if ! already_sorted
-                sort_and_sum_duplicates!(strings, coeffs)
-            end
-        end
+        _abstract_sum_inner_constructor_helper!(strings, coeffs, already_sorted)
+        # if length(strings) != length(coeffs)
+        #     throw(DimensionMismatch("bad dims"))
+        # end
+        # if ! isempty(strings)
+        #     n = length(first(strings))
+        #     if ! all(x -> length(x) == n, strings)
+        #         throw(DimensionMismatch("Pauli strings are of differing lengths."))
+        #     end
+        #     if ! already_sorted
+        #         sort_and_sum_duplicates!(strings, coeffs)
+        #     end
+        # end
         return new{typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end

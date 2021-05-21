@@ -1,5 +1,28 @@
 abstract type AbstractSum end
 
+function _abstract_sum_inner_constructor_helper!(strings, coeffs, already_sorted=false)
+    if length(strings) != length(coeffs)
+        throw(DimensionMismatch("bad dims"))
+    end
+    if ! isempty(strings)
+        n = length(first(strings))
+        if ! all(x -> length(x) == n, strings)
+            throw(DimensionMismatch("Fermi strings are of differing lengths."))
+        end
+        if ! already_sorted
+            sort_and_sum_duplicates!(strings, coeffs)
+        end
+    end
+    return nothing
+end
+
+## TODO: find a good way to abstract this
+# function _abstract_sum_from_terms(v::AbstractVector, already_sorted=false)
+#     strings = [x.ops for x in v]
+#     coeffs = [x.coeff for x in v]
+#     return FermiSum(strings, coeffs, already_sorted)
+# end
+
 ####
 #### IO
 ####
