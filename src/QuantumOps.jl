@@ -1,4 +1,4 @@
-module PauliStrings
+module QuantumOps
 
 import Requires
 import IsApprox

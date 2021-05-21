@@ -1,4 +1,4 @@
-using PauliStrings
+using QuantumOps
 using Test
 import SparseArrays
 
