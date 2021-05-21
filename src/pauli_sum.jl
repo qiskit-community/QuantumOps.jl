@@ -236,15 +236,15 @@ end
 #     PauliSum(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
 # end
 
-function Base.:*(n::Number, psum::PauliSum)
-    already_sorted = true
-    PauliSum(psum.strings, n .* psum.coeffs, already_sorted)
-end
+# function Base.:*(n::Number, psum::PauliSum)
+#     already_sorted = true
+#     PauliSum(psum.strings, n .* psum.coeffs, already_sorted)
+# end
 
-function Base.:/(psum::PauliSum, n)
-    already_sorted = true
-    PauliSum(psum.strings, psum.coeffs ./ n, already_sorted)
-end
+# function Base.:/(psum::PauliSum, n)
+#     already_sorted = true
+#     PauliSum(psum.strings, psum.coeffs ./ n, already_sorted)
+# end
 
 ## TODO: new_coeffs may be a Vector{<:Real}, but because of phase
 ## we need to set a coefficient to a complex type, which errors out.

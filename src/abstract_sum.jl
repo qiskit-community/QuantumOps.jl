@@ -304,3 +304,13 @@ function Base.:-(psum::AbstractSum)
     already_sorted = true
     typeof(psum)(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
 end
+
+function Base.:*(n::Number, psum::AbstractSum)
+    already_sorted = true
+    typeof(psum)(psum.strings, n .* psum.coeffs, already_sorted)
+end
+
+function Base.:/(psum::AbstractSum, n)
+    already_sorted = true
+    typeof(psum)(psum.strings, psum.coeffs ./ n, already_sorted)
+end
