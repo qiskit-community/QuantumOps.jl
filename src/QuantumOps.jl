@@ -7,17 +7,19 @@ import Random
 import LinearAlgebra, Random
 using StaticArrays
 import ThreadsX
-import FLoops
+#import FLoops
 import ILog2
 import SparseArrays
 
+export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum
+export Z4Group0, Z4Group, AbstractZ4Group
+
 export isunitary
-export PauliTerm, pauli_basis, mul!, rand_pauli_term, rand_pauli_sum
-export AbstractPauli, pauli_index, phase, weight, pauli_vector
-export Pauli, PauliI
-export PauliSum, add!, lmul!, numeric_function
-export Z4Group0, z4group0
-export Z4Group, AbstractZ4Group, z4group
+export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum
+export op_index, phase, weight, pauli_vector
+export add!, lmul!, numeric_function
+export z4group0
+export z4group
 
 export ⊗
 const ⊗ = kron
@@ -56,6 +58,7 @@ include("z4group0.jl")
 
 using .Z4Group0s
 
+include("abstract_op.jl")
 include("abstract_pauli.jl")
 
 include("pauli.jl")
@@ -64,9 +67,18 @@ using .Paulis
 include("pauli_i.jl")
 using .PaulisI
 
+include("abstract_term.jl")
 include("pauli_term.jl")
+include("abstract_sum.jl")
 include("pauli_sum.jl")
 
 include("default_abstract_pauli.jl")
+
+include("fermi_op.jl")
+
+using .FermiOps
+
+include("fermi_term.jl")
+include("fermi_sum.jl")
 
 end # module

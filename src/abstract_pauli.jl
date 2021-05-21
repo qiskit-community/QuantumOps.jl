@@ -1,5 +1,5 @@
 #abstract type AbstractPauli{T} <: AbstractMatrix{T} end
-abstract type AbstractPauli{T} end
+abstract type AbstractPauli{T} <: AbstractOp end
 
 ####
 #### Constructors
@@ -62,15 +62,15 @@ characters I, X, Y, Z.
 Vector{T}(ps::AbstractString) where {T <: AbstractPauli} = [T(s) for s in ps]
 
 """
-    pauli_vector(pauli_index, n_qubits, indices=Vector{Int}(undef, n_qubits))
+    pauli_vector(op_index, n_qubits, indices=Vector{Int}(undef, n_qubits))
 
 Return a `Vector` of Pauli's representing a multi-qubit Pauli indexed by the base-4
-representation of `pauli_index`. A temporary array `indices` may be passed to avoid
+representation of `op_index`. A temporary array `indices` may be passed to avoid
 allocation.
 """
-function pauli_vector(::Type{PauliT}, pauli_index::Integer, n_qubits::Integer,
+function pauli_vector(::Type{PauliT}, op_index::Integer, n_qubits::Integer,
                      indices=Vector{Int}(undef, n_qubits)) where PauliT
-    digits!(indices, pauli_index; base=4)
+    digits!(indices, op_index; base=4)
     reverse!(indices)  # agree with sort order
     return PauliT.(indices)
 end
@@ -83,9 +83,11 @@ end
 #### IO
 ####
 
+const _pauli_chars = ('I', 'X', 'Y', 'Z')
+op_chars(::Type{AbstractPauli}) = _pauli_chars
+
 function Base.show(io::IO, p::AbstractPauli)
-    _pauli_chars = ('I', 'X', 'Y', 'Z')
-    print(io, _pauli_chars[pauli_index(p) + 1])
+    print(io, _pauli_chars[op_index(p) + 1])
 end
 
 ## Use this if `AbstractPauli <: AbstractMatrix`
@@ -123,12 +125,12 @@ const _SZmat = @SMatrix [1.0 0; 0 -1]
 
 function Base.Matrix(p::AbstractPauli)
     matrices = (_Imat, _Xmat, _Ymat, _Zmat)
-    return matrices[pauli_index(p) + 1]
+    return matrices[op_index(p) + 1]
 end
 
 function SparseArrays.sparse(p::AbstractPauli)
     matrices = (_Isparse, _Xsparse, _Ysparse, _Zsparse)
-    return matrices[pauli_index(p) + 1]
+    return matrices[op_index(p) + 1]
 end
 
 ####
@@ -139,7 +141,7 @@ Base.size(::AbstractPauli) = (2, 2)
 
 function smatrix(p::AbstractPauli)
     static = (_SImat, _SXmat, _SYmat, _SZmat)
-    return static[pauli_index(p) + 1]
+    return static[op_index(p) + 1]
 end
 
 Base.getindex(p::AbstractPauli, i, j) = smatrix(p)[i, j]
@@ -152,14 +154,14 @@ Base.one(::Type{PauliT}) where PauliT <: AbstractPauli = PauliT(:I)
 
 Base.one(::PauliT) where PauliT <: AbstractPauli = one(PauliT)
 
-Base.:(==)(p1::AbstractPauli, p2::AbstractPauli) = pauli_index(p1) == pauli_index(p2)
+Base.:(==)(p1::AbstractPauli, p2::AbstractPauli) = op_index(p1) == op_index(p2)
 
 """
     isless(p1::AbstractPauli, p2::AbstractPauli)
 
 Canonical (lexical) order of `AbstractPauli` is I < X < Y < Z.
 """
-Base.isless(p1::AbstractPauli, p2::AbstractPauli) = pauli_index(p1) < pauli_index(p2)
+Base.isless(p1::AbstractPauli, p2::AbstractPauli) = op_index(p1) < op_index(p2)
 
 LinearAlgebra.ishermitian(::AbstractPauli) = true
 
@@ -229,7 +231,7 @@ function phase(p1::AbstractPauli, p2::AbstractPauli)
         has_imag_unit = false
         has_sign_flip = false
     else
-        d = pauli_index(p1) - pauli_index(p2)
+        d = op_index(p1) - op_index(p2)
         if d == 0
             has_imag_unit = false
             has_sign_flip = false
@@ -261,7 +263,7 @@ LinearAlgebra.eigvals(::AbstractPauli) = [-1.0, 1.0]
 
 Count the number of Paulis in the string that are not the identity.
 """
-weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> pauli_index(pauli) != 0, v)
+weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> op_index(pauli) != 0, v)
 
 ####
 #### Interface for subtypes
@@ -281,11 +283,11 @@ function Base.:*(p1::AbstractPauli, p2::AbstractPauli)
 end
 
 """
-    pauli_index(p::AbstractPauli)::Int
+    op_index(p::AbstractPauli)::Int
 
 Return the Pauli index in `[0,3]` of `p`.
 """
-function pauli_index end
+function op_index end
 
 """
     abstract type AbstractPauli

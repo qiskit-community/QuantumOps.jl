@@ -3,10 +3,12 @@
 
 Represents a Pauli string (tensor product of Paulis) with a coefficient.
 """
-struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V}
+struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V} <: AbstractTerm{W}
     paulis::T
     coeff::V
 end
+
+op_string(t::PauliTerm) = t.paulis
 
 ####
 #### Constructors
@@ -86,7 +88,6 @@ end
 
 rand_pauli_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_pauli_term(PauliDefault, n, coeff=coeff)
 
-
 ###
 ### The following is partially broken. It works, except the a vector of random PauliTerms will
 ### have return type Any. This is explained the docs for samplers. But, it is a PITA in the case.
@@ -156,15 +157,15 @@ end
 ####
 
 ## type params only to get correct dispatch. There must be a better way
-function Base.show(io::IO, ps::PauliTerm{T,V,CoeffT}) where {T,V,CoeffT}
-    if ps.coeff isa Real  # could use CoeffT here.
-        print(io, ps.coeff)
-    else
-        print(io, "(", ps.coeff, ")")
-    end
-    print(io, " * ")
-    print(io, ps.paulis)
-end
+# function Base.show(io::IO, ps::PauliTerm{T,V,CoeffT}) where {T,V,CoeffT}
+#     if ps.coeff isa Real  # could use CoeffT here.
+#         print(io, ps.coeff)
+#     else
+#         print(io, "(", ps.coeff, ")")
+#     end
+#     print(io, " * ")
+#     print(io, ps.paulis)
+# end
 
 function Base.show(io::IO, ps::PauliTerm{T,V,Z4Group}) where {T,V}
     print(io, ps.coeff, " ")
@@ -176,18 +177,18 @@ end
 ####
 
 # :popat!
-for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
-             :setindex!, :iterate, :pop!, :popfirst!)
-    @eval begin
-        Base.$func(ps::PauliTerm, args...) = $func(ps.paulis, args...)
-    end
-end
+# for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
+#              :setindex!, :iterate, :pop!, :popfirst!)
+#     @eval begin
+#         Base.$func(ps::PauliTerm, args...) = $func(ps.paulis, args...)
+#     end
+# end
 
-for func in (:push!, :pushfirst!, :insert!)
-    @eval begin
-        Base.$func(ps::PauliTerm, args...) = ($func(ps.paulis, args...); ps)
-    end
-end
+# for func in (:push!, :pushfirst!, :insert!)
+#     @eval begin
+#         Base.$func(ps::PauliTerm, args...) = ($func(ps.paulis, args...); ps)
+#     end
+# end
 
 """
     reverse!(pt::PauliTerm)
@@ -209,16 +210,8 @@ Base.reverse(pt::PauliTerm) = reverse!(copy(pt))
 #### Compare / predicates
 ####
 
-Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(ps.coeff))
-
-Base.:(==)(ps1::PauliTerm, ps2::PauliTerm) = ps1.coeff == ps2.coeff && ps1.paulis == ps2.paulis
-
-function Base.isless(ps1::PauliTerm, ps2::PauliTerm)
-    if ps1.paulis == ps2.paulis
-        return isless(ps1.coeff, ps2.coeff)
-    end
-    return isless(ps1.paulis, ps2.paulis)
-end
+# factored out
+#Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(ps.coeff))
 
 """
     isunitary(pt::PauliTerm)
@@ -255,8 +248,8 @@ function Base.:*(ps1::PauliTerm, ps2::PauliTerm)
     return mul!(similar(ps1.paulis), ps1, ps2)
 end
 
-Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
-Base.:*(ps::PauliTerm, z::Number) = z * ps
+# Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
+# Base.:*(ps::PauliTerm, z::Number) = z * ps
 
 Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
 Base.:*(p::AbstractPauli, z::Number) = z * p
@@ -277,13 +270,13 @@ function Base.:^(p::PauliTerm, n::Integer)
 end
 
 function Base.conj(pt::PauliTerm)
-    num_ys = count(p -> pauli_index(p) == 2, pt.paulis)
+    num_ys = count(p -> op_index(p) == 2, pt.paulis)
     fac = iseven(num_ys) ? 1 : -1
     return PauliTerm(pt.paulis, conj(pt.coeff) * fac)
 end
 
 function Base.transpose(pt::PauliTerm)
-    num_ys = count(p -> pauli_index(p) == 2, pt.paulis)
+    num_ys = count(p -> op_index(p) == 2, pt.paulis)
     fac = iseven(num_ys) ? 1 : -1
     return PauliTerm(pt.paulis, pt.coeff * fac)
 end
