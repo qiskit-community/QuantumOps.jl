@@ -311,21 +311,22 @@ end
 
 add!(psum::PauliSum, pt::PauliTerm) = add!(psum, pt.paulis, pt.coeff)
 
-function add!(psum::PauliSum, paulis, coeff)
-    inds = searchsorted(psum.strings, paulis)
-    if length(inds) == 0 # paulis not found, add a new term
-        insert!(psum, first(inds), (paulis, coeff))
-    elseif length(inds) == 1 # one element equal to paulis
-        i = first(inds) # get the (single) index
-        @inbounds psum.coeffs[i] += coeff # add p to existing term
-        @inbounds if isapprox_zero(psum.coeffs[i])
-            @inbounds deleteat!(psum, [i])
-        end
-    else
-        throw(ErrorException("Duplicate terms found in operator sum."))
-    end
-    return psum
-end
+# Moved this to abstract_sum.jl
+# function add!(psum::PauliSum, paulis, coeff)
+#     inds = searchsorted(psum.strings, paulis)
+#     if length(inds) == 0 # paulis not found, add a new term
+#         insert!(psum, first(inds), (paulis, coeff))
+#     elseif length(inds) == 1 # one element equal to paulis
+#         i = first(inds) # get the (single) index
+#         @inbounds psum.coeffs[i] += coeff # add p to existing term
+#         @inbounds if isapprox_zero(psum.coeffs[i])
+#             @inbounds deleteat!(psum, [i])
+#         end
+#     else
+#         throw(ErrorException("Duplicate terms found in operator sum."))
+#     end
+#     return psum
+# end
 
 # We use lmul! because that's how LinearAlgebra offers "scaling" of a Matrix (or rmul!)
 """
