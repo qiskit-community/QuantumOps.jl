@@ -16,7 +16,7 @@ export Z4Group0, Z4Group, AbstractZ4Group
 
 export isunitary
 export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum
-export pauli_index, phase, weight, pauli_vector
+export op_index, phase, weight, pauli_vector
 export add!, lmul!, numeric_function
 export z4group0
 export z4group
@@ -58,6 +58,7 @@ include("z4group0.jl")
 
 using .Z4Group0s
 
+include("abstract_op.jl")
 include("abstract_pauli.jl")
 
 include("pauli.jl")

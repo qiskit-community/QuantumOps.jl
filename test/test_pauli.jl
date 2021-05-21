@@ -57,6 +57,10 @@ end
     @test PauliTerm(:XYZ) == PauliTerm("XYZ")
 
     @test sqrt(PauliTerm(X,Y)) == PauliSum(["II", "XY"], [0.5 + 0.5im, 0.5 - 0.5im])
+
+    t = PauliTerm("XYZ")
+    @test reverse(t) != t
+    @test reverse(reverse(t)) == t
 end
 
 @testset "PauliSum" begin

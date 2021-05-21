@@ -7,7 +7,7 @@ module PaulisI
 
 import ..AbstractPauli
 import .._AbstractPauli
-import ..pauli_index
+import ..op_index
 
 export PauliI
 
@@ -46,7 +46,7 @@ PauliI(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(PauliI, 
 
 Base.copy(p::PauliI) = p
 
-pauli_index(p::PauliI) = p.ind
+op_index(p::PauliI) = p.ind
 
 ####
 #### Compare / predicates
@@ -88,6 +88,6 @@ Multiplication that returns a `PauliI`, but ignores the phase.
 Base.:*(p1::PauliI, p2::PauliI) = PauliI(@inbounds pauli_i_mult_1d[p1.ind * 4 + p2.ind + 1])
 #Base.:*(p1::PauliI, p2::PauliI) = PauliI(pauli_i_mult[p1.ind+1][p2.ind+1])
 # This one allocates for some reason
-#Base.:*(p1::PauliI, p2::PauliI) = PauliI(pauli_index(Pauli(p1.ind) * Pauli(p2.ind)))
+#Base.:*(p1::PauliI, p2::PauliI) = PauliI(op_index(Pauli(p1.ind) * Pauli(p2.ind)))
 
 end # module PaulisI

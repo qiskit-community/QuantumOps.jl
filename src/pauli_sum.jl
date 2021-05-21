@@ -20,7 +20,6 @@ function term_type(::Type{T}) where T <: PauliSum
     return PauliTerm
 end
 
-
 ####
 #### Constructors
 ####
@@ -152,60 +151,6 @@ end
 rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
     rand_pauli_sum(PauliDefault, n_factors, n_terms; coeff_func=coeff_func)
 
-####
-#### Canonicalization / sorting
-####
-
-### These are helpers for constructors
-
-# function sort_and_sum_duplicates!(psum::PauliSum)
-#     sort_and_sum_duplicates!(psum.strings, psum.coeffs)
-#     return psum
-# end
-
-# function sort_and_sum_duplicates!(terms, coeffs)
-#     sort_sums!(terms, coeffs)
-#     sum_duplicates!(terms, coeffs)
-#     remove_zeros!(terms, coeffs)
-#     return nothing
-# end
-
-# """
-#     remove_zeros!(psum::PauliSum)
-#     remove_zeros!(terms, coeffs)
-
-# Remove terms from `psum` with coefficient (approximately) equal to zero.
-# If `terms` and `coeffs` are supplied, then elements are deleted from both `terms`
-# and `coeffs` at indices corresponding to vanishing elements of `coeff`.
-# """
-# function remove_zeros!(psum::PauliSum)
-#     remove_zeros!(psum.strings, psum.coeffs)
-#     return psum
-# end
-
-# function remove_zeros!(terms, coeffs)
-#     # ThreadsX is very slow for small arrays. We need to discriminate
-#     # inds = ThreadsX.findall(isapprox_zero, coeffs)
-#     # The following is 500ns for two non-zero floats. What is wrong?
-#     # Appears to be this: iszero.(array) is taking almost all the time.
-#     # The following is what Base does, but writing it out is faster. A bug.
-#     inds = findall(isapprox_zero.(coeffs))
-#     deleteat!(coeffs, inds)
-#     deleteat!(terms, inds)
-#     return nothing
-# end
-
-## This is 10x faster than the sorting step, even though we don't check if all
-## strings are already unique.
-#sum_duplicates!(psum::PauliSum) = sum_duplicates!(psum.strings, psum.coeffs)
-
-
-# function sort_sums!(strings, coeffs)
-#     p = sortperm(strings; alg=MergeSort) # alg=MergeSort is 50% faster for 1000x10 strings
-#     permute!(strings, p)
-#     permute!(coeffs, p)
-#     return nothing
-# end
 
 #####
 ##### Conversion
@@ -249,10 +194,6 @@ SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for 
 #### Container interface
 ####
 
-## Fails for empty psum
-Base.size(psum::PauliSum) = (length(psum), length(first(psum)))
-
-Base.size(psum::PauliSum, i::Integer) = size(psum)[i]
 
 #Base.getindex(psum::PauliSum, j::Integer) = PauliTerm(psum.strings[j], psum.coeffs[j])
 
@@ -260,13 +201,6 @@ Base.size(psum::PauliSum, i::Integer) = size(psum)[i]
 # # TODO: Use already_sorted flag ?
 
 # Base.getindex(psum::PauliSum, inds) = PauliSum(psum.strings[inds], psum.coeffs[inds])
-
-# Iterate uses getindex to return `PauliTerm`s.
-function Base.iterate(psum::PauliSum, state=1)
-    state > lastindex(psum) && return nothing
-    return (psum[state], state + 1)
-end
-
 
 # for func in (:length, :eachindex, :lastindex, :firstindex)
 #     @eval begin
@@ -276,25 +210,6 @@ end
 #     end
 # end
 
-"""
-    reverse(ps::PauliSum)
-
-Reverse qubit order in `ps` and sort terms.
-"""
-Base.reverse(ps::PauliSum) = reverse!(copy(ps))
-
-"""
-    reverse!(ps::PauliSum)
-
-Reverse qubit order in `ps` in place and sort terms.
-"""
-function Base.reverse!(ps::PauliSum)
-    strings = ps.strings
-    @inbounds for i in eachindex(strings)
-        reverse!(strings[i])
-    end
-    return Base.sort!(ps)
-end
 
 ####
 #### Updating / adding elements

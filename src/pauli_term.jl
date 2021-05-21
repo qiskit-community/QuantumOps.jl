@@ -178,18 +178,18 @@ end
 ####
 
 # :popat!
-for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
-             :setindex!, :iterate, :pop!, :popfirst!)
-    @eval begin
-        Base.$func(ps::PauliTerm, args...) = $func(ps.paulis, args...)
-    end
-end
+# for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
+#              :setindex!, :iterate, :pop!, :popfirst!)
+#     @eval begin
+#         Base.$func(ps::PauliTerm, args...) = $func(ps.paulis, args...)
+#     end
+# end
 
-for func in (:push!, :pushfirst!, :insert!)
-    @eval begin
-        Base.$func(ps::PauliTerm, args...) = ($func(ps.paulis, args...); ps)
-    end
-end
+# for func in (:push!, :pushfirst!, :insert!)
+#     @eval begin
+#         Base.$func(ps::PauliTerm, args...) = ($func(ps.paulis, args...); ps)
+#     end
+# end
 
 """
     reverse!(pt::PauliTerm)
@@ -279,13 +279,13 @@ function Base.:^(p::PauliTerm, n::Integer)
 end
 
 function Base.conj(pt::PauliTerm)
-    num_ys = count(p -> pauli_index(p) == 2, pt.paulis)
+    num_ys = count(p -> op_index(p) == 2, pt.paulis)
     fac = iseven(num_ys) ? 1 : -1
     return PauliTerm(pt.paulis, conj(pt.coeff) * fac)
 end
 
 function Base.transpose(pt::PauliTerm)
-    num_ys = count(p -> pauli_index(p) == 2, pt.paulis)
+    num_ys = count(p -> op_index(p) == 2, pt.paulis)
     fac = iseven(num_ys) ? 1 : -1
     return PauliTerm(pt.paulis, pt.coeff * fac)
 end

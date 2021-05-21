@@ -2,7 +2,7 @@ module Paulis
 
 import ..AbstractPauli
 import .._AbstractPauli
-import ..pauli_index
+import ..op_index
 
 export Pauli
 
@@ -43,8 +43,8 @@ Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 
 Base.copy(p::Pauli) = p
 
-#pauli_index(p::Pauli) = (p.hi << 1) + p.lo
-pauli_index(p::Pauli) = 2 * p.hi + p.lo
+#op_index(p::Pauli) = (p.hi << 1) + p.lo
+op_index(p::Pauli) = 2 * p.hi + p.lo
 
 ####
 #### Compare / predicates

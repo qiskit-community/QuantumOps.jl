@@ -23,6 +23,12 @@ end
 #     return FermiSum(strings, coeffs, already_sorted)
 # end
 
+function Base.copy(as::AbstractSum)
+    (new_strings, new_coeffs) = (copy.(as.strings), copy(as.coeffs))
+    already_sorted = true
+    return typeof(as)(new_strings, new_coeffs, already_sorted)
+end
+
 ####
 #### IO
 ####
@@ -35,6 +41,10 @@ function Base.show(io::IO, asum::AbstractSum)
         end
     end
 end
+
+####
+#### Canonicalization / sorting
+####
 
 function sort_and_sum_duplicates!(asum::AbstractSum)
     sort_and_sum_duplicates!(fsum.strings, fsum.coeffs)
@@ -112,9 +122,23 @@ function sum_duplicates!(op_strings, coeffs)
     return nothing
 end
 
+####
+#### Container interface
+####
+
+## Fails for empty psum
+Base.size(asum::AbstractSum) = (length(asum), length(first(asum)))
+Base.size(asum::AbstractSum, i::Integer) = size(asum)[i]
+
 # Enables using `findall`, for instance.
 # Fallback methods for `values` and `pairs` are OK.
 Base.keys(asum::AbstractSum) = eachindex(asum)
+
+# Iterate uses getindex to return `AbstractTerm`s.
+function Base.iterate(asum::AbstractSum, state=1)
+    state > lastindex(asum) && return nothing
+    return (asum[state], state + 1)
+end
 
 for func in (:length, :eachindex, :lastindex, :firstindex)
     @eval begin
@@ -131,3 +155,23 @@ Base.getindex(asum::AbstractSum, j::Integer, k::Integer) = asum.strings[j][k]
 # TODO: Use already_sorted flag ?
 
 Base.getindex(asum::AbstractSum, inds) = typeof(asum)(asum.strings[inds], asum.coeffs[inds])
+
+"""
+    reverse(ps::AbstractSum)
+
+Reverse qubit order in `ps` and sort terms.
+"""
+Base.reverse(as::AbstractSum) = reverse!(copy(as))
+
+"""
+    reverse!(ps::AbstractSum)
+
+Reverse qubit order in `ps` in place and sort terms.
+"""
+function Base.reverse!(as::AbstractSum)
+    strings = as.strings
+    @inbounds for i in eachindex(strings)
+        reverse!(strings[i])
+    end
+    return Base.sort!(as)
+end

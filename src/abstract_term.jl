@@ -10,3 +10,21 @@ function Base.show(io::IO, term::AbstractTerm) # where { T, V, CoeffT, AbstractT
         print(io, "(", term.coeff, ")")
     end
 end
+
+####
+#### Container interface
+####
+
+# :popat!
+for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
+             :setindex!, :iterate, :pop!, :popfirst!)
+    @eval begin
+        Base.$func(ps::AbstractTerm, args...) = $func(op_string(ps), args...)
+    end
+end
+
+for func in (:push!, :pushfirst!, :insert!)
+    @eval begin
+        Base.$func(ps::AbstractTerm, args...) = ($func(op_string(ps), args...); ps)
+    end
+end

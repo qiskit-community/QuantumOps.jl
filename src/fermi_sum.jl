@@ -8,6 +8,7 @@ struct FermiSum{StringT, CoeffT} <: AbstractSum
     end
 end
 
+
 function term_type(::Type{T}) where T <: FermiSum
     return FermiTerm
 end
