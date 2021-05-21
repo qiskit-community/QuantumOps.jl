@@ -8,11 +8,21 @@ end
 
 op_string(t::FermiTerm) = t.ops
 
+####
+#### Constructors
+####
+
 function FermiTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractFermiOp
     return FermiTerm(Vector{T}(s), coeff)
 end
 
 FermiTerm(s::AbstractString, coeff=_DEFAULT_COEFF) = FermiTerm(FermiOp, s, coeff)
+
+function FermiTerm(inds::NTuple{4, Int}, coeff, n_modes::Integer)
+    (ops, phase) = index_to_ops_phase(inds)
+    (factors, new_coeff) = _ferm_term(ops, phase, coeff, n_modes)
+    return FermiTerm(factors, new_coeff)
+end
 
 index_to_ops(inds) = index_to_ops(inds...)
 
@@ -68,12 +78,6 @@ end
 
 index_to_ops_phase(inds) = (ops=index_to_ops(inds), phase=index_phase(inds))
 
-function FermiTerm(inds::NTuple{4, Int}, coeff, n_modes::Integer)
-    (ops, phase) = index_to_ops_phase(inds)
-    (factors, new_coeff) = _ferm_term(ops, phase, coeff, n_modes)
-    return FermiTerm(factors, new_coeff)
-end
-
 ## Embed `ops` in a string of width `n_modes`
 function _ferm_term(ops::NTuple{4}, phase::Integer, coeff, n_modes::Integer)
     factors = fill(id_op, n_modes)
@@ -84,7 +88,6 @@ function _ferm_term(ops::NTuple{4}, phase::Integer, coeff, n_modes::Integer)
         factors[ind] = op
     end
     return (factors, phase * coeff)
-#    return FermiTerm(factors, phase * coeff)
 end
 
 """

@@ -156,6 +156,28 @@ Base.getindex(asum::AbstractSum, j::Integer, k::Integer) = asum.strings[j][k]
 
 Base.getindex(asum::AbstractSum, inds) = typeof(asum)(asum.strings[inds], asum.coeffs[inds])
 
+####
+#### Compare / predicates
+####
+
+# This will fail for an empty `psum`. Use type info instead.
+# There no well-defined `one` for `PauliSum`. It depends on the
+# width of the string.
+function Base.one(asum::AbstractSum)
+    t = one(first(asum))
+    already_sorted = true
+    typeof(asum)([op_string(t)], [t.coeff], already_sorted)
+end
+
+function Base.:(==)(asum1::AbstractSum, asum2::AbstractSum)
+    if length(asum1) != length(asum2)
+        return false
+    end
+    # This is 8x faster for large arrays, 10^4 or 5.
+    return ThreadsX.all(i -> asum1[i] == asum2[i], eachindex(asum1))
+end
+
+
 """
     reverse(ps::AbstractSum)
 
@@ -201,4 +223,94 @@ function add!(asum::AbstractSum, op_string, coeff)
         throw(ErrorException("Duplicate terms found in operator sum."))
     end
     return asum
+end
+
+"""
+    add!(to::AbstractSum, from::AbstractSum)
+
+Adds the terms in `from` to `to` in place. `to` is mutated. `from` is not.
+"""
+function add!(to::AbstractSum, from::AbstractSum)
+    for p in from
+        add!(to, p)
+    end
+    return to
+end
+
+####
+#### Updating / adding elements
+####
+
+"""
+    insert!(ps::AbstractSum, ind, p::AbstractTerm)
+
+Insert `p` into `ps` without sorting resulting `ps`.
+"""
+Base.insert!(ps::AbstractSum, ind, p::AbstractTerm) = insert!(ps, ind, (op_string(p), p.coeff))
+
+@inline function Base.insert!(ps::AbstractSum, ind, (paulis, coeff))
+    insert!(ps.strings, ind, paulis)
+    insert!(ps.coeffs, ind, coeff)
+    return ps
+end
+
+function Base.deleteat!(ps::AbstractSum, args...)
+    deleteat!(ps.coeffs, args...)
+    deleteat!(ps.strings, args...)
+    return ps
+end
+
+"""
+    push!(psum::AbstractSum, ps::AbstractTerm...)
+
+Push `ps` to the end of `psum` without regard to order
+or possible duplication.
+
+See `sort_and_sum_duplicates!`.
+"""
+function Base.push!(psum::AbstractSum, ps::AbstractTerm...)
+    for p in ps
+        push!(psum.strings, op_string(p))
+        push!(psum.coeffs, p.coeff)
+    end
+    return ps
+end
+
+function Base.push!(psum::AbstractSum, (string, coeff))
+    push!(psum.strings, string)
+    push!(psum.coeffs, coeff)
+end
+
+####
+#### Algebra / mathematical operations
+####
+
+Base.:+(terms::T...) where {T <: AbstractTerm} = sum_type(T)([terms...])
+
+function Base.:+(ps0::AbstractSum, pss::AbstractSum...)
+    ps_out = copy(ps0)
+    for ps in pss
+        add!(ps_out, ps)
+    end
+    return ps_out
+end
+
+## TODO: Do something more efficient here.
+function Base.:-(pt1::T, pt2::T) where T <: AbstractTerm
+    return sum_type(T)([pt1, -one(pt2.coeff) * pt2])
+end
+
+function Base.:-(psum::AbstractSum)
+    already_sorted = true
+    typeof(psum)(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
+end
+
+function Base.:*(n::Number, psum::AbstractSum)
+    already_sorted = true
+    typeof(psum)(psum.strings, n .* psum.coeffs, already_sorted)
+end
+
+function Base.:/(psum::AbstractSum, n)
+    already_sorted = true
+    typeof(psum)(psum.strings, psum.coeffs ./ n, already_sorted)
 end
