@@ -1,4 +1,4 @@
-struct FermiSum{StringT, CoeffT}
+struct FermiSum{StringT, CoeffT} <: AbstractSum
     strings::StringT
     coeffs::CoeffT
 

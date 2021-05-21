@@ -1,3 +1,5 @@
+abstract type AbstractSum end
+
 ## Factor this out
 function sort_and_sum_duplicates!(terms, coeffs)
     sort_sums!(terms, coeffs)

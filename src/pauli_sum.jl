@@ -6,7 +6,7 @@ Represents a weighted sum (ie a linear combination) of multi-qubit Pauli strings
 By default `PauliSum`s are constructed and maintained with terms sorted in a canonical order
 and with no duplicate Pauli strings.
 """
-struct PauliSum{StringT, CoeffT}
+struct PauliSum{StringT, CoeffT} <: AbstractSum
     strings::StringT
     coeffs::CoeffT
 
