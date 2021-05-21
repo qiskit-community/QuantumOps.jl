@@ -28,4 +28,10 @@ function Base.show(io::IO, op::FermiOp)
     print(io, _ferm_chars[op_index(op) + 1])
 end
 
+function Base.show(io::IO, ps::AbstractArray{<:AbstractFermiOp})
+    for p in ps
+        show(io, p)
+    end
+end
+
 end # module FermiOps
