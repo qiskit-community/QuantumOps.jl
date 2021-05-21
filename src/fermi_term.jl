@@ -3,6 +3,8 @@ struct FermiTerm{T}
     coeff::T
 end
 
+using .FermiOps: number_op, raise_op, lower_op, no_op, id_op
+
 ## Factor out
 ## TODO: inefficient
 function Base.isless(ft1::FermiTerm, ft2::FermiTerm)
