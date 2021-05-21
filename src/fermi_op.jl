@@ -2,6 +2,10 @@
 #### FermiOp
 ####
 
+module FermiOps
+
+export FermiOp
+
 struct FermiOp
     ind::UInt8
 end
@@ -21,3 +25,5 @@ function Base.show(io::IO, op::FermiOp)
     _ferm_chars = ('I', 'N', 'I', '+', '-', 'X')
     print(io, _ferm_chars[op_index(op) + 1])
 end
+
+end # module FermiOps

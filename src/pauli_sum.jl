@@ -169,12 +169,12 @@ function sort_and_sum_duplicates!(psum::PauliSum)
     return psum
 end
 
-function sort_and_sum_duplicates!(terms, coeffs)
-    sort_sums!(terms, coeffs)
-    sum_duplicates!(terms, coeffs)
-    remove_zeros!(terms, coeffs)
-    return nothing
-end
+# function sort_and_sum_duplicates!(terms, coeffs)
+#     sort_sums!(terms, coeffs)
+#     sum_duplicates!(terms, coeffs)
+#     remove_zeros!(terms, coeffs)
+#     return nothing
+# end
 
 """
     remove_zeros!(psum::PauliSum)
@@ -189,17 +189,17 @@ function remove_zeros!(psum::PauliSum)
     return psum
 end
 
-function remove_zeros!(terms, coeffs)
-    # ThreadsX is very slow for small arrays. We need to discriminate
-    # inds = ThreadsX.findall(isapprox_zero, coeffs)
-    # The following is 500ns for two non-zero floats. What is wrong?
-    # Appears to be this: iszero.(array) is taking almost all the time.
-    # The following is what Base does, but writing it out is faster. A bug.
-    inds = findall(isapprox_zero.(coeffs))
-    deleteat!(coeffs, inds)
-    deleteat!(terms, inds)
-    return nothing
-end
+# function remove_zeros!(terms, coeffs)
+#     # ThreadsX is very slow for small arrays. We need to discriminate
+#     # inds = ThreadsX.findall(isapprox_zero, coeffs)
+#     # The following is 500ns for two non-zero floats. What is wrong?
+#     # Appears to be this: iszero.(array) is taking almost all the time.
+#     # The following is what Base does, but writing it out is faster. A bug.
+#     inds = findall(isapprox_zero.(coeffs))
+#     deleteat!(coeffs, inds)
+#     deleteat!(terms, inds)
+#     return nothing
+# end
 
 ## This is 10x faster than the sorting step, even though we don't check if all
 ## strings are already unique.
@@ -234,12 +234,12 @@ end
 ## This is expensive. Most time is spent in sortperm.
 ## There is no ThreadsX.sortperm, only sort.
 Base.sort!(psum::PauliSum) = (sort_sums!(psum.strings, psum.coeffs); psum)
-function sort_sums!(strings, coeffs)
-    p = sortperm(strings; alg=MergeSort) # alg=MergeSort is 50% faster for 1000x10 strings
-    permute!(strings, p)
-    permute!(coeffs, p)
-    return nothing
-end
+# function sort_sums!(strings, coeffs)
+#     p = sortperm(strings; alg=MergeSort) # alg=MergeSort is 50% faster for 1000x10 strings
+#     permute!(strings, p)
+#     permute!(coeffs, p)
+#     return nothing
+# end
 
 #####
 ##### Conversion

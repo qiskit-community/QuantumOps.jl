@@ -3,6 +3,7 @@ using Test
 import SparseArrays
 
 include("./test_pauli.jl")
+include("./test_fermi.jl")
 
 # For testing. Sometimes twice slower than constructing all at once
 # Testing that this gives the same result as standard construction
