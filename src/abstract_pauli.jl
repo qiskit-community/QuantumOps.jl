@@ -189,7 +189,7 @@ Base.inv(p::AbstractPauli) = p
 Multiply Paulis returning a  `NamedTuple` with members
 `:bare_pauli`, `:has_sign_flip`, `:has_imag_unit`.
 
-See `PauliStrings.phase`.
+See `QuantumOps.phase`.
 """
 function mul(p1::AbstractPauli, p2::AbstractPauli)
     bare_pauli = p1 * p2
