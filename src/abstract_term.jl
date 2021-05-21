@@ -1,4 +1,4 @@
-abstract type AbstractTerm end
+abstract type AbstractTerm{W} end
 
 ## type params only to get correct dispatch. There must be a better way
 function Base.show(io::IO, term::AbstractTerm) # where { T, V, CoeffT, AbstractTerm{T,V,CoeffT}}
@@ -9,6 +9,18 @@ function Base.show(io::IO, term::AbstractTerm) # where { T, V, CoeffT, AbstractT
     else
         print(io, "(", term.coeff, ")")
     end
+end
+
+Base.:(==)(op1::AbstractTerm, op2::AbstractTerm) = op1.coeff == op2.coeff && op_string(op1) == op_string(op2)
+
+_isless(x, y) = isless(x, y)
+_isless(x::Complex, y::Complex) = isless(abs2(x), abs2(y))
+
+function Base.isless(op1::AbstractTerm, op2::AbstractTerm)
+    if op_string(op1) == op_string(op2)
+        return _isless(op1.coeff, op2.coeff)
+    end
+    return isless(op_string(op1), op_string(op2))
 end
 
 ####

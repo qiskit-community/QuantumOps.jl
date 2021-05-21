@@ -1,24 +1,18 @@
 using .FermiOps: number_op, raise_op, lower_op, no_op, id_op
 
 #struct FermiTerm{T} <: AbstractTerm
-struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, V} <: AbstractTerm
+struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, V} <: AbstractTerm{W}
     ops::T
     coeff::V
 end
 
 op_string(t::FermiTerm) = t.ops
 
-# FermiTerm(v::AbstractVector{W}, coeff) where W<:AbstractFermiOp =
-#     FermiTerm{W, typeof(v), typeof(coeff)}(v, coeff)
-
-## Factor out
-## TODO: inefficient
-function Base.isless(ft1::FermiTerm, ft2::FermiTerm)
-    if ft1.ops == ft2.ops
-        return isless(ft1.coeff, ft2.coeff)
-    end
-    return isless(ft1.ops, ft2.ops)
+function FermiTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractFermiOp
+    return FermiTerm(Vector{T}(s), coeff)
 end
+
+FermiTerm(s::AbstractString, coeff=_DEFAULT_COEFF) = FermiTerm(FermiOp, s, coeff)
 
 index_to_ops(inds) = index_to_ops(inds...)
 

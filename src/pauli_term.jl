@@ -3,7 +3,7 @@
 
 Represents a Pauli string (tensor product of Paulis) with a coefficient.
 """
-struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V} <: AbstractTerm
+struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V} <: AbstractTerm{W}
     paulis::T
     coeff::V
 end
@@ -212,15 +212,6 @@ Base.reverse(pt::PauliTerm) = reverse!(copy(pt))
 ####
 
 Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(ps.coeff))
-
-Base.:(==)(ps1::PauliTerm, ps2::PauliTerm) = ps1.coeff == ps2.coeff && ps1.paulis == ps2.paulis
-
-function Base.isless(ps1::PauliTerm, ps2::PauliTerm)
-    if ps1.paulis == ps2.paulis
-        return isless(ps1.coeff, ps2.coeff)
-    end
-    return isless(ps1.paulis, ps2.paulis)
-end
 
 """
     isunitary(pt::PauliTerm)
