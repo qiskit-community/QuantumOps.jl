@@ -20,6 +20,7 @@ function term_type(::Type{T}) where T <: PauliSum
     return PauliTerm
 end
 
+
 ####
 #### Constructors
 ####

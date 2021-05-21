@@ -1,9 +1,15 @@
-struct FermiTerm{T}
-    ops::Vector{FermiOp}
-    coeff::T
+using .FermiOps: number_op, raise_op, lower_op, no_op, id_op
+
+#struct FermiTerm{T} <: AbstractTerm
+struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, V} <: AbstractTerm
+    ops::T
+    coeff::V
 end
 
-using .FermiOps: number_op, raise_op, lower_op, no_op, id_op
+op_string(t::FermiTerm) = t.ops
+
+# FermiTerm(v::AbstractVector{W}, coeff) where W<:AbstractFermiOp =
+#     FermiTerm{W, typeof(v), typeof(coeff)}(v, coeff)
 
 ## Factor out
 ## TODO: inefficient
@@ -12,14 +18,6 @@ function Base.isless(ft1::FermiTerm, ft2::FermiTerm)
         return isless(ft1.coeff, ft2.coeff)
     end
     return isless(ft1.ops, ft2.ops)
-end
-
-## Factor out
-function Base.show(io::IO, term::FermiTerm)
-    for op in term.ops
-        print(io, op)
-    end
-    print(io, " * ", term.coeff)
 end
 
 index_to_ops(inds) = index_to_ops(inds...)
@@ -100,7 +98,7 @@ Convert rank-4 tensor `h2` to a `Vector` of `FermiTerm`s.
 """
 function ferm_terms(h2)
     n_modes = first(size(h2))
-    terms = FermiTerm{eltype(h2)}[]
+    terms = FermiTerm{FermiOp, Vector{FermiOp}, eltype(h2)}[]
     for ind in CartesianIndices(h2)
         if (ind[1] == ind[2] || ind[3] == ind[4]) || h2[ind] == 0
             continue

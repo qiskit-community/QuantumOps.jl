@@ -3,10 +3,12 @@
 
 Represents a Pauli string (tensor product of Paulis) with a coefficient.
 """
-struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V}
+struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V} <: AbstractTerm
     paulis::T
     coeff::V
 end
+
+op_string(t::PauliTerm) = t.paulis
 
 ####
 #### Constructors

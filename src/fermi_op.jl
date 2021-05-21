@@ -1,12 +1,14 @@
-####
+<####
 #### FermiOp
 ####
 
 module FermiOps
 
-export FermiOp
+export FermiOp, AbstractFermiOp
 
-struct FermiOp
+abstract type AbstractFermiOp end
+
+struct FermiOp <: AbstractFermiOp
     ind::UInt8
 end
 

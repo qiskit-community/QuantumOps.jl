@@ -11,7 +11,7 @@ import ThreadsX
 import ILog2
 import SparseArrays
 
-export FermiOp, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum
+export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum
 export Z4Group0, Z4Group, AbstractZ4Group
 
 export isunitary
@@ -66,6 +66,7 @@ using .Paulis
 include("pauli_i.jl")
 using .PaulisI
 
+include("abstract_term.jl")
 include("pauli_term.jl")
 include("abstract_sum.jl")
 include("pauli_sum.jl")
