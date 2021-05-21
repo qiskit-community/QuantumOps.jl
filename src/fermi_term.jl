@@ -68,9 +68,10 @@ end
 
 index_to_ops_phase(inds) = (ops=index_to_ops(inds), phase=index_phase(inds))
 
-function ferm_term(inds::NTuple{4, Int}, coeff, n_modes::Integer)
+function FermiTerm(inds::NTuple{4, Int}, coeff, n_modes::Integer)
     (ops, phase) = index_to_ops_phase(inds)
-    return _ferm_term(ops, phase, coeff, n_modes)
+    (factors, new_coeff) = _ferm_term(ops, phase, coeff, n_modes)
+    return FermiTerm(factors, new_coeff)
 end
 
 ## Embed `ops` in a string of width `n_modes`
@@ -82,22 +83,23 @@ function _ferm_term(ops::NTuple{4}, phase::Integer, coeff, n_modes::Integer)
         end
         factors[ind] = op
     end
-    return FermiTerm(factors, phase * coeff)
+    return (factors, phase * coeff)
+#    return FermiTerm(factors, phase * coeff)
 end
 
 """
-    ferm_terms(h2)
+    ferm_terms(two_body)
 
-Convert rank-4 tensor `h2` to a `Vector` of `FermiTerm`s.
+Convert rank-4 tensor `two_body` to a `Vector` of `FermiTerm`s.
 """
-function ferm_terms(h2)
-    n_modes = first(size(h2))
-    terms = FermiTerm{FermiOp, Vector{FermiOp}, eltype(h2)}[]
-    for ind in CartesianIndices(h2)
-        if (ind[1] == ind[2] || ind[3] == ind[4]) || h2[ind] == 0
+function ferm_terms(two_body)
+    n_modes = first(size(two_body))
+    terms = FermiTerm{FermiOp, Vector{FermiOp}, eltype(two_body)}[]
+    for ind in CartesianIndices(two_body)
+        if (ind[1] == ind[2] || ind[3] == ind[4]) || two_body[ind] == 0
             continue
         end
-        push!(terms, ferm_term(ind.I, h2[ind], n_modes))
+        push!(terms, FermiTerm(ind.I, two_body[ind], n_modes))
     end
     return terms
 end

@@ -175,3 +175,19 @@ function Base.reverse!(as::AbstractSum)
     end
     return Base.sort!(as)
 end
+
+function add!(asum::AbstractSum, op_string, coeff)
+    inds = searchsorted(asum.strings, op_string)
+    if length(inds) == 0 # op_string not found, add a new term
+        insert!(asum, first(inds), (op_string, coeff))
+    elseif length(inds) == 1 # one element equal to op_string
+        i = first(inds) # get the (single) index
+        @inbounds asum.coeffs[i] += coeff # add p to existing term
+        @inbounds if isapprox_zero(asum.coeffs[i])
+            @inbounds deleteat!(asum, [i])
+        end
+    else
+        throw(ErrorException("Duplicate terms found in operator sum."))
+    end
+    return asum
+end

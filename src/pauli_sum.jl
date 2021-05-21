@@ -322,7 +322,7 @@ function add!(psum::PauliSum, paulis, coeff)
             @inbounds deleteat!(psum, [i])
         end
     else
-        throw(ErrorException("Duplicate terms found in `PauliSum`."))
+        throw(ErrorException("Duplicate terms found in operator sum."))
     end
     return psum
 end
