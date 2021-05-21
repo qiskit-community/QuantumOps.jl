@@ -88,7 +88,6 @@ end
 
 rand_pauli_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_pauli_term(PauliDefault, n, coeff=coeff)
 
-
 ###
 ### The following is partially broken. It works, except the a vector of random PauliTerms will
 ### have return type Any. This is explained the docs for samplers. But, it is a PITA in the case.
@@ -211,7 +210,8 @@ Base.reverse(pt::PauliTerm) = reverse!(copy(pt))
 #### Compare / predicates
 ####
 
-Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(ps.coeff))
+# factored out
+#Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(ps.coeff))
 
 """
     isunitary(pt::PauliTerm)

@@ -16,6 +16,9 @@ end
 
 op_index(op::FermiOp) = op.ind
 
+Base.one(op::FermiOp) = id_op
+Base.one(::Type{FermiOp}) = id_op
+
 Base.isless(op1::FermiOp, op2::FermiOp) = isless(op_index(op1), op_index(op2))
 
 const id_op = FermiOp(0)
