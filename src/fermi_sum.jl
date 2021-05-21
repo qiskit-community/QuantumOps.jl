@@ -8,9 +8,12 @@ struct FermiSum{StringT, CoeffT} <: AbstractSum
     end
 end
 
-
 function term_type(::Type{T}) where T <: FermiSum
     return FermiTerm
+end
+
+function sum_type(::Type{T}) where T <: FermiTerm
+    return FermiSum
 end
 
 ## Factor this out of here and PauliSum

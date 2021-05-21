@@ -280,3 +280,27 @@ function Base.push!(psum::AbstractSum, (string, coeff))
     push!(psum.strings, string)
     push!(psum.coeffs, coeff)
 end
+
+####
+#### Algebra / mathematical operations
+####
+
+Base.:+(terms::T...) where {T <: AbstractTerm} = sum_type(T)([terms...])
+
+function Base.:+(ps0::AbstractSum, pss::AbstractSum...)
+    ps_out = copy(ps0)
+    for ps in pss
+        add!(ps_out, ps)
+    end
+    return ps_out
+end
+
+## TODO: Do something more efficient here.
+function Base.:-(pt1::T, pt2::T) where T <: AbstractTerm
+    return sum_type(T)([pt1, -one(pt2.coeff) * pt2])
+end
+
+function Base.:-(psum::AbstractSum)
+    already_sorted = true
+    typeof(psum)(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
+end

@@ -20,6 +20,10 @@ function term_type(::Type{T}) where T <: PauliSum
     return PauliTerm
 end
 
+function sum_type(::Type{T}) where T <: PauliTerm
+    return PauliSum
+end
+
 ####
 #### Constructors
 ####
@@ -212,25 +216,25 @@ function LinearAlgebra.lmul!(psum::PauliSum, n)
     return psum
 end
 
-Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
+# Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
 
-function Base.:+(ps0::PauliSum, pss::PauliSum...)
-    ps_out = copy(ps0)
-    for ps in pss
-        add!(ps_out, ps)
-    end
-    return ps_out
-end
+# function Base.:+(ps0::PauliSum, pss::PauliSum...)
+#     ps_out = copy(ps0)
+#     for ps in pss
+#         add!(ps_out, ps)
+#     end
+#     return ps_out
+# end
 
-## TODO: Do something more efficient here.
-function Base.:-(pt1::PauliTerm, pt2::PauliTerm)
-    return PauliSum([pt1, -one(pt2.coeff) * pt2])
-end
+# ## TODO: Do something more efficient here.
+# function Base.:-(pt1::PauliTerm, pt2::PauliTerm)
+#     return PauliSum([pt1, -one(pt2.coeff) * pt2])
+# end
 
-function Base.:-(psum::PauliSum)
-    already_sorted = true
-    PauliSum(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
-end
+# function Base.:-(psum::PauliSum)
+#     already_sorted = true
+#     PauliSum(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
+# end
 
 function Base.:*(n::Number, psum::PauliSum)
     already_sorted = true
