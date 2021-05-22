@@ -1,3 +1,5 @@
+import ElectronicStructure
+
 struct FermiSum{StringT, CoeffT} <: AbstractSum
     strings::StringT
     coeffs::CoeffT
@@ -27,15 +29,35 @@ end
 FermiSum{T,V}(v, c, already_sorted) where {T, V} = FermiSum(v, c, already_sorted)
 FermiSum{T,V}(v, c) where {T, V} = FermiSum(v, c, false)
 
-function FermiSum(two_body::AbstractArray{T,4}) where T
-    n_modes = first(size(two_body))
-    fsum = FermiSum{Vector{Vector{FermiOp}}, Vector{eltype(two_body)}}(Vector{FermiOp}[], eltype(two_body)[])
-    for ind in CartesianIndices(two_body)
-        if (ind[1] == ind[2] || ind[3] == ind[4]) || two_body[ind] == 0
+_skip_inds(i, j, k, l) = (i == j || k == l) # skip if two raising or two lowering ops on one index
+_skip_inds(i, j) = false # always one raising and one lowering, so never skip
+
+function tensor_to_fermi_sum!(fsum, tensor)
+    n_modes = first(size(tensor))
+    for ind in CartesianIndices(tensor)
+        if _skip_inds((ind.I)...) || iszero(tensor[ind])
             continue
         end
-        add!(fsum, FermiTerm(ind.I, two_body[ind], n_modes))
-#        add!(fsum, ferm_term(ind.I, two_body[ind], n_modes)
+        add!(fsum, FermiTerm(ind.I, tensor[ind], n_modes))
     end
     return fsum
+end
+
+function FermiSum(tensors::AbstractArray{<:Number}...)
+    fsum = FermiSum{Vector{Vector{FermiOp}},
+                    Vector{eltype(tensors[1])}}(Vector{FermiOp}[], eltype(tensors[1])[])
+    for tensor in tensors
+        tensor_to_fermi_sum!(fsum, tensor)
+    end
+    return fsum
+end
+
+function FermiSum(iop::ElectronicStructure.InteractionOperator)
+    return FermiSum(iop.one_body_tensor, iop.two_body_tensor)
+end
+
+function Base.adjoint(ft::FermiSum)
+    op_strings = [adjoint.(x) for x in ft.strings]
+    coeffs = adjoint.(ft.coeffs)
+    return FermiSum(op_strings, coeffs)
 end

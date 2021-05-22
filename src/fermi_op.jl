@@ -5,6 +5,7 @@
 module FermiOps
 
 import Random
+import LinearAlgebra
 
 export FermiOp, FermiDefault
 export id_op, number_op, empty_op, raise_op, lower_op, zero_op
@@ -21,6 +22,9 @@ op_index(op::FermiOp) = op.ind
 
 Base.one(op::FermiOp) = id_op
 Base.one(::Type{FermiOp}) = id_op
+
+Base.zero(op::FermiOp) = zero_op
+Base.zero(::Type{FermiOp}) = zero_op
 
 Base.isless(op1::FermiOp, op2::FermiOp) = isless(op_index(op1), op_index(op2))
 
@@ -76,6 +80,40 @@ function Base.:^(op::FermiOp, n::Integer)
         return op
     end
     return zero_op
+end
+
+function Base.adjoint(op::FermiOp)
+    if op === id_op || op === empty_op || op === number_op || op === zero_op
+        return op
+    end
+    if op === raise_op
+        return lower_op
+    end
+    if op === lower_op
+        return raise_op
+    end
+    throw(DomainError(op))
+end
+
+function LinearAlgebra.ishermitian(op::FermiOp)
+    if op === id_op || op === empty_op || op === number_op || op === zero_op
+        return true
+    else
+        return false
+    end
+end
+
+const _id_mat = [1. 0.; 0. 1.]
+const _zero_mat = [0. 0.; 0. 0.]
+const _number_mat = [0. 0.; 0. 1.]
+const _empty_mat = [1. 0.; 0. 0.]
+const _raise_mat = [0. 1.; 0. 0.]
+const _lower_mat = [0. 0.; 1. 0.]
+
+const _fermi_mats = (_id_mat, _number_mat, _empty_mat, _raise_mat, _lower_mat, _zero_mat)
+
+function Base.Matrix(op::FermiOp)
+    return _fermi_mats[op_index(op) + 1]
 end
 
 end # module FermiOps
