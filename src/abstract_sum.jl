@@ -313,3 +313,48 @@ function Base.:/(psum::AbstractSum, n)
     already_sorted = true
     typeof(psum)(psum.strings, psum.coeffs ./ n, already_sorted)
 end
+
+## TODO: new_coeffs may be a Vector{<:Real}, but because of phase
+## we need to set a coefficient to a complex type, which errors out.
+## Currently, the user needs to make the coefficients of psum complex.
+## We could also widen the type here somehow, say through promotion.
+## A similar situation arises in other places in this library.
+function Base.:*(term::AbstractTerm, asum::AbstractSum)
+    new_coeffs = similar(asum.coeffs)
+    new_strings = similar(asum.strings)
+    ## Threading does not help; PauliSum() call is bottleneck
+    ## And it is slower anyway for small sums
+    @inbounds for j in eachindex(asum)
+        new_term = term * asum[j]
+        new_coeffs[j] = new_term.coeff
+        new_strings[j] = op_string(new_term)
+    end
+    return typeof(asum)(new_strings, new_coeffs)
+end
+
+"""
+    *(as1::AbstractSum, as2::AbstractSum)
+
+Multiply `as1` and `as2` returning another `AbstractSum`
+
+# Examples
+```jldoctest
+julia> a = rand_pauli_sum(5, 3);
+
+julia> b = rand_pauli_sum(5, 3);
+
+julia> a = rand_pauli_sum(5, 3); ma = Matrix(a);
+
+julia> b = rand_pauli_sum(5, 3); mb = Matrix(b);
+
+julia> Matrix(a * b * a) == ma * mb * ma
+true
+```
+"""
+function Base.:*(as1::AbstractSum, as2::AbstractSum)
+    asum_out = as1[1] * as2
+    for i in 2:length(as1)
+        add!(asum_out, as1[i] * as2)
+    end
+    return asum_out
+end

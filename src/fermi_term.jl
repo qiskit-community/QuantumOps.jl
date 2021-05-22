@@ -122,3 +122,8 @@ function Base.:*(ft1::FermiTerm, ft2::FermiTerm)
     return FermiTerm([x[1] * x[2] for x in
                       zip(op_string(ft1), op_string(ft2))], ft1.coeff * ft2.coeff)
 end
+
+function Base.:^(ft::FermiTerm, n::Integer)
+    n < 0 && throw(DomainError(n))
+    return FermiTerm([x^n for x in op_string(ft)], ft.coeff^n)
+end

@@ -46,6 +46,11 @@ function Base.show(io::IO, op::FermiOp)
     print(io, _fermi_chars[op_index(op) + 1])
 end
 
+"""
+    ferm_op_mult
+
+Multiplication for single-fermion operators.
+"""
 const ferm_op_mult =
     ((id_op, number_op, empty_op, raise_op, lower_op, zero_op),
      (number_op, number_op, zero_op, raise_op, zero_op, zero_op),
@@ -55,5 +60,22 @@ const ferm_op_mult =
      (zero_op, zero_op, zero_op, zero_op, zero_op, zero_op))
 
 Base.:*(op1::FermiOp, op2::FermiOp) = ferm_op_mult[op_index(op1)+1][op_index(op2)+1]
+
+function Base.inv(op::FermiOp)
+    if op === id_op
+        return id_op
+    else
+        throw(DomainError(op, "Operator has no inverse"))
+    end
+end
+
+function Base.:^(op::FermiOp, n::Integer)
+    n < 0 && throw(DomainError(n))
+    n == 0 && return id_op
+    if op === id_op || op === number_op || op === empty_op
+        return op
+    end
+    return zero_op
+end
 
 end # module FermiOps

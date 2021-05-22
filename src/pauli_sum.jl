@@ -55,6 +55,7 @@ function PauliSum(v::AbstractVector{<:PauliTerm}, already_sorted=false)
 end
 
 PauliSum{T,V}(v, c, already_sorted) where {T, V} = PauliSum(v, c, already_sorted)
+PauliSum{T,V}(v, c) where {T, V} = PauliSum(v, c, false)
 
 """
     PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
@@ -193,18 +194,6 @@ SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for 
 #### Algebra / mathematical operations
 ####
 
-# """
-#     add!(to::PauliSum, from::PauliSum)
-
-# Adds the terms in `from` to `to` in place. `to` is mutated. `from` is not.
-# """
-# function add!(to::PauliSum, from::PauliSum)
-#     for p in from
-#         add!(to, p)
-#     end
-#     return to
-# end
-
 # We use lmul! because that's how LinearAlgebra offers "scaling" of a Matrix (or rmul!)
 """
     lmul!(psum::PauliSum, n)
@@ -214,81 +203,6 @@ Left multiplies the coefficient of `psum` by `n` in place.
 function LinearAlgebra.lmul!(psum::PauliSum, n)
     @. psum.coeffs = n * psum.coeffs
     return psum
-end
-
-# Base.:+(terms::T...) where {T <: PauliTerm} = PauliSum([terms...])
-
-# function Base.:+(ps0::PauliSum, pss::PauliSum...)
-#     ps_out = copy(ps0)
-#     for ps in pss
-#         add!(ps_out, ps)
-#     end
-#     return ps_out
-# end
-
-# ## TODO: Do something more efficient here.
-# function Base.:-(pt1::PauliTerm, pt2::PauliTerm)
-#     return PauliSum([pt1, -one(pt2.coeff) * pt2])
-# end
-
-# function Base.:-(psum::PauliSum)
-#     already_sorted = true
-#     PauliSum(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
-# end
-
-# function Base.:*(n::Number, psum::PauliSum)
-#     already_sorted = true
-#     PauliSum(psum.strings, n .* psum.coeffs, already_sorted)
-# end
-
-# function Base.:/(psum::PauliSum, n)
-#     already_sorted = true
-#     PauliSum(psum.strings, psum.coeffs ./ n, already_sorted)
-# end
-
-## TODO: new_coeffs may be a Vector{<:Real}, but because of phase
-## we need to set a coefficient to a complex type, which errors out.
-## Currently, the user needs to make the coefficients of psum complex.
-## We could also widen the type here somehow, say through promotion.
-## A similar situation arises in other places in this library.
-function Base.:*(pterm::PauliTerm, psum::PauliSum)
-    new_coeffs = similar(psum.coeffs)
-    new_strings = similar(psum.strings)
-    ## Threading does not help; PauliSum() call is bottleneck
-    ## And it is slower anyway for small sums
-    @inbounds for j in eachindex(psum)
-        new_term = pterm * psum[j]
-        new_coeffs[j] = new_term.coeff
-        new_strings[j] = new_term.paulis
-    end
-    return PauliSum(new_strings, new_coeffs)
-end
-
-"""
-    *(ps1::PauliSum, ps2::PauliSum)
-
-Multiply `ps1` and `ps2` returning another `PauliSum`
-
-# Examples
-```jldoctest
-julia> a = rand_pauli_sum(5, 3);
-
-julia> b = rand_pauli_sum(5, 3);
-
-julia> a = rand_pauli_sum(5, 3); ma = Matrix(a);
-
-julia> b = rand_pauli_sum(5, 3); mb = Matrix(b);
-
-julia> Matrix(a * b * a) == ma * mb * ma
-true
-```
-"""
-function Base.:*(ps1::PauliSum, ps2::PauliSum)
-    psum_out = ps1[1] * ps2
-    for i in 2:length(ps1)
-        add!(psum_out, ps1[i] * ps2)
-    end
-    return psum_out
 end
 
 ####
