@@ -120,12 +120,46 @@ end
 
 rand_fermi_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_fermi_term(FermiDefault, n, coeff=coeff)
 
+####
+#### Compare / predicates
+####
+
+function Base.zero(ft::FermiTerm)
+    new_string = similar(op_string(ft))
+    fill!(new_string, zero_op)
+    return FermiTerm(new_string, zero(ft.coeff))
+end
+
+Base.iszero(ft::FermiTerm) = iszero(ft.coeff) || any(iszero, op_string(ft))
+
+####
+#### Algebra / mathematical operations
+####
+
 function Base.:*(ft1::FermiTerm, ft2::FermiTerm)
-    return FermiTerm([x[1] * x[2] for x in
-                      zip(op_string(ft1), op_string(ft2))], ft1.coeff * ft2.coeff)
+    if length(ft1) != length(ft2)
+        throw(DimensionMismatch())
+    end
+    new_string = similar(op_string(ft1))
+    @inbounds for i in eachindex(ft1)
+        _prod = op_string(ft1)[i] * op_string(ft1)[i]
+        if iszero(_prod)  # If any factor is zero, the entire product is zero
+            fill!(new_string, zero_op)
+            return FermiTerm(new_string, zero(ft1.coeff))
+        end
+        new_string[i] = _prod
+    end
+    return FermiTerm(new_string, ft1.coeff * ft2.coeff)
 end
 
 function Base.:^(ft::FermiTerm, n::Integer)
     n < 0 && throw(DomainError(n))
-    return FermiTerm([x^n for x in op_string(ft)], ft.coeff^n)
+    n == 0 && return one(ft)
+    n == 1 && return ft
+    ## Any +,-,0 sends the entire string to zero
+    if any(x -> x === raise_op || x === lower_op || x === zero_op, op_string(ft))
+        return zero(ft)
+    end
+    ## E, N, I, are idempotent
+    return FermiTerm(copy(op_string(ft)), ft.coeff^n)
 end

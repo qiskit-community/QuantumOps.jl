@@ -1,9 +1,8 @@
 """
     _kron(mats...)
 
-Same as `kron`, but, at least for Pauli matrices, it is faster by
-up to a factor of two. Also, `kron(one_matrix)` returns `one_matrix`
-rather than throwing an error.
+Same as `kron`, but, at least for Pauli matrices, it is faster by up to a factor of
+two. Also, `kron(one_matrix)` returns `one_matrix` rather than throwing an error.
 """
 function _kron(mats...)
     if length(mats) == 1
@@ -43,8 +42,7 @@ end
 """
     isapprox_zero(x::Number)
 
-This function exists because we define
-methods for special cases, such as symbolic
+This function exists because we define methods for special cases, such as symbolic
 libraries.
 """
 function isapprox_zero(x::Number)
