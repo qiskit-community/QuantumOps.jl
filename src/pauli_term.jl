@@ -257,9 +257,6 @@ end
 # Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
 # Base.:*(p::AbstractPauli, z::Number) = z * p
 
-Base.:/(ps::PauliTerm, z::Number) = PauliTerm(ps.paulis, ps.coeff / z)
-Base.:/(p::AbstractPauli, z::Number) = PauliTerm([p], inv(z))
-
 Base.inv(p::PauliTerm) = PauliTerm(p.paulis, inv(p.coeff))
 
 function Base.:^(p::PauliTerm, n::Integer)

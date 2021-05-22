@@ -54,3 +54,7 @@ Base.:*(z::Number, p::AbstractOp) = term_type(typeof(p))([p], z)
 Base.:*(p::AbstractOp, z::Number) = z * p
 
 Base.:-(p::AbstractTerm) = typeof(p)(op_string(p), -p.coeff)
+
+Base.:/(p::AbstractOp, z::Number) = term_type(typeof(p))([p], inv(z))
+
+Base.:/(ps::AbstractTerm, z::Number) = typeof(ps)(op_string(ps), ps.coeff / z)
