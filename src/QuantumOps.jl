@@ -15,7 +15,7 @@ export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, Pa
 export Z4Group0, Z4Group, AbstractZ4Group
 
 export isunitary
-export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum
+export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum, rand_fermi_term
 export op_index, phase, weight, pauli_vector
 export add!, lmul!, numeric_function
 export z4group0
@@ -74,6 +74,7 @@ include("pauli_sum.jl")
 
 include("default_abstract_pauli.jl")
 
+include("abstract_fermi_op.jl")
 include("fermi_op.jl")
 
 using .FermiOps

@@ -177,7 +177,6 @@ function Base.:(==)(asum1::AbstractSum, asum2::AbstractSum)
     return ThreadsX.all(i -> asum1[i] == asum2[i], eachindex(asum1))
 end
 
-
 """
     reverse(ps::AbstractSum)
 
