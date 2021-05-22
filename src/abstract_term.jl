@@ -49,3 +49,8 @@ end
 
 Base.:*(z::Number, term::AbstractTerm) = typeof(term)(op_string(term), term.coeff * z)
 Base.:*(ps::AbstractTerm, z::Number) = z * ps
+
+Base.:*(z::Number, p::AbstractOp) = term_type(typeof(p))([p], z)
+Base.:*(p::AbstractOp, z::Number) = z * p
+
+Base.:-(p::AbstractTerm) = typeof(p)(op_string(p), -p.coeff)
