@@ -85,14 +85,19 @@ function remove_zeros!(asum::AbstractSum)
 end
 
 function remove_zeros!(terms, coeffs)
-    # ThreadsX is very slow for small arrays. We need to discriminate
-    # inds = ThreadsX.findall(isapprox_zero, coeffs)
-    # The following is 500ns for two non-zero floats. What is wrong?
+    # ThreadsX is very slow for small arrays
+    # The findall(iszero, coeffs) is 500ns for two non-zero floats. What is wrong?
     # Appears to be this: iszero.(array) is taking almost all the time.
-    # The following is what Base does, but writing it out is faster. A bug.
+    # The following is what Base does, but writing it out is faster. A bug?
+    # if length(coeffs) > 10^10
+    #     inds = ThreadsX.findall(isapprox_zero.(coeffs))
+    # else
     inds = findall(isapprox_zero.(coeffs))
-    deleteat!(coeffs, inds)
-    deleteat!(terms, inds)
+    #    end
+    if ! isempty(inds)
+        deleteat!(coeffs, inds)
+        deleteat!(terms, inds)
+    end
     return nothing
 end
 
@@ -173,8 +178,11 @@ function Base.:(==)(asum1::AbstractSum, asum2::AbstractSum)
     if length(asum1) != length(asum2)
         return false
     end
-    # This is 8x faster for large arrays, 10^4 or 5.
-    return ThreadsX.all(i -> asum1[i] == asum2[i], eachindex(asum1))
+    if length(asum1) > 10^3
+        # This is 8x-12x faster for large arrays, 10^4 or 5.
+        return ThreadsX.all(i -> asum1[i] == asum2[i], eachindex(asum1))
+    end
+    return all(i -> asum1[i] == asum2[i], eachindex(asum1))
 end
 
 """
