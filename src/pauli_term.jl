@@ -10,6 +10,8 @@ end
 
 op_string(t::PauliTerm) = t.paulis
 
+term_type(::Type{<:AbstractPauli}) = PauliTerm
+
 ####
 #### Constructors
 ####
@@ -251,13 +253,13 @@ end
 # Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
 # Base.:*(ps::PauliTerm, z::Number) = z * ps
 
-Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
-Base.:*(p::AbstractPauli, z::Number) = z * p
+# Factored out
+# Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
+# Base.:*(p::AbstractPauli, z::Number) = z * p
 
 Base.:/(ps::PauliTerm, z::Number) = PauliTerm(ps.paulis, ps.coeff / z)
 Base.:/(p::AbstractPauli, z::Number) = PauliTerm([p], inv(z))
 
-Base.:-(p::PauliTerm) = PauliTerm(p.paulis, -p.coeff)
 Base.inv(p::PauliTerm) = PauliTerm(p.paulis, inv(p.coeff))
 
 function Base.:^(p::PauliTerm, n::Integer)

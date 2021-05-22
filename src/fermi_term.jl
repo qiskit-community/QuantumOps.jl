@@ -8,6 +8,8 @@ end
 
 op_string(t::FermiTerm) = t.ops
 
+term_type(::Type{<:AbstractFermiOp}) = FermiTerm
+
 ####
 #### Constructors
 ####
