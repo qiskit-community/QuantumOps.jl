@@ -1,4 +1,5 @@
 using ElectronicStructure
+using QuantumOps
 
 ## using PyCall will trigger loading pyscf-specific code
 
@@ -20,10 +21,10 @@ geoms = (
 )
 
 ## Choose one of the geometries
-geom = geoms[1]
+geom = geoms[3]
 
-basis = "sto-3g"
-#basis = "631g"
+#basis = "sto-3g"
+basis = "631g"
 
 ## Construct specification of electronic structure problem
 mol_spec = MolecularSpec(geometry=geom, basis=basis)
@@ -36,5 +37,7 @@ mol_pyscf = MolecularData(PySCF, mol_spec)
 ## into space-and-spin orbitals.
 ## This is the same as the operator by the same name in OpenFermion.
 iop = InteractionOperator(mol_pyscf)
+
+fop = FermiSum(iop.two_body_tensor)
 
 nothing
