@@ -72,13 +72,6 @@ function PauliTerm(::Type{T}, inds::AbstractVector{<:Integer}, coeff=_DEFAULT_CO
     return PauliTerm(T.(inds), coeff)
 end
 
-Base.copy(pt::PauliTerm) = PauliTerm(copy(pt.paulis), copy(pt.coeff))
-
-### This is simple, but not flexible
-# function Base.rand(::Type{<:PauliTerm{PauliT}}, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
-#     return PauliTerm(rand(PauliT, n), coeff)
-# end
-
 """
     rand_pauli_term(::Type{PauliT}=PauliDefault, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
 
@@ -89,29 +82,6 @@ function rand_pauli_term(::Type{PauliT}, n::Integer; coeff=_DEFAULT_COEFF) where
 end
 
 rand_pauli_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_pauli_term(PauliDefault, n, coeff=coeff)
-
-###
-### The following is partially broken. It works, except the a vector of random PauliTerms will
-### have return type Any. This is explained the docs for samplers. But, it is a PITA in the case.
-### The example in the Julia docs is `Die` which returns an `Int`, so this is easy to fix.
-### We return a rather complicated parametric type. I think the doc is asking us to compute this
-### type.
-### I don't see any easy way around it.
-###
-
-# struct PauliTermSampler{PauliT, V}
-#     npaulis::Int # number of sides
-#     coeff_func::V
-# end
-
-# function Base.eltype(::Type{PauliTermSampler{PauliT,V}})
-#     return
-# end
-
-# function Random.rand(rng::Random.AbstractRNG, d::Random.SamplerTrivial{PauliTermSampler{PauliT,V}}) where {PauliT, V}
-#     v = rand(rng, PauliT, d[].npaulis)
-#     return PauliTerm(v, d[].coeff_func())
-# end
 
 ####
 #### Conversion
@@ -158,62 +128,14 @@ end
 #### IO
 ####
 
-## type params only to get correct dispatch. There must be a better way
-# function Base.show(io::IO, ps::PauliTerm{T,V,CoeffT}) where {T,V,CoeffT}
-#     if ps.coeff isa Real  # could use CoeffT here.
-#         print(io, ps.coeff)
-#     else
-#         print(io, "(", ps.coeff, ")")
-#     end
-#     print(io, " * ")
-#     print(io, ps.paulis)
-# end
-
 function Base.show(io::IO, ps::PauliTerm{T,V,Z4Group}) where {T,V}
     print(io, ps.coeff, " ")
     print(io, ps.paulis)
 end
 
 ####
-#### Container interface
-####
-
-# :popat!
-# for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
-#              :setindex!, :iterate, :pop!, :popfirst!)
-#     @eval begin
-#         Base.$func(ps::PauliTerm, args...) = $func(ps.paulis, args...)
-#     end
-# end
-
-# for func in (:push!, :pushfirst!, :insert!)
-#     @eval begin
-#         Base.$func(ps::PauliTerm, args...) = ($func(ps.paulis, args...); ps)
-#     end
-# end
-
-"""
-    reverse!(pt::PauliTerm)
-
-Reverse the order of the factors in `pt` in place.
-See `reverse`.
-"""
-Base.reverse!(pt::PauliTerm) = (reverse!(pt.paulis); pt)
-
-"""
-    reverse(pt::PauliTerm)
-
-Reverse the order of the factors in `pt`.
-See `reverse!`.
-"""
-Base.reverse(pt::PauliTerm) = reverse!(copy(pt))
-
-####
 #### Compare / predicates
 ####
-
-# factored out
-#Base.one(ps::PauliTerm{W}) where {W} = PauliTerm(fill(one(W), length(ps)), one(ps.coeff))
 
 """
     isunitary(pt::PauliTerm)
@@ -229,14 +151,6 @@ Return `true` if `pt` is a Hermitian operator.
 """
 LinearAlgebra.ishermitian(pt::PauliTerm) = isreal(pt.coeff)
 
-## TODO: Symptectic has a faster way, I think
-## This is generic. We can use IsApprox.commutes instead.
-## function commute(ps1::PauliTerm, ps2::PauliTerm)
-#     p1 = ps1 * ps2
-#     p2 = ps2 * ps1
-#     return p1 == p2
-# end
-
 ####
 #### Algebra
 ####
@@ -249,13 +163,6 @@ end
 function Base.:*(ps1::PauliTerm, ps2::PauliTerm)
     return mul!(similar(ps1.paulis), ps1, ps2)
 end
-
-# Base.:*(z::Number, ps::PauliTerm) = PauliTerm(ps.paulis, ps.coeff * z)
-# Base.:*(ps::PauliTerm, z::Number) = z * ps
-
-# Factored out
-# Base.:*(z::Number, p::AbstractPauli) = PauliTerm([p], z)
-# Base.:*(p::AbstractPauli, z::Number) = z * p
 
 Base.inv(p::PauliTerm) = PauliTerm(p.paulis, inv(p.coeff))
 

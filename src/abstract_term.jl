@@ -1,5 +1,7 @@
 abstract type AbstractTerm{W} end
 
+Base.copy(pt::AbstractTerm) = typeof(pt)(copy(op_string(pt)), copy(pt.coeff))
+
 ## type params only to get correct dispatch. There must be a better way
 function Base.show(io::IO, term::AbstractTerm) # where { T, V, CoeffT, AbstractTerm{T,V,CoeffT}}
     print(io, op_string(term))
@@ -42,6 +44,22 @@ for func in (:push!, :pushfirst!, :insert!)
         Base.$func(ps::AbstractTerm, args...) = ($func(op_string(ps), args...); ps)
     end
 end
+
+"""
+    reverse!(pt::AbstractTerm)
+
+Reverse the order of the factors in `pt` in place.
+See `reverse`.
+"""
+Base.reverse!(pt::AbstractTerm) = (reverse!(op_string(pt)); pt)
+
+"""
+    reverse(pt::AbstractTerm)
+
+Reverse the order of the factors in `pt`.
+See `reverse!`.
+"""
+Base.reverse(pt::AbstractTerm) = reverse!(copy(pt))
 
 ####
 #### Algebra
