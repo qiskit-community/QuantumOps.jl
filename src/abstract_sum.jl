@@ -366,3 +366,22 @@ function Base.:*(as1::AbstractSum, as2::AbstractSum)
     end
     return asum_out
 end
+
+"""
+    filter(f, as::AbstractSum)
+
+Return a copy of `as` keeping only terms for which `f` is true.
+
+# Examples
+```julia
+julia> filter(x -> count_bodies(x) == 1, fermi_sum)
+IIIN * -0.47594871522096355
+IINI * -0.47594871522096355
+INII * -1.2524635735648981
+NIII * -1.2524635735648981
+```
+"""
+function Base.filter(f, as::AbstractSum)
+    inds = findall(f, as)
+    return typeof(as)(as.strings[inds], as.coeffs[inds])
+end

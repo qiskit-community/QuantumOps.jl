@@ -52,8 +52,15 @@ function FermiSum(tensors::AbstractArray{<:Number}...)
     return fsum
 end
 
+"""
+    FermiSum(iop::ElectronicStructure.InteractionOperator)
+
+Convert `iop` to a `FermiSum`.
+"""
 function FermiSum(iop::ElectronicStructure.InteractionOperator)
-    return FermiSum(iop.one_body_tensor, iop.two_body_tensor)
+    fsum = FermiSum(iop.one_body_tensor, iop.two_body_tensor)
+    add!(fsum, iop.nuclear_repulsion * one(fsum[1]))
+    return fsum
 end
 
 function Base.adjoint(ft::FermiSum)
