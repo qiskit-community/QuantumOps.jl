@@ -13,6 +13,14 @@ function Base.show(io::IO, term::AbstractTerm) # where { T, V, CoeffT, AbstractT
     end
 end
 
+Base.show(m::MIME{Symbol("text/input")}, term::AbstractTerm) = show(stdout, m, term)
+function Base.show(io::IO, ::MIME{Symbol("text/input")}, term::AbstractTerm)
+    print(io, typeof(term), "(")
+    print(io, "\"", op_string(term), "\"")
+    print(io, ", ", term.coeff)
+    print(io, ")")
+end
+
 Base.one(term::AbstractTerm{W}) where {W} = typeof(term)(fill(one(W), length(term)), one(term.coeff))
 
 Base.:(==)(op1::AbstractTerm, op2::AbstractTerm) = op1.coeff == op2.coeff && op_string(op1) == op_string(op2)
