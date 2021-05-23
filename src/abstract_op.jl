@@ -18,4 +18,9 @@ function _AbstractOp(::Type{T}, ind::V) where {T, V}
     return T(j - 1)  # TODO: abstract this
 end
 
+"""
+    Vector{T}(opstring::AbstractString) where {T <: AbstractOp}
+
+Initialize a `Vector{T}` by converting each character to type `T`.
+"""
 Vector{T}(opstring::AbstractString) where {T <: AbstractOp} = [T(s) for s in opstring]

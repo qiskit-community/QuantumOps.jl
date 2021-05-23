@@ -1,20 +1,27 @@
-abstract type AbstractSum end
+abstract type AbstractSum{StringT, CoeffT} end
 
 function _abstract_sum_inner_constructor_helper!(strings, coeffs, already_sorted=false)
     if length(strings) != length(coeffs)
         throw(DimensionMismatch("bad dims"))
     end
     if ! isempty(strings)
-        n = length(first(strings))
-        if ! all(x -> length(x) == n, strings)
-            throw(DimensionMismatch("Fermi strings are of differing lengths."))
-        end
-        if ! already_sorted
+        if ! already_sorted  # Slightly dangerous to only do length check if not sorted
+            n = length(first(strings))
+            if ! all(x -> length(x) == n, strings)
+                throw(DimensionMismatch("Fermi strings are of differing lengths."))
+            end
             sort_and_sum_duplicates!(strings, coeffs)
         end
     end
     return nothing
 end
+
+# function Base.similar(ps::AbstractSum{W, Z}, n=0) where {W, Z} # {T, C, Z<:Vector{C}, W <: Vector{Vector{T}}}
+#     m = size(ps, 2)
+#     strings = [Vector{T}(undef, m) for i in 1:n]
+#     coeffs = Vector{C}(undef, n)
+#     return typeof(ps)(strings, coeffs)
+# end
 
 ## TODO: find a good way to abstract this
 # function _abstract_sum_from_terms(v::AbstractVector, already_sorted=false)
@@ -47,8 +54,8 @@ end
 ####
 
 function sort_and_sum_duplicates!(asum::AbstractSum)
-    sort_and_sum_duplicates!(fsum.strings, fsum.coeffs)
-    return fsum
+    sort_and_sum_duplicates!(asum.strings, asum.coeffs)
+    return asum
 end
 
 sum_duplicates!(asum::AbstractSum) = sum_duplicates!(fsum.strings, fsum.coeffs)
@@ -62,10 +69,10 @@ end
 
 ## This is expensive. Most time is spent in sortperm.
 ## There is no ThreadsX.sortperm, only sort.
-Base.sort!(asum::AbstractSum) = (sort_sums!(asum.strings, asum.coeffs); asum)
+Base.sort!(asum::AbstractSum; alg=MergeSort) = (sort_sums!(asum.strings, asum.coeffs; alg=alg); asum)
 
-function sort_sums!(strings, coeffs)
-    p = sortperm(strings; alg=MergeSort)
+function sort_sums!(strings, coeffs; alg=MergeSort)
+    p = sortperm(strings; alg=alg)
     permute!(strings, p)
     permute!(coeffs, p)
     return nothing
@@ -101,7 +108,7 @@ function remove_zeros!(terms, coeffs)
     return nothing
 end
 
-## Modeled on code in unique!
+## Modeled on code in unique! for sorted input
 """
     sum_duplicates!(op_strings, coeffs)
 
@@ -288,6 +295,13 @@ function Base.push!(psum::AbstractSum, (string, coeff))
     push!(psum.coeffs, coeff)
 end
 
+function Base.append!(to::AbstractSum, from::AbstractSum)
+    for t in from
+        push!(to, t)
+    end
+    return to
+end
+
 ####
 #### Algebra / mathematical operations
 ####
@@ -322,23 +336,39 @@ function Base.:/(psum::AbstractSum, n)
     typeof(psum)(psum.strings, psum.coeffs ./ n, already_sorted)
 end
 
+function mul!(asum_out::T, term::AbstractTerm, asum::T) where T <: AbstractSum
+    @inbounds for j in eachindex(asum)
+        new_term = term * asum[j]
+        asum_out.coeffs[j] = new_term.coeff
+        asum_out.strings[j] = op_string(new_term)
+    end
+    return asum_out
+end
+
 ## TODO: new_coeffs may be a Vector{<:Real}, but because of phase
 ## we need to set a coefficient to a complex type, which errors out.
 ## Currently, the user needs to make the coefficients of psum complex.
 ## We could also widen the type here somehow, say through promotion.
 ## A similar situation arises in other places in this library.
+# function Base.:*(term::AbstractTerm, asum::AbstractSum)
+#     new_coeffs = similar(asum.coeffs)
+#     new_strings = similar(asum.strings)
+#     ## Threading does not help; PauliSum() call is bottleneck
+#     ## And it is slower anyway for small sums
+#     @inbounds for j in eachindex(asum)
+#         new_term = term * asum[j]
+#         new_coeffs[j] = new_term.coeff
+#         new_strings[j] = op_string(new_term)
+#     end
+#     return typeof(asum)(new_strings, new_coeffs)
+# end
+
 function Base.:*(term::AbstractTerm, asum::AbstractSum)
-    new_coeffs = similar(asum.coeffs)
-    new_strings = similar(asum.strings)
-    ## Threading does not help; PauliSum() call is bottleneck
-    ## And it is slower anyway for small sums
-    @inbounds for j in eachindex(asum)
-        new_term = term * asum[j]
-        new_coeffs[j] = new_term.coeff
-        new_strings[j] = op_string(new_term)
-    end
-    return typeof(asum)(new_strings, new_coeffs)
+    already_sorted = true
+    asum_out = typeof(asum)(similar(asum.strings), similar(asum.coeffs), already_sorted)
+    return sort!(mul!(asum_out, term, asum))
 end
+
 
 """
     *(as1::AbstractSum, as2::AbstractSum)
@@ -360,12 +390,28 @@ true
 ```
 """
 function Base.:*(as1::AbstractSum, as2::AbstractSum)
-    asum_out = as1[1] * as2
-    for i in 2:length(as1)
-        add!(asum_out, as1[i] * as2)
+    ## Using  a buffer and mul! ought to be faster, but it is not.
+    ## because mul! takes no time here compared to add!
+    asum_out = similar(as1)
+    asum_cum = typeof(as2)(similar(as2.strings), similar(as2.coeffs), true)
+    @inbounds for i in 1:length(as1)
+        mul!(asum_cum, as1[i], as2)
+#        add!(asum_out, asum_cum)
+        append!(asum_out, asum_cum)
     end
-    return asum_out
+#    return asum_out
+    return sort_and_sum_duplicates!(asum_out)
 end
+
+# function Base.:*(as1::AbstractSum, others::AbstractSum...)
+#     asum_out = similar(as1)
+#     for as in others
+#         @inbounds for i in 1:length(as1)
+#             add!(asum_out, as1[i] * as)
+#         end
+#     end
+#     return asum_out
+# end
 
 """
     filter(f, as::AbstractSum)

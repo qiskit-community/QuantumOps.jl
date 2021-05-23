@@ -29,9 +29,10 @@ end
 index_to_ops(inds) = index_to_ops(inds...)
 
 function index_to_ops(i, j, k, l)
-    if i == j || k == l
-        return ()  # unstable, use a barrier or move this out
-    end
+    ## We filter this elsewhere, but it's dangerous to remove this
+    # if i == j || k == l
+    #     return ()  # unstable, use a barrier or move this out
+    # end
     if i == k || i == l
         op1 = (op=number_op, ind=i)
     else

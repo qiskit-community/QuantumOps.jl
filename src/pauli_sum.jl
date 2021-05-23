@@ -6,7 +6,7 @@ Represents a weighted sum (ie a linear combination) of multi-qubit Pauli strings
 By default `PauliSum`s are constructed and maintained with terms sorted in a canonical order
 and with no duplicate Pauli strings.
 """
-struct PauliSum{StringT, CoeffT} <: AbstractSum
+struct PauliSum{StringT, CoeffT} <: AbstractSum{StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
@@ -27,6 +27,13 @@ end
 ####
 #### Constructors
 ####
+
+function Base.similar(ps::PauliSum{Vector{Vector{PauliT}}, Vector{C}}, n=0) where {PauliT, C}
+    m = size(ps, 2)
+    strings = [Vector{PauliT}(undef, m) for i in 1:n]
+    coeffs = Vector{C}(undef, n)
+    return PauliSum(strings, coeffs)
+end
 
 """
     PauliSum(::Type{PauliT}) where PauliT <: AbstractPauli

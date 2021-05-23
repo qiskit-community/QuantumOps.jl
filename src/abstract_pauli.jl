@@ -86,8 +86,28 @@ end
 const _pauli_chars = ('I', 'X', 'Y', 'Z')
 op_chars(::Type{AbstractPauli}) = _pauli_chars
 
+## I think all of this was due to a bug elsewhere. Perhaps it can be reverted.
+## Bizarre, some Int prints as 132, is converted to float -123.0
+## and is not > 4, nor < 1
+## So, we enumerate the values of valid indices.
 function Base.show(io::IO, p::AbstractPauli)
-    print(io, _pauli_chars[op_index(p) + 1])
+    i::Int = op_index(p) + 1
+#    println("index ", i)
+#    if (i < 1 || i > 4)
+    if i != 1 && i != 2 && i != 3 && i != 4
+#        println("greater ", i)
+        char = '0'
+    else
+        # println("index ** ", i)
+        # println("greater ? ", i > 4)
+        # println("float ", float(i))
+        # if i > 4
+        #     char = '0'
+        # else
+        char = _pauli_chars[i]
+#        end
+    end
+    print(io, char)
 end
 
 ## Use this if `AbstractPauli <: AbstractMatrix`
@@ -252,6 +272,11 @@ LinearAlgebra.tr(::AbstractPauli) = 0
 
 ## This would otherwise be computed by LinearAlgebra calling getindex
 LinearAlgebra.eigvals(::AbstractPauli) = [-1.0, 1.0]
+
+Base.length(p::AbstractPauli) = 1
+Base.iterate(p::AbstractPauli) = (p, nothing)
+Base.iterate(p::AbstractPauli, ::Any) = nothing
+Base.isempty(p::AbstractPauli) = false
 
 ####
 #### Other

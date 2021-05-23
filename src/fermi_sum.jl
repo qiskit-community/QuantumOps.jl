@@ -1,6 +1,6 @@
 import ElectronicStructure
 
-struct FermiSum{StringT, CoeffT} <: AbstractSum
+struct FermiSum{StringT, CoeffT} <: AbstractSum{StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
