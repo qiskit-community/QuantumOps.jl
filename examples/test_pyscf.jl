@@ -21,10 +21,10 @@ geoms = (
 )
 
 ## Choose one of the geometries
-geom = geoms[3]
+geom = geoms[1]
 
-#basis = "sto-3g"
-basis = "631g"
+basis = "sto-3g"
+#basis = "631g"
 
 ## Construct specification of electronic structure problem
 mol_spec = MolecularSpec(geometry=geom, basis=basis)

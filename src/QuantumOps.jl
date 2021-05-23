@@ -12,6 +12,7 @@ import ILog2
 import SparseArrays
 
 export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum
+export count_bodies
 export Z4Group0, Z4Group, AbstractZ4Group
 
 export isunitary

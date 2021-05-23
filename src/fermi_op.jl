@@ -8,7 +8,8 @@ import Random
 import LinearAlgebra
 
 export FermiOp, FermiDefault
-export id_op, number_op, empty_op, raise_op, lower_op, zero_op
+export id_op, number_op, empty_op, raise_op, lower_op, zero_op,
+    count_raise_lower
 
 import .._AbstractOp, ..op_symbols, ..AbstractOp, ..AbstractFermiOp
 
@@ -100,6 +101,16 @@ function LinearAlgebra.ishermitian(op::FermiOp)
         return true
     else
         return false
+    end
+end
+
+function count_raise_lower(op::FermiOp)
+    if op === raise_op || op === lower_op
+        return 1
+    elseif op === number_op || op === empty_op
+        return 2
+    else
+        return 0
     end
 end
 

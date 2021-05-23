@@ -183,6 +183,11 @@ function Base.:^(ft::FermiTerm, n::Integer)
     return FermiTerm(copy(op_string(ft)), ft.coeff^n)
 end
 
-function Base.adjoint(ft::FermiTerm)
-    return FermiTerm(adjoint.(op_string(ft)), conj(ft.coeff))
+Base.adjoint(ft::FermiTerm) = FermiTerm(adjoint.(op_string(ft)), conj(ft.coeff))
+
+count_bodies(ft::FermiTerm) = count_bodies(op_string(ft))
+
+function count_bodies(v::Vector{FermiOp})
+    n = sum(count_raise_lower, v)
+    return n ÷ 2
 end
