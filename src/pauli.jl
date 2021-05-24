@@ -1,8 +1,7 @@
 module Paulis
 
-import ..AbstractPauli
-import .._AbstractPauli
-import ..op_index
+import ..AbstractOps: op_index
+using ..AbstractPaulis: AbstractPauli, _AbstractPauli
 
 export Pauli
 
@@ -43,7 +42,6 @@ Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 
 Base.copy(p::Pauli) = p
 
-#op_index(p::Pauli) = (p.hi << 1) + p.lo
 op_index(p::Pauli) = 2 * p.hi + p.lo
 
 ####

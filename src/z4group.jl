@@ -1,3 +1,4 @@
+
 # There is very litte written against the abstract type.
 # So this is of limited use.
 
@@ -64,7 +65,6 @@ function Base.convert(::Type{Z4Group}, x::ConvertableNumber)
         isone(-x.im) && return Z4Group(true, true)
     end
     throw(InexactError(:convert, Z4Group, x))
-#    error("Can't convert $x to {1, -1, i, -i}.")
 end
 
 function Base.convert(::Type{T}, x::Z4Group) where {T<:Real}
@@ -105,6 +105,22 @@ function Base.show(io::IO, ip::Z4Group)
     else
         print(io, "1")
     end
+end
+
+Base.show(::MIME"text/input", ip::Z4Group) = show(stdout, MIME"text/input"(), ip)
+function Base.show(io::IO, ::MIME"text/input", ip::Z4Group)
+    print(io, "Z4Group(")
+    if ip.minus
+        print(io, "-")
+    else
+        print(io, "+")
+    end
+    if ip.imag
+        print(io, "im")
+    else
+        print(io, "1")
+    end
+    print(io, ")")
 end
 
 ####

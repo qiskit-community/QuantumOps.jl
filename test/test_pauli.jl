@@ -1,10 +1,3 @@
-
-@testset "Z4Group" begin
-    for (n, x) in zip(1:4, (im, -1, -im, 1))
-        @test z4group(n) == Z4Group(x)
-    end
-end
-
 @testset "Z4Group, Z4Group0 use" begin
     t1 = PauliTerm("XX", Z4Group0(1))
     t2 = PauliTerm("XX", 1)
@@ -58,9 +51,10 @@ end
 
     @test sqrt(PauliTerm(X,Y)) == PauliSum(["II", "XY"], [0.5 + 0.5im, 0.5 - 0.5im])
 
-    t = PauliTerm("XYZ")
-    @test reverse(t) != t
-    @test reverse(reverse(t)) == t
+    @test adjoint(PauliTerm("XYZ")) == PauliTerm("XYZ")
+    @test conj(PauliTerm("XYZ")) ==  PauliTerm("XYZ", -1)
+    @test transpose(PauliTerm("XYZ")) == PauliTerm("XYZ", -1)
+    @test transpose(PauliTerm("XYZY")) == PauliTerm("XYZY")
 end
 
 @testset "PauliSum" begin
@@ -77,28 +71,42 @@ end
     s = PauliSum(m)
     @test m ≈ Matrix(s)
 
+    term = PauliTerm("XYZ")
+    tan_term = tan(term)
+    @test first(tan_term)  == tan(1) * term
+    @test length(tan_term) == 1
     @test numeric_function(PauliTerm("XX"), x -> x^2 + 2.0 * x^3) == PauliSum([PauliTerm("II"), PauliTerm("XX", 2)])
 
-    a = rand_pauli_sum(10, 3)
-    b = rand_pauli_sum(10, 3)
+    a = rand_op_sum(Pauli, 10, 3)
+    b = rand_op_sum(Pauli, 10, 3)
     sa = SparseArrays.sparse(a)
     sb = SparseArrays.sparse(b)
     @test SparseArrays.sparse(a * b * a) == sa * sb * sa
 end
 
 @testset "Z4Group0" begin
-    for x in (im, -1, -im, 1, 0)
-        @test Z4Group0(x) == x
-    end
-    for (x, y, z) in ((0, 0, 0), (0, 1, 0), (0, -1, 0), (0, im, 0), (0, -im, 0),
-                      (1, 0, 0), (1, 1, 1), (1, -1, -1), (1, im, im), (1, -im, -im),
-                      (-1, 0, 0), (-1, 1, -1), (-1, -1, 1), (-1, im, -im), (-1, -im, im),
-                      (im, 0, 0), (im, 1, im), (im, -1, -im), (im, im, -1), (im, -im, 1),
-                      (-im, 0, 0), (-im, 1, -im), (-im, -1, im), (-im, im, 1), (-im, -im, -1))
-        @test Z4Group0(x) * Z4Group0(y) == Z4Group0(z)
-    end
     ms = Matrix.(Pauli.((0, 1, 2, 3)))
     zms = ((Z4Group0.(m) for m in ms)...,)
     @test zms == ms
     @test kron(zms...) == kron(ms...)
+end
+
+@testset "kron" begin
+    t1 = PauliTerm("XYZ")
+    t2 = PauliTerm("ZYX")
+    @test Matrix(t1) ⊗ Matrix(t2) ≈ Matrix(t1 ⊗ t2)
+
+    t1 = 3.0 * Paulis.X ⊗ Paulis.Y
+    t2 = Paulis.X ⊗ Paulis.Y * 3.0
+    @test t1 == t2
+    @test_broken typeof(t1.coeff) == typeof(t2.coeff)
+end
+
+using LinearAlgebra: eigvals
+
+@testset "eigvals" begin
+    @test eigvals(PauliTerm("III")) == ones(2^3)
+    for t in (PauliTerm("XYZX"), PauliTerm("XYI"))
+        @test eigvals(t) ≈ eigvals(Matrix(t))
+    end
 end

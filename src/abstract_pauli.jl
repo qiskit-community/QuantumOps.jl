@@ -1,5 +1,19 @@
-#abstract type AbstractPauli{T} <: AbstractMatrix{T} end
+module AbstractPaulis
+
+using ..AbstractOps
+import ..AbstractOps: _show_op_plain
+import Random
+import SparseArraysN
+const SparseArrays = SparseArraysN
+using StaticArrays
+import LinearAlgebra
+import IsApprox
+
+export AbstractPauli
+
 abstract type AbstractPauli{T} <: AbstractOp end
+
+const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
 
 ####
 #### Constructors
@@ -75,9 +89,11 @@ function pauli_vector(::Type{PauliT}, op_index::Integer, n_qubits::Integer,
     return PauliT.(indices)
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{PauliT}) where {PauliT <: AbstractPauli}
-    return PauliT(rand(rng, 0:3))
-end
+AbstractOps.rand_ind_range(::Type{<:AbstractPauli}) = 0:3
+
+# function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{PauliT}) where {PauliT <: AbstractPauli}
+#     return PauliT(rand(rng, 0:3))
+# end
 
 ####
 #### IO
@@ -91,21 +107,16 @@ op_chars(::Type{AbstractPauli}) = _pauli_chars
 ## and is not > 4, nor < 1
 ## So, we enumerate the values of valid indices.
 function Base.show(io::IO, p::AbstractPauli)
+    print(io, typeof(p), ": ")
+    _show_op_plain(io, p)
+end
+
+function _show_op_plain(io::IO, p::AbstractPauli)
     i::Int = op_index(p) + 1
-#    println("index ", i)
-#    if (i < 1 || i > 4)
     if i != 1 && i != 2 && i != 3 && i != 4
-#        println("greater ", i)
         char = '0'
     else
-        # println("index ** ", i)
-        # println("greater ? ", i > 4)
-        # println("float ", float(i))
-        # if i > 4
-        #     char = '0'
-        # else
         char = _pauli_chars[i]
-#        end
     end
     print(io, char)
 end
@@ -118,7 +129,7 @@ Base.display(p::AbstractPauli) = show(stdout, p)
 ## We may want to define `display` as well.
 function Base.show(io::IO, ps::AbstractArray{<:AbstractPauli})
     for p in ps
-        show(io, p)
+        _show_op_plain(io, p)
     end
 end
 
@@ -206,40 +217,6 @@ Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? one(p) : p
 Base.inv(p::AbstractPauli) = p
 
 """
-    mul(p1::AbstractPauli, p2::AbstractPauli)
-
-Multiply Paulis returning a  `NamedTuple` with members
-`:bare_pauli`, `:has_sign_flip`, `:has_imag_unit`.
-
-See `QuantumOps.phase`.
-"""
-function mul(p1::AbstractPauli, p2::AbstractPauli)
-    bare_pauli = p1 * p2
-    _phase = phase(p1, p2)
-    return((bare_pauli=bare_pauli, has_sign_flip=_phase[:has_sign_flip], has_imag_unit=_phase[:has_imag_unit]))
-end
-
-function multiply_keeping_phase(s1::AbstractArray{<:AbstractPauli}, s2::AbstractArray{<:AbstractPauli})
-    return multiply_keeping_phase!(similar(s1), s1, s2)
-end
-
-function multiply_keeping_phase!(target::AbstractArray{<:AbstractPauli},
-                                s1::AbstractArray{<:AbstractPauli}, s2::AbstractArray{<:AbstractPauli})
-    length(s1) != length(s2) && throw(DimensionMismatch())
-    cum_sign_flips = 0
-    cum_imag_units = 0
-    @inbounds for i in eachindex(s1)
-        product = mul(s1[i], s2[i])
-        cum_sign_flips += product[:has_sign_flip]
-        cum_imag_units += product[:has_imag_unit]
-        target[i] = product[:bare_pauli]
-    end
-    sign = iseven(cum_sign_flips) ? 1 : -1
-    cum_imag_units = mod(cum_imag_units, 4)
-    return(target, sign * im ^ cum_imag_units)
-end
-
-"""
     phase(p1::AbstractPauli, p2::AbstractPauli)
 
 Return a `NamedTuple` of two `Bool`s representing the phase of the product of `p1` and
@@ -263,7 +240,7 @@ function phase(p1::AbstractPauli, p2::AbstractPauli)
             has_sign_flip = false
         end
     end
-    return (has_sign_flip=has_sign_flip, has_imag_unit=has_imag_unit)
+    return PauliPhase(has_sign_flip, has_imag_unit)
 end
 
 ### Linear algebra
@@ -271,24 +248,66 @@ end
 LinearAlgebra.tr(::AbstractPauli) = 0
 
 ## This would otherwise be computed by LinearAlgebra calling getindex
-LinearAlgebra.eigvals(::AbstractPauli) = [-1.0, 1.0]
+LinearAlgebra.eigvals(p::AbstractPauli) = isone(p) ? [1.0, 1.0] : [-1.0, 1.0]
 
-Base.length(p::AbstractPauli) = 1
+Base.length(::AbstractPauli) = 1
 Base.iterate(p::AbstractPauli) = (p, nothing)
-Base.iterate(p::AbstractPauli, ::Any) = nothing
-Base.isempty(p::AbstractPauli) = false
+Base.iterate(::AbstractPauli, ::Any) = nothing
+Base.isempty(::AbstractPauli) = false
 
-####
-#### Other
-####
+Base.iszero(::AbstractPauli) = false
 
-"""
-    weight(v::AbstractArray{<:AbstractPauli})
-    weight(ps::PauliTerm)
+abstract type AbstractPhaseData end
 
-Count the number of Paulis in the string that are not the identity.
-"""
-weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> op_index(pauli) != 0, v)
+struct PauliPhase
+    sign_flip::Bool
+    imag_unit::Bool
+end
+
+mutable struct PauliPhaseCounts <: AbstractPhaseData
+    n_sign_flips::Int
+    n_imag_units::Int
+end
+
+PauliPhaseCounts() = PauliPhaseCounts(0, 0)
+
+AbstractOps.phase_data(::Type{<:AbstractPauli}) = PauliPhaseCounts()
+
+function AbstractOps.accumulate_phase!(p_counts::PauliPhaseCounts, op1::T, op2::T) where {T <: AbstractPauli}
+    pauli_phase = phase(op1, op2)
+    return AbstractOps.accumulate_phase!(p_counts, pauli_phase)
+end
+
+function AbstractOps.accumulate_phase!(p_counts::PauliPhaseCounts, p_phase::PauliPhase)
+    p_counts.n_sign_flips += p_phase.sign_flip
+    p_counts.n_imag_units += p_phase.imag_unit
+    return p_counts
+end
+
+function AbstractOps.accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractPauli}
+    phase_info = phase(op1, op2)
+    new_phase_data = (old_phase_data[1] + phase_info.sign_flip, old_phase_data[2] + phase_info.imag_unit)
+    return new_phase_data
+end
+
+AbstractOps.compute_phase(phase_counts::PauliPhaseCounts, _1, _2) =
+    AbstractOps.compute_phase(AbstractPauli, (phase_counts.n_sign_flips, phase_counts.n_imag_units))
+
+function AbstractOps.compute_phase(::Type{<:AbstractPauli}, phase_data)
+    (n_sign_flips, n_imag_units) = phase_data
+    _sign = iseven(n_sign_flips) ? 1 : -1
+    n = n_imag_units % 4
+    if n == 0
+        cim = complex(1)
+    elseif n == 1
+        cim = complex(im)
+    elseif n == 2
+        cim = complex(-1)
+    else
+        cim = complex(-im)
+    end
+    return _sign * cim
+end
 
 ####
 #### Interface for subtypes
@@ -306,13 +325,6 @@ Multiply single-qubit operators ignoring phase.
 function Base.:*(p1::AbstractPauli, p2::AbstractPauli)
     throw(MethodError(*, (p1, p2)))
 end
-
-"""
-    op_index(p::AbstractPauli)::Int
-
-Return the Pauli index in `[0,3]` of `p`.
-"""
-function op_index end
 
 """
     abstract type AbstractPauli
@@ -333,3 +345,5 @@ or the `AbstractString`s `"I", "X", "Y", "Z"` or the `AbstractChar`s `'I', 'X', 
 In general creating `AbstractPauli`s with `String`s is slower than with the other types.
 """
 function AbstractPauli end
+
+end # module AbstractPaulis

@@ -5,9 +5,8 @@ This module contains `PauliI <: AbstractPauli` and supporting code.
 """
 module PaulisI
 
-import ..AbstractPauli
-import .._AbstractPauli
-import ..op_index
+import ..AbstractOps: op_index
+import ..AbstractPaulis: AbstractPauli, _AbstractPauli
 
 export PauliI
 

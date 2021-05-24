@@ -9,14 +9,29 @@ using StaticArrays
 import ThreadsX
 #import FLoops
 import ILog2
-import SparseArrays
 
-export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum
+import SparseArraysN
+import SparseArraysN: neutral, isneutral, neutrals
+export neutral, isneutral
+
+#import SparseArrays
+const SparseArrays = SparseArraysN
+
+import ElectronicStructure
+
+export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum,
+    OpTerm, OpSum # , FermiTermA  #, PauliTermA  , PauliSumA
+export IndOp
+#export APauliTerm
+export op_string, op_strings
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
 
+#export SparseVec
+export sparse_op, dense_op
+
 export isunitary
-export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum, rand_fermi_term
+export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum, rand_fermi_term, rand_op_term, rand_op_sum
 export op_index, phase, weight, pauli_vector
 export add!, lmul!, numeric_function
 export z4group0
@@ -50,6 +65,9 @@ function __init__()
     end
 end
 
+# include("sparse_vec.jl")
+# using .SparseVecs
+
 include("util.jl")
 include("z4group.jl")
 
@@ -60,6 +78,9 @@ include("z4group0.jl")
 using .Z4Group0s
 
 include("abstract_op.jl")
+
+using .AbstractOps
+
 include("abstract_pauli.jl")
 
 include("pauli.jl")
@@ -68,21 +89,33 @@ using .Paulis
 include("pauli_i.jl")
 using .PaulisI
 
+const PauliDefault = Pauli
+
+"""
+    PauliDefault
+
+An alias for the default implementation of `AbstractPauli`. Functions that that take
+an optional argument that is a subtype of `AbstractPauli` default to `PauliDefault`
+if this argument is omitted. There are currently two implementations of `AbstractPauli`:
+`Pauli` and `PauliI`.
+"""
+PauliDefault
+
 include("abstract_term.jl")
-include("pauli_term.jl")
 include("abstract_sum.jl")
-include("pauli_sum.jl")
-
-include("default_abstract_pauli.jl")
-
+include("op_term.jl")
 include("abstract_fermi_op.jl")
 include("fermi_op.jl")
 
 using .FermiOps
 
-include("fermi_term.jl")
-include("fermi_sum.jl")
+include("op_term_fermi.jl")
+include("op_term_pauli.jl")
 
 include("jordan_wigner.jl")
+
+using .JordanWigner
+
+include("sparse.jl")
 
 end # module

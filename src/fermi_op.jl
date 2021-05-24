@@ -8,13 +8,14 @@ import Random
 import LinearAlgebra
 
 export FermiOp, FermiDefault
-export I_op, number_op, empty_op, raise_op, lower_op, zero_op,
-    count_raise_lower
+export I_op, number_op, empty_op, raise_op, lower_op, zero_op, count_raise_lower
 
-import .._AbstractOp, ..op_symbols, ..AbstractOp, ..AbstractFermiOp
+import ..AbstractOps: _AbstractOp, op_symbols, AbstractOp, _show_op_plain
+import ..AbstractFermiOp
 
 struct FermiOp <: AbstractFermiOp
-    ind::UInt8
+    ind::Int  # Int is often faster than UInt8
+#    ind::UInt8
 end
 
 const FermiDefault = FermiOp
@@ -38,6 +39,16 @@ const zero_op = FermiOp(5)
 const Z_op = FermiOp(6)
 const no_op = FermiOp(7)
 
+## TODO: Use these constants rather than those above
+const I = FermiOp(0)
+const NumberOp = FermiOp(1)
+const Empty = FermiOp(2)
+const Raise = FermiOp(3)
+const Lower = FermiOp(4)
+const Zero = FermiOp(5)
+const Z = FermiOp(6)
+const NoOp = FermiOp(7)
+
 const _fermi_chars = ('I', 'N', 'E', '+', '-', '0', 'Z', 'X')
 const _fermi_string_chars = string.(_fermi_chars)
 const _fermi_symbol_chars = Symbol.(_fermi_chars)
@@ -48,20 +59,24 @@ op_symbols(::Type{<:AbstractFermiOp}, ::Type{Symbol}) = _fermi_symbol_chars
 
 FermiOp(s::Union{AbstractChar, AbstractString, Symbol}) = _AbstractOp(FermiOp, s)
 
-function Base.show(io::IO, op::FermiOp)
+function _show_op_plain(io::IO, op::FermiOp)
     i = op_index(op) + 1
     if i < 1 || i > 8
-        i = 8
+        i = 8  # uninitialized data is coerced to 8 which means no_op
     end
     print(io, _fermi_chars[i])
+end
+
+function Base.show(io::IO, op::FermiOp)
+    print(io, typeof(op), ": ")
+    _show_op_plain(io, op)
 end
 
 """
     ferm_op_mult
 
-Multiplication for single-fermion operators. We include `Z=N-E`.
-Multiplication does not keep track of phase incurred when `Z` is
-an operand
+Multiplication for single-fermion operators. We include `Z=N-E`. Multiplication does not
+keep track of phase incurred when `Z` is an operand
 """
 const ferm_op_mult =
     #   I       N          E        +         -         0       Z
@@ -122,6 +137,12 @@ function LinearAlgebra.ishermitian(op::FermiOp)
     end
 end
 
+"""
+    count_raise_lower(op::FermiOp)
+
+Return the sum of the numbers of raising and lowering operators in `op`.
+Number and complement of number operator each count as two.
+"""
 function count_raise_lower(op::FermiOp)
     if op === raise_op || op === lower_op
         return 1

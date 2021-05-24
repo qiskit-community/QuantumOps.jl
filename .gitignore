@@ -4,4 +4,9 @@
 /Manifest.toml
 Dev/
 explore/
+hide/
+bin/julia
+.envrc*
+tmp*
+repl_history.jl
 
