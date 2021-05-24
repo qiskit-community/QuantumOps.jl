@@ -1,4 +1,4 @@
-using .FermiOps: number_op, raise_op, lower_op, no_op, id_op
+using .FermiOps: number_op, raise_op, lower_op, no_op, I_op
 
 #struct FermiTerm{T} <: AbstractTerm
 struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, V} <: AbstractTerm{W}
@@ -24,6 +24,12 @@ function FermiTerm(inds::NTuple{N, Int}, coeff, n_modes::Integer) where N
     (ops, phase) = index_to_ops_phase(inds)
     (factors, new_coeff) = _fermi_term(ops, phase, coeff, n_modes)
     return FermiTerm(factors, new_coeff)
+end
+
+## This is defined just for construction by copying the printed type.
+function FermiTerm{W, T, V}(s::AbstractString,
+                            coeff=_DEFAULT_COEFF) where {W<:AbstractFermiOp,T<:AbstractVector{W},V}
+    return FermiTerm{W,T,V}(Vector{W}(s), coeff)
 end
 
 index_to_ops(inds) = index_to_ops(inds...)
@@ -102,7 +108,7 @@ index_to_ops_phase(inds) = (ops=index_to_ops(inds), phase=index_phase(inds))
 
 ## Embed `ops` in a string of width `n_modes`
 function _fermi_term(ops::NTuple, phase::Integer, coeff, n_modes::Integer)
-    factors = fill(id_op, n_modes)
+    factors = fill(I_op, n_modes)
     for (op, ind) in ops
         if op == no_op
             continue
@@ -156,20 +162,52 @@ Base.iszero(ft::FermiTerm) = iszero(ft.coeff) || any(iszero, op_string(ft))
 #### Algebra / mathematical operations
 ####
 
+@inline function get_phase_count1(f::FermiOp)
+    if f === number_op || f === raise_op
+        return 1
+    else
+        return 0
+    end
+end
+
+@inline function get_phase_count2(f::FermiOp)
+    if f === number_op || f === lower_op
+        return 1
+    else
+        return 0
+    end
+end
+
+@inline function do_phase_count(f1::FermiOp, f2::FermiOp)
+    if f1 === FermiOps.Z_op
+        return get_phase_count1(f2)
+    elseif f2 === FermiOps.Z_op
+        return get_phase_count2(f1)
+    else
+        return 0
+    end
+end
+
 function Base.:*(ft1::FermiTerm, ft2::FermiTerm)
     if length(ft1) != length(ft2)
         throw(DimensionMismatch())
     end
     new_string = similar(op_string(ft1))
+    phase_count = 0
     @inbounds for i in eachindex(ft1)
-        _prod = op_string(ft1)[i] * op_string(ft2)[i]
+        f1 = op_string(ft1)[i]
+        f2 = op_string(ft2)[i]
+        _prod = f1 * f2
         if iszero(_prod)  # If any factor is zero, the entire product is zero
             fill!(new_string, zero_op)
             return FermiTerm(new_string, zero(ft1.coeff))
         end
         new_string[i] = _prod
+        # Tracking phase costs sometimes 5% - 20%, in some cases
+#        phase_count += do_phase_count(f1, f2)
     end
-    return FermiTerm(new_string, ft1.coeff * ft2.coeff)
+    phase_fac = iseven(phase_count) ? 1 : -1
+    return FermiTerm(new_string, ft1.coeff * ft2.coeff * phase_fac)
 end
 
 function Base.:^(ft::FermiTerm, n::Integer)

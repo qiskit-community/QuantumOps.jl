@@ -8,7 +8,7 @@ import Random
 import LinearAlgebra
 
 export FermiOp, FermiDefault
-export id_op, number_op, empty_op, raise_op, lower_op, zero_op,
+export I_op, number_op, empty_op, raise_op, lower_op, zero_op,
     count_raise_lower
 
 import .._AbstractOp, ..op_symbols, ..AbstractOp, ..AbstractFermiOp
@@ -21,15 +21,15 @@ const FermiDefault = FermiOp
 
 op_index(op::FermiOp) = op.ind
 
-Base.one(op::FermiOp) = id_op
-Base.one(::Type{FermiOp}) = id_op
+Base.one(op::FermiOp) = I_op
+Base.one(::Type{FermiOp}) = I_op
 
 Base.zero(op::FermiOp) = zero_op
 Base.zero(::Type{FermiOp}) = zero_op
 
 Base.isless(op1::FermiOp, op2::FermiOp) = isless(op_index(op1), op_index(op2))
 
-const id_op = FermiOp(0)
+const I_op = FermiOp(0)
 const number_op = FermiOp(1)
 const empty_op = FermiOp(2)
 const raise_op = FermiOp(3)
@@ -65,17 +65,17 @@ an operand
 """
 const ferm_op_mult =
     #   I       N          E        +         -         0       Z
-    ((id_op, number_op, empty_op, raise_op, lower_op, zero_op, Z_op),      # I
+    ((I_op, number_op, empty_op, raise_op, lower_op, zero_op, Z_op),      # I
      (number_op, number_op, zero_op, raise_op, zero_op, zero_op, Z_op),    # N
      (empty_op, zero_op, empty_op, zero_op, lower_op, zero_op, empty_op),  # E
      (raise_op, zero_op, raise_op, zero_op, number_op, zero_op, raise_op), # +
      (lower_op, lower_op, zero_op, empty_op, zero_op, zero_op, lower_op),  # -
      (zero_op, zero_op, zero_op, zero_op, zero_op, zero_op, zero_op),      # 0
-     (Z_op, number_op, empty_op, raise_op, lower_op, zero_op, id_op))      # Z
+     (Z_op, number_op, empty_op, raise_op, lower_op, zero_op, I_op))      # Z
 
 # const ferm_op_mult =
 #     #   I       N          E        +         -         0
-#     ((id_op, number_op, empty_op, raise_op, lower_op, zero_op),   # I
+#     ((I_op, number_op, empty_op, raise_op, lower_op, zero_op),   # I
 #      (number_op, number_op, zero_op, raise_op, zero_op, zero_op), # N
 #      (empty_op, zero_op, empty_op, zero_op, lower_op, zero_op),   # E
 #      (raise_op, zero_op, raise_op, zero_op, number_op, zero_op),  # +
@@ -85,8 +85,8 @@ const ferm_op_mult =
 Base.:*(op1::FermiOp, op2::FermiOp) = ferm_op_mult[op_index(op1)+1][op_index(op2)+1]
 
 function Base.inv(op::FermiOp)
-    if op === id_op
-        return id_op
+    if op === I_op
+        return I_op
     else
         throw(DomainError(op, "Operator has no inverse"))
     end
@@ -94,15 +94,15 @@ end
 
 function Base.:^(op::FermiOp, n::Integer)
     n < 0 && throw(DomainError(n))
-    n == 0 && return id_op
-    if op === id_op || op === number_op || op === empty_op
+    n == 0 && return I_op
+    if op === I_op || op === number_op || op === empty_op
         return op
     end
     return zero_op
 end
 
 function Base.adjoint(op::FermiOp)
-    if op === id_op || op === empty_op || op === number_op || op === zero_op
+    if op === I_op || op === empty_op || op === number_op || op === zero_op
         return op
     end
     if op === raise_op
@@ -115,7 +115,7 @@ function Base.adjoint(op::FermiOp)
 end
 
 function LinearAlgebra.ishermitian(op::FermiOp)
-    if op === id_op || op === empty_op || op === number_op || op === zero_op
+    if op === I_op || op === empty_op || op === number_op || op === zero_op
         return true
     else
         return false

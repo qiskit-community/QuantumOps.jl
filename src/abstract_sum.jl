@@ -348,6 +348,7 @@ function mul!(asum_out::T, term::AbstractTerm, asum::T) where T <: AbstractSum
     @inbounds for j in eachindex(asum)
         new_term = term * asum[j]
         asum_out.coeffs[j] = new_term.coeff
+#        copy!(asum_out.strings[j], op_string(new_term)) # hmm this is not defined
         asum_out.strings[j] = op_string(new_term)
     end
     return asum_out

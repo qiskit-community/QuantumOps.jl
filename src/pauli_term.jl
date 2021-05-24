@@ -45,6 +45,12 @@ function PauliTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <
     return PauliTerm(Vector{T}(s), coeff)
 end
 
+## This is defined just for construction by copying the printed type.
+function PauliTerm{W, T, V}(s::AbstractString,
+                            coeff=_DEFAULT_COEFF) where {W<:AbstractPauli,T<:AbstractVector{W},V}
+    return PauliTerm{W,T,V}(Vector{W}(s), coeff)
+end
+
 """
     PauliTerm(::Type{T}=PauliDefault, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
 

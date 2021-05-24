@@ -49,7 +49,7 @@ function fill_fermi(pad, op_ind, fill_op, end_op)
     end
     str[op_ind] = end_op
     @inbounds for i in op_ind+1:pad
-        str[i] = FermiOps.id_op
+        str[i] = FermiOps.I_op
     end
     return str
 end
@@ -64,13 +64,13 @@ function jordan_wigner_fermi(op::FermiOp, op_ind::Integer, pad::Integer)
         str = fill_fermi(pad, op_ind, FermiOps.Z_op, FermiOps.raise_op)
         return FermiTerm(str, complex(1.0))
     elseif op === number_op
-        str = fill_fermi(pad, op_ind, FermiOps.id_op, FermiOps.number_op)
+        str = fill_fermi(pad, op_ind, FermiOps.I_op, FermiOps.number_op)
         return FermiTerm(str, complex(1.0))
     elseif op === empty_op
-        str = fill_fermi(pad, op_ind, FermiOps.id_op, FermiOps.empty_op)
+        str = fill_fermi(pad, op_ind, FermiOps.I_op, FermiOps.empty_op)
         return FermiTerm(str, complex(1.0))
-    elseif op === id_op
-        str = fill(FermiOps.id_op, pad)
+    elseif op === I_op
+        str = fill(FermiOps.I_op, pad)
         return FermiTerm(str, complex(1.0))
     else
         raise(DomainError(op))
