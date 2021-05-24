@@ -3,9 +3,9 @@
 
 Represents a Pauli string (tensor product of Paulis) with a coefficient.
 """
-struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V} <: AbstractTerm{W}
+struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, CoeffT} <: AbstractTerm{W, CoeffT}
     paulis::T
-    coeff::V
+    coeff::CoeffT
 end
 
 op_string(t::PauliTerm) = t.paulis

@@ -400,10 +400,8 @@ function Base.:*(as1::AbstractSum, as2::AbstractSum)
     asum_cum = typeof(as2)(similar(as2.strings), similar(as2.coeffs); already_sorted=true)
     @inbounds for i in 1:length(as1)
         mul!(asum_cum, as1[i], as2)
-#        add!(asum_out, asum_cum)
         append!(asum_out, asum_cum)
     end
-#    return asum_out
     return sort_and_sum_duplicates!(asum_out)
 end
 

@@ -1,14 +1,19 @@
 using .FermiOps: number_op, raise_op, lower_op, no_op, I_op
 
 #struct FermiTerm{T} <: AbstractTerm
-struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, V} <: AbstractTerm{W}
+struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, CoeffT} <: AbstractTerm{W, CoeffT}
     ops::T
-    coeff::V
+    coeff::CoeffT
 end
 
 op_string(t::FermiTerm) = t.ops
 
 term_type(::Type{<:AbstractFermiOp}) = FermiTerm
+
+function Base.promote_rule(::Type{FermiTerm{FermiOp, Vector{FermiOp}, T}},
+                           ::Type{FermiTerm{FermiOp, Vector{FermiOp}, V}}) where {T, V}
+    return FermiTerm{FermiOp, Vector{FermiOp}, promote_type(T, V)}
+end
 
 ####
 #### Constructors

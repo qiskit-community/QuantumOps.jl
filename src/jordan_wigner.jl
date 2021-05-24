@@ -37,6 +37,27 @@ function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer)
     end
 end
 
+function jordan_wigner(term::FermiTerm)
+    pad = length(term)
+    facs = []
+    for (i, op) in enumerate(term)
+        if op === raise_op || op === lower_op || op === number_op
+            push!(facs, jordan_wigner(op, i, pad))
+        end
+    end
+    if isempty(facs)  # TODO: Assume that all factors are identitiy op. Should check this
+        return(PauliSum([fill(one(Pauli), length(term))], [complex(term.coeff)]))
+    end
+    return term.coeff * reduce(*, facs) # TODO: performance
+end
+
+function jordan_wigner(fsum::FermiSum)
+    psum = jordan_wigner(fsum[1])
+    for i in 2:length(fsum)
+        add!(psum, jordan_wigner(fsum[i]))
+    end
+    return psum
+end
 
 function fill_fermi(pad, op_ind, fill_op, end_op)
     str = Vector{FermiOps.FermiOp}(undef, pad)
@@ -73,4 +94,31 @@ function jordan_wigner_fermi(op::FermiOp, op_ind::Integer, pad::Integer)
     else
         raise(DomainError(op))
     end
+end
+
+function jordan_wigner_fermi(term::FermiTerm)
+    pad = length(term)
+#    facs = typeof(term)[]
+    facs = FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}[]
+    for (i, op) in enumerate(term)
+        if op === raise_op || op === lower_op || op === number_op
+            push!(facs, jordan_wigner_fermi(op, i, pad))
+        end
+    end
+    if isempty(facs)
+        return term
+    end
+    return term.coeff * FermiSum(facs)  # TODO: performance
+end
+
+function jordan_wigner_fermi(fsum::FermiSum)
+#    ofsum = jordan_wigner_fermi(fsum[1])
+    terms = FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}[]
+    for i in 1:length(fsum)
+        push!(terms, jordan_wigner_fermi(fsum[i]))
+    end
+    nterms = [x for x in terms]
+    # println(typeof(nterms))
+    # return nterms
+    return FermiSum(terms)
 end
