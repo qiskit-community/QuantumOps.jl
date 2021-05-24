@@ -98,23 +98,23 @@ end
 
 function jordan_wigner_fermi(term::FermiTerm)
     pad = length(term)
-#    facs = typeof(term)[]
-    facs = FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}[]
+    facs = [] # FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}[]
     for (i, op) in enumerate(term)
         if op === raise_op || op === lower_op || op === number_op
             push!(facs, jordan_wigner_fermi(op, i, pad))
         end
     end
     if isempty(facs)
-        return term
+        return (1.0 + 0.0im) * term
     end
-    return term.coeff * FermiSum(facs)  # TODO: performance
+    return term.coeff * reduce(*, facs)  # TODO: performance
 end
 
 function jordan_wigner_fermi(fsum::FermiSum)
 #    ofsum = jordan_wigner_fermi(fsum[1])
     terms = FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}[]
     for i in 1:length(fsum)
+#        println(i)
         push!(terms, jordan_wigner_fermi(fsum[i]))
     end
     nterms = [x for x in terms]

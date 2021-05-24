@@ -21,7 +21,7 @@ geoms = (
 )
 
 ## Choose one of the geometries
-geom = geoms[1]
+geom = geoms[2]
 
 basis = "sto-3g"
 #basis = "631g"

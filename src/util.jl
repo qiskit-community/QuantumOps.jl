@@ -46,5 +46,5 @@ This function exists because we define methods for special cases, such as symbol
 libraries.
 """
 function isapprox_zero(x::Number)
-    return isapprox(x, zero(x))
+    return isapprox(x, zero(x), atol=1e-16)
 end
