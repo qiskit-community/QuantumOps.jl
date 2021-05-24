@@ -16,23 +16,22 @@ end
 
 ## Jordan-Wigner
 function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer)
-    already_sorted = true
     if op === lower_op
         strx = fill_pauli(pad, op_ind, Paulis.Z, Paulis.X)
         stry = fill_pauli(pad, op_ind, Paulis.Z, Paulis.Y)
-        return PauliSum([strx, stry], [-1/2, -im/2], already_sorted)
+        return PauliSum([strx, stry], [-1/2, -im/2]; already_sorted=true)
     elseif op === raise_op
         strx = fill_pauli(pad, op_ind, Paulis.Z, Paulis.X)
         stry = fill_pauli(pad, op_ind, Paulis.Z, Paulis.Y)
-        return PauliSum([strx, stry], [-1/2, im/2], already_sorted)
+        return PauliSum([strx, stry], [-1/2, im/2]; already_sorted=true)
     elseif op === number_op
         strx = fill(Paulis.I, pad)
         stry = fill_pauli(pad, op_ind, Paulis.I, Paulis.Z)
-        return PauliSum([strx, stry], complex.([1/2, -1/2]), already_sorted)
+        return PauliSum([strx, stry], complex.([1/2, -1/2]); already_sorted=true)
     elseif op === empty_op
         strx = fill(Paulis.I, pad)
         stry = fill_pauli(pad, op_ind, Paulis.I, Paulis.Z)
-        return PauliSum([strx, stry], complex.([1/2, 1/2]), already_sorted)
+        return PauliSum([strx, stry], complex.([1/2, 1/2]); already_sorted=true)
     else
         raise(DomainError(op))
     end
@@ -56,7 +55,6 @@ end
 
 ## Jordan-Wigner
 function jordan_wigner_fermi(op::FermiOp, op_ind::Integer, pad::Integer)
-    already_sorted = true
     if op === lower_op
         str = fill_fermi(pad, op_ind, FermiOps.Z_op, FermiOps.lower_op)
         return FermiTerm(str, complex(1.0))

@@ -4,8 +4,8 @@ struct FermiSum{StringT, CoeffT} <: AbstractSum{StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
-    function FermiSum(strings, coeffs, already_sorted=false)
-        _abstract_sum_inner_constructor_helper!(strings, coeffs, already_sorted)
+    function FermiSum(strings, coeffs; already_sorted=false)
+        _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
         return new{typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
@@ -20,14 +20,14 @@ end
 
 ## Factor this out of here and PauliSum
 ## Factoring this out may be over-abstraction. Or maybe there is a good way to do it.
-function FermiSum(v::AbstractVector{<:FermiTerm}, already_sorted=false)
+function FermiSum(v::AbstractVector{<:FermiTerm}; already_sorted=false)
     strings = [x.ops for x in v]
     coeffs = [x.coeff for x in v]
-    return FermiSum(strings, coeffs, already_sorted)
+    return FermiSum(strings, coeffs; already_sorted=already_sorted)
 end
 
-FermiSum{T,V}(v, c, already_sorted) where {T, V} = FermiSum(v, c, already_sorted)
-FermiSum{T,V}(v, c) where {T, V} = FermiSum(v, c, false)
+FermiSum{T,V}(v, c; already_sorted=false) where {T, V} = FermiSum(v, c; already_sorted=already_sorted)
+#FermiSum{T,V}(v, c) where {T, V} = FermiSum(v, c, false)
 
 _skip_inds(i, j, k, l) = (i == j || k == l) # skip if two raising or two lowering ops on one index
 _skip_inds(i, j) = false # always one raising and one lowering, so never skip

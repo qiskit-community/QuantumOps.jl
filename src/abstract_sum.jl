@@ -4,7 +4,10 @@ abstract type AbstractSum{StringT, CoeffT} end
 #### Constructors
 ####
 
-function _abstract_sum_inner_constructor_helper!(strings, coeffs, already_sorted=false)
+## Should we use this ?
+#op_strings(as::AbstractSum) = as.strings
+
+function _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=false)
     if length(strings) != length(coeffs)
         throw(DimensionMismatch("bad dims"))
     end
@@ -24,8 +27,7 @@ function Base.similar(ps::AbstractSum{T, V}, n=0) where {W, C, V <:Vector{C}, T 
     m = size(ps, 2)
     strings = [Vector{W}(undef, m) for i in 1:n]
     coeffs = Vector{C}(undef, n)
-    already_sorted = true
-    return typeof(ps)(strings, coeffs, already_sorted)
+    return typeof(ps)(strings, coeffs; already_sorted=true)
 end
 
 ## TODO: find a good way to abstract this
@@ -37,8 +39,7 @@ end
 
 function Base.copy(as::AbstractSum)
     (new_strings, new_coeffs) = (copy.(as.strings), copy(as.coeffs))
-    already_sorted = true
-    return typeof(as)(new_strings, new_coeffs, already_sorted)
+    return typeof(as)(new_strings, new_coeffs; already_sorted=true)
 end
 
 ####
@@ -185,8 +186,7 @@ Base.getindex(asum::AbstractSum, inds) = typeof(asum)(asum.strings[inds], asum.c
 # width of the string.
 function Base.one(asum::AbstractSum)
     t = one(first(asum))
-    already_sorted = true
-    typeof(asum)([op_string(t)], [t.coeff], already_sorted)
+    typeof(asum)([op_string(t)], [t.coeff]; already_sorted=true)
 end
 
 function Base.:(==)(asum1::AbstractSum, asum2::AbstractSum)
@@ -330,18 +330,15 @@ function Base.:-(pt1::T, pt2::T) where T <: AbstractTerm
 end
 
 function Base.:-(psum::AbstractSum)
-    already_sorted = true
-    typeof(psum)(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs, already_sorted)
+    typeof(psum)(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs; already_sorted=true)
 end
 
 function Base.:*(n::Number, psum::AbstractSum)
-    already_sorted = true
-    typeof(psum)(psum.strings, n .* psum.coeffs, already_sorted)
+    typeof(psum)(psum.strings, n .* psum.coeffs; already_sorted=true)
 end
 
 function Base.:/(psum::AbstractSum, n)
-    already_sorted = true
-    typeof(psum)(psum.strings, psum.coeffs ./ n, already_sorted)
+    typeof(psum)(psum.strings, psum.coeffs ./ n; already_sorted=true)
 end
 
 function mul!(asum_out::T, term::AbstractTerm, asum::T) where T <: AbstractSum
@@ -373,11 +370,9 @@ end
 # end
 
 function Base.:*(term::AbstractTerm, asum::AbstractSum)
-    already_sorted = true
-    asum_out = typeof(asum)(similar(asum.strings), similar(asum.coeffs), already_sorted)
+    asum_out = typeof(asum)(similar(asum.strings), similar(asum.coeffs); already_sorted=true)
     return sort!(mul!(asum_out, term, asum))
 end
-
 
 """
     *(as1::AbstractSum, as2::AbstractSum)
@@ -402,7 +397,7 @@ function Base.:*(as1::AbstractSum, as2::AbstractSum)
     ## Using  a buffer and mul! ought to be faster, but it is not.
     ## because mul! takes no time here compared to add!
     asum_out = similar(as1)
-    asum_cum = typeof(as2)(similar(as2.strings), similar(as2.coeffs), true)
+    asum_cum = typeof(as2)(similar(as2.strings), similar(as2.coeffs); already_sorted=true)
     @inbounds for i in 1:length(as1)
         mul!(asum_cum, as1[i], as2)
 #        add!(asum_out, asum_cum)

@@ -10,8 +10,8 @@ struct PauliSum{StringT, CoeffT} <: AbstractSum{StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
-    function PauliSum(strings, coeffs, already_sorted=false)
-        _abstract_sum_inner_constructor_helper!(strings, coeffs, already_sorted)
+    function PauliSum(strings, coeffs; already_sorted=false)
+        _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
         return new{typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
@@ -52,18 +52,18 @@ Construct a sum from `strings` with coefficients all equal to one.
 PauliSum(strings) = PauliSum(strings, fill(_DEFAULT_COEFF, length(strings)))
 
 """
-        PauliSum(v::AbstractVector{<:PauliTerm}, already_sorted=false)
+        PauliSum(v::AbstractVector{<:PauliTerm}; already_sorted=false)
 
 Construct a sum from an array of `PauliTerm`s.
 """
-function PauliSum(v::AbstractVector{<:PauliTerm}, already_sorted=false)
+function PauliSum(v::AbstractVector{<:PauliTerm}; already_sorted=false)
     strings = [x.paulis for x in v]
     coeffs = [x.coeff for x in v]
-    return PauliSum(strings, coeffs, already_sorted)
+    return PauliSum(strings, coeffs; already_sorted=already_sorted)
 end
 
-PauliSum{T,V}(v, c, already_sorted) where {T, V} = PauliSum(v, c, already_sorted)
-PauliSum{T,V}(v, c) where {T, V} = PauliSum(v, c, false)
+PauliSum{T,V}(v, c; already_sorted=false) where {T, V} = PauliSum(v, c; already_sorted=already_sorted)
+#PauliSum{T,V}(v, c) where {T, V} = PauliSum(v, c; already_sorted=false)
 
 """
     PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
@@ -247,8 +247,8 @@ function numeric_function(pt::PauliTerm, f)
     fo = (f(c) - f(-c)) / 2
     strings = [one(pt).paulis, copy(pt.paulis)]
     coeffs = [fe, fo]
-    already_sorted = true # else sorting takes 30x longer
-    return PauliSum(strings, coeffs, already_sorted)
+    # else sorting takes 30x longer
+    return PauliSum(strings, coeffs; already_sorted=true)
 end
 
 # Julia 1.5 does not have cispi
