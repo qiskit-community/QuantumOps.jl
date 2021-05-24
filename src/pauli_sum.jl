@@ -28,12 +28,13 @@ end
 #### Constructors
 ####
 
-function Base.similar(ps::PauliSum{Vector{Vector{PauliT}}, Vector{C}}, n=0) where {PauliT, C}
-    m = size(ps, 2)
-    strings = [Vector{PauliT}(undef, m) for i in 1:n]
-    coeffs = Vector{C}(undef, n)
-    return PauliSum(strings, coeffs)
-end
+# Use method in abstract_sum.jl instead
+# function Base.similar(ps::PauliSum{Vector{Vector{PauliT}}, Vector{C}}, n=0) where {PauliT, C}
+#     m = size(ps, 2)
+#     strings = [Vector{PauliT}(undef, m) for i in 1:n]
+#     coeffs = Vector{C}(undef, n)
+#     return PauliSum(strings, coeffs)
+# end
 
 """
     PauliSum(::Type{PauliT}) where PauliT <: AbstractPauli

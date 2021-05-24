@@ -1,5 +1,9 @@
 abstract type AbstractSum{StringT, CoeffT} end
 
+####
+#### Constructors
+####
+
 function _abstract_sum_inner_constructor_helper!(strings, coeffs, already_sorted=false)
     if length(strings) != length(coeffs)
         throw(DimensionMismatch("bad dims"))
@@ -16,12 +20,13 @@ function _abstract_sum_inner_constructor_helper!(strings, coeffs, already_sorted
     return nothing
 end
 
-# function Base.similar(ps::AbstractSum{W, Z}, n=0) where {W, Z} # {T, C, Z<:Vector{C}, W <: Vector{Vector{T}}}
-#     m = size(ps, 2)
-#     strings = [Vector{T}(undef, m) for i in 1:n]
-#     coeffs = Vector{C}(undef, n)
-#     return typeof(ps)(strings, coeffs)
-# end
+function Base.similar(ps::AbstractSum{T, V}, n=0) where {W, C, V <:Vector{C}, T <: Vector{Vector{W}}}
+    m = size(ps, 2)
+    strings = [Vector{W}(undef, m) for i in 1:n]
+    coeffs = Vector{C}(undef, n)
+    already_sorted = true
+    return typeof(ps)(strings, coeffs, already_sorted)
+end
 
 ## TODO: find a good way to abstract this
 # function _abstract_sum_from_terms(v::AbstractVector, already_sorted=false)
@@ -139,7 +144,10 @@ end
 ####
 
 ## Fails for empty psum
-Base.size(asum::AbstractSum) = (length(asum), length(first(asum)))
+function Base.size(asum::AbstractSum)
+    n = isempty(asum) ? 0 : length(first(asum))
+    (length(asum), n)
+end
 Base.size(asum::AbstractSum, i::Integer) = size(asum)[i]
 
 # Enables using `findall`, for instance.
@@ -277,8 +285,7 @@ end
 """
     push!(psum::AbstractSum, ps::AbstractTerm...)
 
-Push `ps` to the end of `psum` without regard to order
-or possible duplication.
+Push `ps` to the end of `psum` without regard to order or possible duplication.
 
 See `sort_and_sum_duplicates!`.
 """
@@ -287,9 +294,10 @@ function Base.push!(psum::AbstractSum, ps::AbstractTerm...)
         push!(psum.strings, op_string(p))
         push!(psum.coeffs, p.coeff)
     end
-    return ps
+    return psum
 end
 
+## TODO: This should probably not be a method of push!
 function Base.push!(psum::AbstractSum, (string, coeff))
     push!(psum.strings, string)
     push!(psum.coeffs, coeff)

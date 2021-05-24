@@ -49,7 +49,11 @@ op_symbols(::Type{<:AbstractFermiOp}, ::Type{Symbol}) = _fermi_symbol_chars
 FermiOp(s::Union{AbstractChar, AbstractString, Symbol}) = _AbstractOp(FermiOp, s)
 
 function Base.show(io::IO, op::FermiOp)
-    print(io, _fermi_chars[op_index(op) + 1])
+    i = op_index(op) + 1
+    if i < 1 || i > 8
+        i = 8
+    end
+    print(io, _fermi_chars[i])
 end
 
 """
