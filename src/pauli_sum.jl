@@ -1,30 +1,32 @@
 """
-    struct PauliSum{StringT, CoeffT}
+    struct PauliSumA{StringT, CoeffT}
 
 Represents a weighted sum (ie a linear combination) of multi-qubit Pauli strings.
 
-By default `PauliSum`s are constructed and maintained with terms sorted in a canonical order
+By default `PauliSumA`s are constructed and maintained with terms sorted in a canonical order
 and with no duplicate Pauli strings.
 """
-struct PauliSum{OpT, StringT, CoeffT} <: AbstractSum{OpT, StringT, CoeffT}
+struct PauliSumA{OpT, StringT, CoeffT} <: AbstractSum{OpT, StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
-    function PauliSum(strings, coeffs; already_sorted=false)
+    function PauliSumA(strings, coeffs; already_sorted=false)
         _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
         return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
 
-function term_type(::Type{T}) where T <: PauliSum
-    return PauliTerm
+const PauliSums = Union{PauliSumA, OpSum{<:AbstractPauli}}
+
+function term_type(::Type{T}) where T <: PauliSumA
+    return PauliTermA
 end
 
-function sum_type(::Type{T}) where T <: PauliTerm
-    return PauliSum
+function sum_type(::Type{T}) where T <: PauliTermA
+    return PauliSumA
 end
 
-strip_typeof(::PauliSum) = PauliSum
+strip_typeof(::PauliSumA) = PauliSumA
 
 ####
 #### Constructors
@@ -39,52 +41,52 @@ strip_typeof(::PauliSum) = PauliSum
 # end
 
 """
-    PauliSum(::Type{PauliT}) where PauliT <: AbstractPauli
+    PauliSumA(::Type{PauliT}) where PauliT <: AbstractPauli
 
-Return an empty `PauliSum` with Paulis of type `PauliT`
+Return an empty `PauliSumA` with Paulis of type `PauliT`
 and `Complex{Float64}` coefficients.
 """
-PauliSum(::Type{PauliT}) where PauliT <: AbstractPauli = PauliSum(Vector{PauliT}[], Complex{Float64}[])
+PauliSumA(::Type{PauliT}) where PauliT <: AbstractPauli = PauliSumA(Vector{PauliT}[], Complex{Float64}[])
 
 """
-    PauliSum(strings)
+    PauliSumA(strings)
 
 Construct a sum from `strings` with coefficients all equal to one.
 """
-PauliSum(strings) = PauliSum(strings, fill(_DEFAULT_COEFF, length(strings)))
+PauliSumA(strings) = PauliSumA(strings, fill(_DEFAULT_COEFF, length(strings)))
 
 """
-        PauliSum(v::AbstractVector{<:PauliTerm}; already_sorted=false)
+        PauliSumA(v::AbstractVector{<:PauliTermA}; already_sorted=false)
 
-Construct a sum from an array of `PauliTerm`s.
+Construct a sum from an array of `PauliTermA`s.
 """
-function PauliSum(v::AbstractVector{<:PauliTerm}; already_sorted=false)
-    strings = [x.paulis for x in v]
+function PauliSumA(v::AbstractVector{<:PauliTermA}; already_sorted=false)
+    strings = [op_string(x) for x in v]
     coeffs = [x.coeff for x in v]
-    return PauliSum(strings, coeffs; already_sorted=already_sorted)
+    return PauliSumA(strings, coeffs; already_sorted=already_sorted)
 end
 
-PauliSum{T,V}(v, c; already_sorted=false) where {T, V} = PauliSum(v, c; already_sorted=already_sorted)
+PauliSumA{T,V}(v, c; already_sorted=false) where {T, V} = PauliSumA(v, c; already_sorted=already_sorted)
 #PauliSum{T,V}(v, c) where {T, V} = PauliSum(v, c; already_sorted=false)
 
 """
-    PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
+    PauliSumA(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
 
 Construct a sum from a matrix of single-qubit Pauli operators. If `size(v) == (m, n)`, then
 the the sum has `m` terms with `n` Paulis in each string.
 """
-function PauliSum(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
+function PauliSumA(v::AbstractMatrix{<:AbstractPauli}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
     strings = @inbounds [v[i,:] for i in 1:size(v,1)]
-    return PauliSum(strings, coeffs)
+    return PauliSumA(strings, coeffs)
 end
 
 """
-    PauliSum(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true)
+    PauliSumA(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true)
 
-Construct a Pauli decomposition of `matrix`, that is, a `PauliSum` representing `matrix`.
+Construct a Pauli decomposition of `matrix`, that is, a `PauliSumA` representing `matrix`.
 If `thread` is `true`, use a multi-threaded algorithm for increased performance.
 """
-function PauliSum(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true) where PauliT
+function PauliSumA(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true) where PauliT
     if threads
         return pauli_sum_from_matrix_threaded(PauliT, matrix)
     else
@@ -96,12 +98,12 @@ function pauli_sum_from_matrix_one_thread(::Type{PauliT}, matrix::AbstractMatrix
     nside = LinearAlgebra.checksquare(matrix)
     n_qubits = ILog2.checkispow2(nside)
     denom = 2^n_qubits  # == nside
-    s = PauliSum(PauliT)
+    s = PauliSumA(PauliT)
     for pauli in pauli_basis(PauliT, n_qubits)
         mp = SparseArrays.sparse(pauli)  # Much faster than dense
         coeff = LinearAlgebra.dot(mp, matrix)
         if ! isapprox_zero(coeff)
-            push!(s, (pauli.paulis, coeff / denom))  # a bit faster than PauliTerm for small `matrix` (eg 2x2)
+            push!(s, (op_string(pauli), coeff / denom))  # a bit faster than PauliTermA for small `matrix` (eg 2x2)
         end
     end
     return s
@@ -111,14 +113,14 @@ function pauli_sum_from_matrix_threaded(::Type{PauliT}, matrix::AbstractMatrix{<
     nside = LinearAlgebra.checksquare(matrix)
     n_qubits = ILog2.checkispow2(nside)
     denom = 2^n_qubits  # == nside
-    ## Create a PauliSum for each thread, for accumulation.
-    sums = [PauliSum(PauliT) for i in 1:Threads.nthreads()]
+    ## Create a PauliSumA for each thread, for accumulation.
+    sums = [PauliSumA(PauliT) for i in 1:Threads.nthreads()]
     Threads.@threads for j in 0:(4^n_qubits - 1)
         pauli = PauliTerm(PauliT, j, n_qubits)
         mp = SparseArrays.sparse(pauli)  # Much faster than dense
         coeff = LinearAlgebra.dot(mp, matrix)
         if ! isapprox_zero(coeff)
-            push!(sums[Threads.threadid()], (pauli.paulis, coeff / denom))
+            push!(sums[Threads.threadid()], (op_string(pauli), coeff / denom))
         end
     end
     for ind in 2:length(sums)  # Collate results from all threads.
@@ -130,7 +132,7 @@ end
 """
     rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
 
-Return a `PauliSum` of `n_terms` terms of `n_factors` factors each.
+Return a `PauliSumA` of `n_terms` terms of `n_factors` factors each.
 
 If `coeff_func` is `nothing`, then the coefficients are all equal to one. Otherwise `coeff_func` must be a function that
 takes one argument `n_terms`, and returns `n_terms` coefficients.
@@ -156,7 +158,7 @@ function rand_pauli_sum(::Type{PauliT}, n_factors::Integer, n_terms::Integer; co
     else
         coeffs = coeff_func(n_terms)
     end
-    return PauliSum(paulis, coeffs)
+    return PauliSumA(paulis, coeffs)
 end
 
 rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
@@ -167,27 +169,27 @@ rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
 #####
 
 """
-    Matrix(ps::PauliSum)
+    Matrix(ps::PauliSumA)
 
 Convert `ps` to a dense `Matrix`.
 
 # Examples
 
-We convert a matrix to a `PauliSum` and then back to a matrix.
+We convert a matrix to a `PauliSumA` and then back to a matrix.
 ```jldoctest
 julia> m = [0.1 0.2; 0.3 0.4];
 
-julia> PauliSum(m)
+julia> PauliSumA(m)
 (0.25 + 0.0im) * I
 (0.25 + 0.0im) * X
 (0.0 - 0.04999999999999999im) * Y
 (-0.15000000000000002 + 0.0im) * Z
 
-julia> Matrix(PauliSum(m)) ≈ m
+julia> Matrix(PauliSumA(m)) ≈ m
 true
 ```
 """
-Base.Matrix(ps::PauliSum) = Matrix(SparseArrays.sparse(ps))
+Base.Matrix(ps::PauliSums) = Matrix(SparseArrays.sparse(ps))
 
 ## ThreadsX helps enormously for large sums. 22x faster for 4^8 terms
 """
@@ -195,7 +197,7 @@ Base.Matrix(ps::PauliSum) = Matrix(SparseArrays.sparse(ps))
 
 Convert `ps` to a sparse matrix.
 """
-SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
+SparseArrays.sparse(ps::PauliSums) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
 
 # Using Z4Group0 is 30% faster in many tests, for dense matrices
 # Base.Matrix(ps::PauliSum) = ThreadsX.sum(Matrix(Z4Group0, ps[i]) for i in eachindex(ps))
@@ -210,7 +212,7 @@ SparseArrays.sparse(ps::PauliSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for 
 
 Left multiplies the coefficient of `psum` by `n` in place.
 """
-function LinearAlgebra.lmul!(psum::PauliSum, n)
+function LinearAlgebra.lmul!(psum::PauliSums, n)
     @. psum.coeffs = n * psum.coeffs
     return psum
 end
@@ -224,8 +226,8 @@ end
 
 Compute ``\\exp(i p)``
 """
-function Base.cis(pt::PauliTerm)
-    return PauliSum([one(pt).paulis, copy(pt.paulis)], [cos(pt.coeff), im * sin(pt.coeff)], true)
+function Base.cis(pt::PauliTerms)
+    return PauliSumA([op_string(one(pt)), copy(op_string(pt))], [cos(pt.coeff), im * sin(pt.coeff)], true)
 end
 
 """
@@ -233,9 +235,9 @@ end
 
 Compute ``\\exp(p)``
 """
-function Base.exp(pt::PauliTerm)
+function Base.exp(pt::PauliTerms)
     coeff = im * pt.coeff
-    return PauliSum([one(pt).paulis, copy(pt.paulis)], [cos(coeff), -im * sin(coeff)], true)
+    return PauliSumA([op_string(one(pt)), copy(op_string(pt))], [cos(coeff), -im * sin(coeff)], true)
 end
 
 """
@@ -243,11 +245,11 @@ end
 
 Compute `f(pt)` by decomposing `f` into odd and even functions.
 """
-function numeric_function(pt::PauliTerm, f)
+function numeric_function(pt::PauliTerms, f)
     c = pt.coeff
     fe = (f(c) + f(-c)) / 2
     fo = (f(c) - f(-c)) / 2
-    strings = [one(pt).paulis, copy(pt.paulis)]
+    strings = [op_string(one(pt)), copy(op_string(pt))]
     coeffs = [fe, fo]
     # else sorting takes 30x longer
     return PauliSum(strings, coeffs; already_sorted=true)
@@ -257,5 +259,5 @@ end
 for f in (:cos, :sin, :tan, :sqrt, :sind, :sinpi, :cospi, :sinh, :tanh,
           :acos, :asin, :atan, :sec, :csc, :cot, :log, :log2, :log10,
           :log1p)
-    @eval Base.$f(pt::PauliTerm) = numeric_function(pt, $f)
+    @eval Base.$f(pt::PauliTerms) = numeric_function(pt, $f)
 end

@@ -15,6 +15,22 @@ OpTerm(term::AbstractVector, coeff=_DEFAULT_COEFF) = OpTerm(term, coeff)
 OpTerm{T}(term::V, coeff=_DEFAULT_COEFF) where {T, V<:AbstractVector{T}} = OpTerm(term, coeff)
 OpTerm{T}(s::AbstractString, coeff=_DEFAULT_COEFF) where T = OpTerm(Vector{T}(s), coeff)
 
+function OpTerm{OpT}(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) where OpT <: AbstractOp
+    return OpTerm(OpT.(inds), coeff)
+end
+
+function OpTerm{OpT}(ops::AbstractOp...; coeff=_DEFAULT_COEFF) where OpT
+    return OpTerm([ops...], coeff)
+end
+
+function OpTerm(ops::AbstractOp...; coeff=_DEFAULT_COEFF)
+    return OpTerm([ops...], coeff)
+end
+
+function OpTerm{OpT}(s::Symbol, coeff=_DEFAULT_COEFF) where OpT
+    return OpTerm{OpT}(Vector{OpT}(String(s)), coeff)
+end
+
 """
     rand_op_term(::Type{OpT}, n::Integer; coeff=_DEFAULT_COEFF) where {OpT <: AbstractOp}
 
@@ -46,9 +62,10 @@ end
 
 OpSum{T}(strings, coeffs; already_sorted=false) where T = OpSum(strings, coeffs; already_sorted=already_sorted)
 
-
 strip_typeof(::OpSum{W, T, CoeffT}) where {W, T, CoeffT} = OpSum{W}
 term_type(::Type{T}) where {V, T <: OpSum{V}} = OpTerm{V}
+
+OpSum{T}(args...) where T = OpSum(args...)
 
 function OpSum{T}(strings::AbstractVector{<:AbstractString}, coeffs) where T
     return OpSum(Vector{T}.(strings), coeffs)
@@ -56,6 +73,31 @@ end
 
 function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
     strings = [x.ops for x in v]
+    coeffs = [x.coeff for x in v]
+    return OpSum(strings, coeffs; already_sorted=already_sorted)
+end
+
+sum_type(::Type{OpTerm{T}}) where T = OpSum{T}
+term_type(::Type{OpSum{T}}) where T = OpTerm{T}
+
+## Enable this again. why broken
+#term_type(::Type{T}) where {T <: AbstractOp} = OpTerm{T}
+
+"""
+    OpSum(v::AbstractMatrix{<:AbstractOp}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
+
+Construct a sum from a matrix of single-particle operators. If `size(v) == (m, n)`, then
+the the sum has `m` terms with `n` operators in each string.
+"""
+function OpSum(v::AbstractMatrix{<:AbstractOp}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
+    strings = @inbounds [v[i,:] for i in 1:size(v,1)]
+    return OpSum(strings, coeffs)
+end
+
+OpSum{OpT}() where OpT <: AbstractOp = OpSum(Vector{OpT}[], Complex{Float64}[])
+
+function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
+    strings = [op_string(x) for x in v]
     coeffs = [x.coeff for x in v]
     return OpSum(strings, coeffs; already_sorted=already_sorted)
 end

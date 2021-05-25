@@ -1,94 +1,95 @@
 """
-    struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, V}
+    struct PauliTermA{W<:AbstractPauli, T<:AbstractVector{W}, V}
 
 Represents a Pauli string (tensor product of Paulis) with a coefficient.
 """
-struct PauliTerm{W<:AbstractPauli, T<:AbstractVector{W}, CoeffT} <: AbstractTerm{W, CoeffT}
+struct PauliTermA{W<:AbstractPauli, T<:AbstractVector{W}, CoeffT} <: AbstractTerm{W, CoeffT}
     paulis::T
     coeff::CoeffT
 end
 
-const PauliTerms = Union{PauliTerm, OpTerm{<:AbstractPauli}}
+const PauliTerms = Union{PauliTermA, OpTerm{<:AbstractPauli}}
 
-op_string(t::PauliTerm) = t.paulis
+op_string(t::PauliTermA) = t.paulis
 
-term_type(::Type{<:AbstractPauli}) = PauliTerm
+# Use OpTerm{Pauli} instead
+# term_type(::Type{<:AbstractPauli}) = PauliTermA
 
-strip_typeof(::PauliTerm) = PauliTerm
+strip_typeof(::PauliTermA) = PauliTermA
 
 ####
 #### Constructors
 ####
 
 """
-    PauliTerm(s)
+    PauliTermA(s)
 
-Construct a `PauliTerm` with default coefficient.
+Construct a `PauliTermA` with default coefficient.
 """
-PauliTerm(s) = PauliTerm(s, _DEFAULT_COEFF)
+PauliTermA(s) = PauliTermA(s, _DEFAULT_COEFF)
 
 """
-    PauliTerm(::Type{T}=PauliDefault, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    PauliTermA(::Type{T}=PauliDefault, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
 
-Construct a `PauliTerm`, where `s` is of the form "XYZ", etc. If `::Type{T}` is
+Construct a `PauliTermA`, where `s` is of the form "XYZ", etc. If `::Type{T}` is
 ommited the default implementation of `AbstractPauli` is used.
 
 # Examples
 ```jldoctest
-julia> PauliTerm("XX")
+julia> PauliTermA("XX")
 (1 + 0im) * XX
 
-julia> PauliTerm(Pauli, "IXYZ")
+julia> PauliTermA(Pauli, "IXYZ")
 (1 + 0im) * IXYZ
 
-julia> PauliTerm(Pauli, "IXYZ", 2.0)
+julia> PauliTermA(Pauli, "IXYZ", 2.0)
 2.0 * IXYZ
 ```
 """
-function PauliTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
-    return PauliTerm(Vector{T}(s), coeff)
+function PauliTermA(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    return PauliTermA(Vector{T}(s), coeff)
 end
 
 ## This is defined just for construction by copying the printed type.
-function PauliTerm{W, T, V}(s::AbstractString,
+function PauliTermA{W, T, V}(s::AbstractString,
                             coeff=_DEFAULT_COEFF) where {W<:AbstractPauli,T<:AbstractVector{W},V}
-    return PauliTerm{W,T,V}(Vector{W}(s), coeff)
+    return PauliTermA{W,T,V}(Vector{W}(s), coeff)
 end
 
 """
-    PauliTerm(::Type{T}=PauliDefault, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    PauliTermA(::Type{T}=PauliDefault, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
 
-Construct a `PauliTerm`, where `s` is of the form `:XYZ`, etc.
+Construct a `PauliTermA`, where `s` is of the form `:XYZ`, etc.
 
 # Examples
 ```jldoctest
-julia> PauliTerm(Pauli, :IZXY)
+julia> PauliTermA(Pauli, :IZXY)
 (1 + 0im) * IZXY
 ```
 """
-function PauliTerm(::Type{T}, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
-    return PauliTerm(Vector{T}(String(s)), coeff)
+function PauliTermA(::Type{T}, s::Symbol, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    return PauliTermA(Vector{T}(String(s)), coeff)
 end
 
-function PauliTerm(::Type{T}, index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
-    return PauliTerm(pauli_vector(T, index, n_paulis), coeff)
+function PauliTermA(::Type{T}, index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    return PauliTermA(pauli_vector(T, index, n_paulis), coeff)
 end
 
-function PauliTerm(paulis::AbstractPauli...; coeff=_DEFAULT_COEFF) where T <: AbstractPauli
-    return PauliTerm([paulis...], coeff)
+function PauliTermA(paulis::AbstractPauli...; coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    return PauliTermA([paulis...], coeff)
 end
 
-function PauliTerm(::Type{T}, inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
-    return PauliTerm(T.(inds), coeff)
+function PauliTermA(::Type{T}, inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
+    return PauliTermA(T.(inds), coeff)
 end
 
 """
     rand_pauli_term(::Type{PauliT}=PauliDefault, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
 
-Return a random `PauliTerm` of `n` tensor factors.
+Return a random `PauliTermA` of `n` tensor factors.
 """
 function rand_pauli_term(::Type{PauliT}, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
-    return PauliTerm(rand(PauliT, n), coeff)
+    return PauliTermA(rand(PauliT, n), coeff)
 end
 
 rand_pauli_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_pauli_term(PauliDefault, n, coeff=coeff)
@@ -143,14 +144,14 @@ end
 ####
 
 """
-    isunitary(pt::PauliTerm)
+    isunitary(pt::PauliTermA)
 
 Return `true` if `pt` is a unitary operator.
 """
 IsApprox.isunitary(pt::PauliTerms) = IsApprox.isunitary(pt.coeff)
 
 """
-    ishermitian(pt::PauliTerm)
+    ishermitian(pt::PauliTermA)
 
 Return `true` if `pt` is a Hermitian operator.
 """
@@ -210,12 +211,12 @@ function LinearAlgebra.eigvals(pt::PauliTerms)
     return vals
 end
 
-Base.kron(ps1::PauliTerm, ps2::PauliTerm) = PauliTerm(vcat(ps1.paulis, ps2.paulis), ps1.coeff * ps2.coeff)
+Base.kron(ps1::PauliTerms, ps2::PauliTerms) = strip_typeof(ps1)(vcat(op_string(ps1), op_string(ps2)), ps1.coeff * ps2.coeff)
 
 Base.kron(paulis::AbstractPauli...) = PauliTerm([paulis...])
 
 # TODO: @code_warntype shows red here
-function Base.kron(ps::Union{PauliTerm, AbstractPauli}...)
+function Base.kron(ps::Union{PauliTerms, AbstractPauli}...)
     if ps[1] isa AbstractPauli
         v = typeof(ps[1])[]
     else
@@ -223,7 +224,7 @@ function Base.kron(ps::Union{PauliTerm, AbstractPauli}...)
     end
     coeffs = []
     for x in ps
-        if x isa PauliTerm
+        if x isa PauliTerms
             push!(coeffs, x.coeff)
             append!(v, x)
         else
@@ -231,9 +232,9 @@ function Base.kron(ps::Union{PauliTerm, AbstractPauli}...)
         end
     end
     if isempty(coeffs)
-        return PauliTerm(v)
+        return PauliTermA(v)
     else
-        return PauliTerm(v, reduce(*, coeffs))
+        return PauliTermA(v, reduce(*, coeffs))
     end
 end
 
@@ -247,7 +248,7 @@ end
 Return a `Generator` over all `PauliTerm`s of `n_qubits`.
 """
 function pauli_basis(::Type{PauliT}, n_qubits; coeff=_DEFAULT_COEFF) where PauliT
-    return (PauliTerm(PauliT, i, n_qubits, coeff) for i in 0:(4^n_qubits - 1))
+    return (PauliTermA(PauliT, i, n_qubits, coeff) for i in 0:(4^n_qubits - 1))
 end
 
-weight(ps::PauliTerm) = weight(ps.paulis)
+weight(ps::PauliTermA) = weight(ps.paulis)

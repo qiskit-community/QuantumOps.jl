@@ -9,7 +9,8 @@ const FermiTerms = Union{FermiTermA, OpTerm{<:AbstractFermiOp}}
 
 op_string(t::FermiTermA) = t.ops
 
-term_type(::Type{<:AbstractFermiOp}) = FermiTermA
+# Use OpTerm{FermiOp} instead
+# term_type(::Type{<:AbstractFermiOp}) = FermiTermA
 
 strip_typeof(::FermiTermA) = FermiTermA
 

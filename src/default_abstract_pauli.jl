@@ -18,43 +18,43 @@ if this argument is omitted. There are currently two implementations of `Abstrac
 PauliDefault
 
 ####
-#### PauliTerm
+#### PauliTermA
 ####
 
-PauliTerm(s::AbstractString, coeff=_DEFAULT_COEFF) = PauliTerm(PauliDefault, s, coeff)
-PauliTerm(s::Symbol, coeff=_DEFAULT_COEFF) = PauliTerm(PauliDefault, s, coeff)
+PauliTermA(s::AbstractString, coeff=_DEFAULT_COEFF) = PauliTermA(PauliDefault, s, coeff)
+PauliTermA(s::Symbol, coeff=_DEFAULT_COEFF) = PauliTermA(PauliDefault, s, coeff)
 
 """
-    PauliTerm(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF)
+    PauliTermA(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF)
 
-Construct a `PauliTerm` from a vector of integers in `[0, 3]`.
+Construct a `PauliTermA` from a vector of integers in `[0, 3]`.
 """
-PauliTerm(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) = PauliTerm(PauliDefault, inds, coeff)
+PauliTermA(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) = PauliTermA(PauliDefault, inds, coeff)
 
-PauliTerm(index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) = PauliTerm(PauliDefault, index, n_paulis, coeff)
+PauliTermA(index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) = PauliTermA(PauliDefault, index, n_paulis, coeff)
 
-Base.rand(::Type{PauliTerm}, n::Integer; coeff=_DEFAULT_COEFF) = rand(PauliTerm{PauliDefault}, n; coeff=coeff)
+Base.rand(::Type{PauliTermA}, n::Integer; coeff=_DEFAULT_COEFF) = rand(PauliTermA{PauliDefault}, n; coeff=coeff)
 
 ## This works. But, see notes in pauli_term.jl for why it is not satisfactory
-# function PauliTermSampler(npaulis::Integer, coeff_func=() -> _DEFAULT_COEFF)
-#     return PauliTermSampler{PauliDefault,typeof(coeff_func)}(npaulis, coeff_func)
+# function PauliTermASampler(npaulis::Integer, coeff_func=() -> _DEFAULT_COEFF)
+#     return PauliTermASampler{PauliDefault,typeof(coeff_func)}(npaulis, coeff_func)
 # end
 
 ####
-#### PauliSum
+#### PauliSumA
 ####
 
-PauliSum(strings::AbstractVector{<:AbstractString}, coeffs) = PauliSum(Vector{PauliDefault}.(strings), coeffs)
+PauliSumA(strings::AbstractVector{<:AbstractString}, coeffs) = PauliSumA(Vector{PauliDefault}.(strings), coeffs)
 
 """
-    PauliSum()
+    PauliSumA()
 
-Return an empty `PauliSum` with Paulis of type `PauliDefault`
+Return an empty `PauliSumA` with Paulis of type `PauliDefault`
 and `Complex{Float64}` coefficients.
 """
-PauliSum() = PauliSum(PauliDefault)
+PauliSumA() = PauliSumA(PauliDefault)
 
-PauliSum(m::AbstractMatrix{<:Number}) = PauliSum(PauliDefault, m)
+PauliSumA(m::AbstractMatrix{<:Number}) = PauliSumA(PauliDefault, m)
 
 function pauli_vector(pauli_index::Integer, n_qubits::Integer, indices=Vector{Int}(undef, n_qubits))
     return pauli_vector(PauliDefault, pauli_index, n_qubits, indices)
@@ -63,6 +63,6 @@ end
 """
     pauli_basis(n_qubits; coeff=_DEFAULT_COEFF)
 
-Return an iterator over all `PauliTerm{PauliDefault}`s of `n_qubits`.
+Return an iterator over all `PauliTermA{PauliDefault}`s of `n_qubits`.
 """
 pauli_basis(n_qubits::Integer; coeff=_DEFAULT_COEFF) = pauli_basis(PauliDefault, n_qubits; coeff=coeff)
