@@ -35,7 +35,7 @@ function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer)
     else
         raise(DomainError(op))
     end
-    return PauliSum([strx, stry], coeffs; already_sorted=true)
+    return OpSum{Pauli}([strx, stry], coeffs; already_sorted=true)
 end
 
 function jordan_wigner(term::FermiTerm)
@@ -47,7 +47,7 @@ function jordan_wigner(term::FermiTerm)
         end
     end
     if isempty(facs)  # String is all I_op
-        return(PauliSum([fill(one(Pauli), length(term))], [complex(term.coeff)]))
+        return(OpSum{Pauli}([fill(one(Pauli), length(term))], [complex(term.coeff)]))
     end
     return term.coeff * reduce(*, facs) # TODO: performance
 end

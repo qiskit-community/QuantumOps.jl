@@ -37,6 +37,11 @@ struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSum{OpT, StringT, Coef
         _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
         return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
+
+    function OpSum{OpT}(strings, coeffs; already_sorted=false) where {OpT}
+        _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
+        return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
+    end
 end
 
 strip_typeof(::OpSum{W, T, CoeffT}) where {W, T, CoeffT} = OpSum{W}
@@ -46,7 +51,7 @@ function OpSum{T}(strings::AbstractVector{<:AbstractString}, coeffs) where T
     return OpSum(Vector{T}.(strings), coeffs)
 end
 
-OpSum{T}(strings, coeffs) where T = OpSum(strings, coeffs)
+#OpSum{T}(strings, coeffs) where T = OpSum(strings, coeffs)
 
 function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
     strings = [x.ops for x in v]

@@ -12,7 +12,7 @@ import ILog2
 import SparseArrays
 
 export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum,
-    OpTerm, OpSum, FermiTermA
+    OpTerm, OpSum, FermiTermA, PauliTermA, PauliSumA
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
 
@@ -88,6 +88,7 @@ include("fermi_term.jl")
 include("fermi_sum.jl")
 
 include("op_term_fermi.jl")
+include("op_term_pauli.jl")
 
 include("jordan_wigner.jl")
 
