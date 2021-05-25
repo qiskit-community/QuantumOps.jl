@@ -38,6 +38,6 @@ mol_pyscf = MolecularData(PySCF, mol_spec)
 ## This is the same as the operator by the same name in OpenFermion.
 iop = InteractionOperator(mol_pyscf)
 
-fop = FermiSum(iop)
+#fop = FermiSum(iop)
 
 nothing

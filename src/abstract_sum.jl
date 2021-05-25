@@ -245,7 +245,7 @@ add!(asum::AbstractSum, term::AbstractTerm) = add!(asum, op_string(term), term.c
 function add!(asum::AbstractSum, op_string, coeff)
     inds = searchsorted(asum.strings, op_string)
     if length(inds) == 0 # op_string not found, add a new term
-        insert!(asum, first(inds), (op_string, coeff))
+        insert_tuple!(asum, first(inds), (op_string, coeff))
     elseif length(inds) == 1 # one element equal to op_string
         i = first(inds) # get the (single) index
         @inbounds asum.coeffs[i] += coeff # add p to existing term
@@ -279,9 +279,9 @@ end
 
 Insert `p` into `ps` without sorting resulting `ps`.
 """
-Base.insert!(ps::AbstractSum, ind, p::AbstractTerm) = insert!(ps, ind, (op_string(p), p.coeff))
+Base.insert!(ps::AbstractSum, ind, p::AbstractTerm) = insert_tuple!(ps, ind, (op_string(p), p.coeff))
 
-@inline function Base.insert!(ps::AbstractSum, ind, (paulis, coeff))
+@inline function insert_tuple!(ps::AbstractSum, ind, (paulis, coeff))
     insert!(ps.strings, ind, paulis)
     insert!(ps.coeffs, ind, coeff)
     return ps

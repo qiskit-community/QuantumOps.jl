@@ -12,7 +12,7 @@ function OpTerm{T}(inds::NTuple{N, Int}, coeff, n_modes::Integer) where {T<:Abst
 end
 
 function OpSum{OpT}(tensor::AbstractArray{<:Number}, tensors::AbstractArray{<:Number}...) where {OpT<:AbstractFermiOp}
-    fsum = OpSum(Vector{OpT}[], eltype(tensors)[])
+    fsum = OpSum(Vector{OpT}[], eltype(tensor)[])
     for tensor in (tensor, tensors...)
         tensor_to_fermi_sum!(fsum, tensor)
     end
