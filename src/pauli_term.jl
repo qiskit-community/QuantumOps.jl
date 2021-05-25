@@ -12,6 +12,8 @@ op_string(t::PauliTerm) = t.paulis
 
 term_type(::Type{<:AbstractPauli}) = PauliTerm
 
+strip_typeof(::PauliTerm) = PauliTerm
+
 ####
 #### Constructors
 ####

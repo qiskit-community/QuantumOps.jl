@@ -1,6 +1,5 @@
 using .FermiOps: number_op, raise_op, lower_op, no_op, I_op
 
-#struct FermiTerm{T} <: AbstractTerm
 struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, CoeffT} <: AbstractTerm{W, CoeffT}
     ops::T
     coeff::CoeffT
@@ -9,6 +8,8 @@ end
 op_string(t::FermiTerm) = t.ops
 
 term_type(::Type{<:AbstractFermiOp}) = FermiTerm
+
+strip_typeof(::FermiTerm) = FermiTerm
 
 function Base.promote_rule(::Type{FermiTerm{FermiOp, Vector{FermiOp}, T}},
                            ::Type{FermiTerm{FermiOp, Vector{FermiOp}, V}}) where {T, V}
@@ -217,9 +218,9 @@ end
 
 ## I have a more generic method in abstract_term.jl, but it is not
 ## flexible to do what we need here. I don't see a way to avoid this boiler plate
-function Base.:*(z::Number, term::FermiTerm{W, T, CoeffT}) where {W, T, CoeffT}
-    return FermiTerm{W, T, promote_type(CoeffT, typeof(z))}(op_string(term), term.coeff * z)
-end
+# function Base.:*(z::Number, term::FermiTerm{W, T, CoeffT}) where {W, T, CoeffT}
+#     return FermiTerm{W, T, promote_type(CoeffT, typeof(z))}(op_string(term), term.coeff * z)
+# end
 
 function Base.:^(ft::FermiTerm, n::Integer)
     n < 0 && throw(DomainError(n))

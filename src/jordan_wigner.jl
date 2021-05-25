@@ -19,44 +19,45 @@ function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer)
     if op === lower_op
         strx = fill_pauli(pad, op_ind, Paulis.Z, Paulis.X)
         stry = fill_pauli(pad, op_ind, Paulis.Z, Paulis.Y)
-        return PauliSum([strx, stry], [-1/2, -im/2]; already_sorted=true)
+        coeffs = [-1/2, -im/2]
     elseif op === raise_op
         strx = fill_pauli(pad, op_ind, Paulis.Z, Paulis.X)
         stry = fill_pauli(pad, op_ind, Paulis.Z, Paulis.Y)
-        return PauliSum([strx, stry], [-1/2, im/2]; already_sorted=true)
+        coeffs = [-1/2, im/2]
     elseif op === number_op
         strx = fill(Paulis.I, pad)
         stry = fill_pauli(pad, op_ind, Paulis.I, Paulis.Z)
-        return PauliSum([strx, stry], complex.([1/2, -1/2]); already_sorted=true)
+        coeffs = complex.([1/2, -1/2])
     elseif op === empty_op
         strx = fill(Paulis.I, pad)
         stry = fill_pauli(pad, op_ind, Paulis.I, Paulis.Z)
-        return PauliSum([strx, stry], complex.([1/2, 1/2]); already_sorted=true)
+        coeffs = complex.([1/2, 1/2])
     else
         raise(DomainError(op))
     end
+    return PauliSum([strx, stry], coeffs; already_sorted=true)
 end
 
 function jordan_wigner(term::FermiTerm)
     pad = length(term)
     facs = []
     for (i, op) in enumerate(term)
-        if op === raise_op || op === lower_op || op === number_op
+        if op !== I_op #  op === raise_op || op === lower_op || op === number_op || op === empty_op
             push!(facs, jordan_wigner(op, i, pad))
         end
     end
-    if isempty(facs)  # TODO: Assume that all factors are identitiy op. Should check this
+    if isempty(facs)  # String is all I_op
         return(PauliSum([fill(one(Pauli), length(term))], [complex(term.coeff)]))
     end
     return term.coeff * reduce(*, facs) # TODO: performance
 end
 
 function jordan_wigner(fsum::FermiSum)
-    psum = jordan_wigner(fsum[1])
+    psum = jordan_wigner(fsum[1]) # could use already sorted flag
     for i in 2:length(fsum)
-        add!(psum, jordan_wigner(fsum[i]))
+        append!(psum, jordan_wigner(fsum[i]))
     end
-    return psum
+    return sort_and_sum_duplicates!(psum)
 end
 
 function fill_fermi(pad, op_ind, fill_op, end_op)

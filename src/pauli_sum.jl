@@ -6,13 +6,13 @@ Represents a weighted sum (ie a linear combination) of multi-qubit Pauli strings
 By default `PauliSum`s are constructed and maintained with terms sorted in a canonical order
 and with no duplicate Pauli strings.
 """
-struct PauliSum{StringT, CoeffT} <: AbstractSum{StringT, CoeffT}
+struct PauliSum{OpT, StringT, CoeffT} <: AbstractSum{OpT, StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
     function PauliSum(strings, coeffs; already_sorted=false)
         _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
-        return new{typeof(strings), typeof(coeffs)}(strings, coeffs)
+        return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
 
@@ -23,6 +23,8 @@ end
 function sum_type(::Type{T}) where T <: PauliTerm
     return PauliSum
 end
+
+strip_typeof(::PauliSum) = PauliSum
 
 ####
 #### Constructors

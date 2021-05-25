@@ -1,12 +1,12 @@
 import ElectronicStructure
 
-struct FermiSum{StringT, CoeffT} <: AbstractSum{StringT, CoeffT}
+struct FermiSum{OpT, StringT, CoeffT} <: AbstractSum{OpT, StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
     function FermiSum(strings, coeffs; already_sorted=false)
         _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
-        return new{typeof(strings), typeof(coeffs)}(strings, coeffs)
+        return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
 
@@ -17,6 +17,8 @@ end
 function sum_type(::Type{T}) where T <: FermiTerm
     return FermiSum
 end
+
+strip_typeof(::FermiSum) = FermiSum
 
 ## Factor this out of here and PauliSum
 ## Factoring this out may be over-abstraction. Or maybe there is a good way to do it.

@@ -73,9 +73,7 @@ Base.reverse(pt::AbstractTerm) = reverse!(copy(pt))
 #### Algebra
 ####
 
-## Unfortunately, this is not flexible enough. So I have to define separate methods
-## for FermiTerm and PauliTerm
-Base.:*(z::Number, term::AbstractTerm) = typeof(term)(op_string(term), term.coeff * z)
+Base.:*(z::Number, term::AbstractTerm) = strip_typeof(term)(op_string(term), term.coeff * z)
 
 Base.:*(ps::AbstractTerm, z::Number) = z * ps
 
