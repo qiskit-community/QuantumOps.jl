@@ -55,6 +55,17 @@ function Base.show(io::IO, asum::AbstractSum)
     end
 end
 
+Base.show(m::MIME{Symbol("text/input")}, asum::AbstractSum) = show(stdout, m, asum)
+function Base.show(io::IO, mime::MIME{Symbol("text/input")}, asum::AbstractSum)
+    print(io, strip_typeof(asum), "(")
+    print(io, "[")
+    for term in asum
+        show(io, mime, term)
+        print(io, ",")
+    end
+    print(io, "])")
+end
+
 ####
 #### Canonicalization / sorting
 ####
