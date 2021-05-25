@@ -13,11 +13,17 @@ function Base.show(io::IO, term::AbstractTerm) # where { T, V, CoeffT, AbstractT
     end
 end
 
+function Base.show(io::IO, ps::AbstractTerm{T,Z4Group}) where {T}
+    print(io, ps.coeff, " ")
+    print(io, op_string(ps))
+end
+
 Base.show(m::MIME{Symbol("text/input")}, term::AbstractTerm) = show(stdout, m, term)
-function Base.show(io::IO, ::MIME{Symbol("text/input")}, term::AbstractTerm)
-    print(io, typeof(term), "(")
+function Base.show(io::IO, mime::MIME{Symbol("text/input")}, term::AbstractTerm)
+    print(io, strip_typeof(term), "(")
     print(io, "\"", op_string(term), "\"")
-    print(io, ", ", term.coeff)
+    print(io, ", ")
+    show(io, mime, term.coeff)
     print(io, ")")
 end
 

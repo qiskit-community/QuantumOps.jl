@@ -48,3 +48,8 @@ libraries.
 function isapprox_zero(x::Number)
     return isapprox(x, zero(x), atol=1e-16)
 end
+
+## MIME{Symbol("text/input")} is meant to print objects in input
+## form, that is Julia code that constructs the object
+Base.show(m::MIME{Symbol("text/input")}, item) = show(stdout, m, item)
+Base.show(io::IO, ::MIME{Symbol("text/input")}, item) = show(io, item)

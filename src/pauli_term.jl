@@ -138,11 +138,6 @@ end
 #### IO
 ####
 
-function Base.show(io::IO, ps::PauliTerm{T,V,Z4Group}) where {T,V}
-    print(io, ps.coeff, " ")
-    print(io, ps.paulis)
-end
-
 ####
 #### Compare / predicates
 ####
