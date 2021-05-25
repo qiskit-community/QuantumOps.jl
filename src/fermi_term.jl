@@ -5,6 +5,8 @@ struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, CoeffT} <: AbstractTe
     coeff::CoeffT
 end
 
+#const FermiTerms = Union{FermiTerm, Op
+
 op_string(t::FermiTerm) = t.ops
 
 term_type(::Type{<:AbstractFermiOp}) = FermiTerm
@@ -167,32 +169,6 @@ Base.iszero(ft::FermiTerm) = iszero(ft.coeff) || any(iszero, op_string(ft))
 ####
 #### Algebra / mathematical operations
 ####
-
-@inline function get_phase_count1(f::FermiOp)
-    if f === number_op || f === raise_op
-        return 1
-    else
-        return 0
-    end
-end
-
-@inline function get_phase_count2(f::FermiOp)
-    if f === number_op || f === lower_op
-        return 1
-    else
-        return 0
-    end
-end
-
-@inline function do_phase_count(f1::FermiOp, f2::FermiOp)
-    if f1 === FermiOps.Z_op
-        return get_phase_count1(f2)
-    elseif f2 === FermiOps.Z_op
-        return get_phase_count2(f1)
-    else
-        return 0
-    end
-end
 
 function Base.:*(ft1::FermiTerm, ft2::FermiTerm)
     if length(ft1) != length(ft2)

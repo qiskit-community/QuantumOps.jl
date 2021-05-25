@@ -132,6 +132,32 @@ function count_raise_lower(op::FermiOp)
     end
 end
 
+@inline function get_phase_count1(f::FermiOp)
+    if f === number_op || f === raise_op
+        return 1
+    else
+        return 0
+    end
+end
+
+@inline function get_phase_count2(f::FermiOp)
+    if f === number_op || f === lower_op
+        return 1
+    else
+        return 0
+    end
+end
+
+@inline function do_phase_count(f1::FermiOp, f2::FermiOp)
+    if f1 === FermiOps.Z_op
+        return get_phase_count1(f2)
+    elseif f2 === FermiOps.Z_op
+        return get_phase_count2(f1)
+    else
+        return 0
+    end
+end
+
 const _id_mat = [1. 0.; 0. 1.]
 const _zero_mat = [0. 0.; 0. 0.]
 const _number_mat = [0. 0.; 0. 1.]

@@ -11,19 +11,17 @@ op_string(t::OpTerm) = t.ops
 term_type(::Type{T}) where T<:AbstractOp = OpTerm{T}
 strip_typeof(::OpTerm{W, T, CoeffT}) where {W, T, CoeffT} = OpTerm{W}
 
+OpTerm(term::AbstractVector, coeff=_DEFAULT_COEFF) = OpTerm(term, coeff)
 OpTerm{T}(term::V, coeff=_DEFAULT_COEFF) where {T, V<:AbstractVector{T}} = OpTerm(term, coeff)
-
 OpTerm{T}(s::AbstractString, coeff=_DEFAULT_COEFF) where T = OpTerm(Vector{T}(s), coeff)
 
-####
-#### OpTerm{AbstractFermiOp}
-####
+"""
+    rand_op_term(::Type{OpT}, n::Integer; coeff=_DEFAULT_COEFF) where {OpT <: AbstractOp}
 
-function OpTerm{T}(inds::NTuple{N, Int}, coeff, n_modes::Integer) where {T<:AbstractFermiOp, N}
-    (ops, phase) = index_to_ops_phase(inds)
-    (factors, new_coeff) = _fermi_term(ops, phase, coeff, n_modes)
-    return OpTerm{T}(factors, new_coeff)
-end
+Return a random `OpTerm` of `n` tensor factors.
+"""
+rand_op_term(::Type{OpT}, n::Integer; coeff=_DEFAULT_COEFF) where {OpT <: AbstractOp} =
+    term_type(OpT)(rand(OpT, n), coeff)
 
 ####
 #### OpSum
