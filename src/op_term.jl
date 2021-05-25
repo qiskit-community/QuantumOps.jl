@@ -45,3 +45,9 @@ term_type(::Type{T}) where {V, T <: OpSum{V}} = OpTerm{V}
 function OpSum{T}(strings::AbstractVector{<:AbstractString}, coeffs) where T
     return OpSum(Vector{T}.(strings), coeffs)
 end
+
+function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
+    strings = [x.ops for x in v]
+    coeffs = [x.coeff for x in v]
+    return OpSum(strings, coeffs; already_sorted=already_sorted)
+end

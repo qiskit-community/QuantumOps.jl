@@ -28,7 +28,7 @@ function FermiSum(v::AbstractVector{<:FermiTerm}; already_sorted=false)
     return FermiSum(strings, coeffs; already_sorted=already_sorted)
 end
 
-FermiSum{T,V}(v, c; already_sorted=false) where {T, V} = FermiSum(v, c; already_sorted=already_sorted)
+#FermiSum{T,V}(v, c; already_sorted=false) where {T, V} = FermiSum(v, c; already_sorted=already_sorted)
 #FermiSum{T,V}(v, c) where {T, V} = FermiSum(v, c, false)
 
 _skip_inds(i, j, k, l) = (i == j || k == l) # skip if two raising or two lowering ops on one index
@@ -40,14 +40,15 @@ function tensor_to_fermi_sum!(fsum, tensor)
         if _skip_inds((ind.I)...) || iszero(tensor[ind])
             continue
         end
-        add!(fsum, FermiTerm(ind.I, tensor[ind], n_modes))
+        add!(fsum, term_type(typeof(fsum))(ind.I, tensor[ind], n_modes))
     end
     return fsum
 end
 
 function FermiSum(tensors::AbstractArray{<:Number}...)
-    fsum = FermiSum{Vector{Vector{FermiOp}},
-                    Vector{eltype(tensors[1])}}(Vector{FermiOp}[], eltype(tensors[1])[])
+    # fsum = FermiSum{Vector{Vector{FermiOp}},
+    #                 Vector{eltype(tensors[1])}}(Vector{FermiOp}[], eltype(tensors[1])[])
+    fsum = FermiSum(Vector{FermiOp}[], eltype(tensors[1])[])
     for tensor in tensors
         tensor_to_fermi_sum!(fsum, tensor)
     end

@@ -5,7 +5,7 @@ struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, CoeffT} <: AbstractTe
     coeff::CoeffT
 end
 
-#const FermiTerms = Union{FermiTerm, Op
+const FermiTerms = Union{FermiTerm, OpTerm{<:AbstractFermiOp}}
 
 op_string(t::FermiTerm) = t.ops
 
@@ -126,22 +126,24 @@ function _fermi_term(ops::NTuple, phase::Integer, coeff, n_modes::Integer)
     return (factors, phase * coeff)
 end
 
-"""
-    ferm_terms(two_body)
+## Unused ?
+# """
+#     ferm_terms(two_body)
 
-Convert rank-4 tensor `two_body` to a `Vector` of `FermiTerm`s.
-"""
-function ferm_terms(two_body)
-    n_modes = first(size(two_body))
-    terms = FermiTerm{FermiOp, Vector{FermiOp}, eltype(two_body)}[]
-    for ind in CartesianIndices(two_body)
-        if (ind[1] == ind[2] || ind[3] == ind[4]) || two_body[ind] == 0
-            continue
-        end
-        push!(terms, FermiTerm(ind.I, two_body[ind], n_modes))
-    end
-    return terms
-end
+# Convert rank-4 tensor `two_body` to a `Vector` of `FermiTerm`s.
+# """
+# function ferm_terms(two_body)
+#     n_modes = first(size(two_body))
+#     ## FIXME: the following is rigid. Could as well be Vector{Any} ?
+#     terms = FermiTerm{FermiOp, Vector{FermiOp}, eltype(two_body)}[]
+#     for ind in CartesianIndices(two_body)
+#         if (ind[1] == ind[2] || ind[3] == ind[4]) || two_body[ind] == 0
+#             continue
+#         end
+#         push!(terms, FermiTerm(ind.I, two_body[ind], n_modes))
+#     end
+#     return terms
+# end
 
 """
     rand_fermi_term(::Type{FermiT}=FermiDefault, n::Integer; coeff=_DEFAULT_COEFF) where {FermiT <: AbstractFermiOp}
@@ -158,19 +160,19 @@ rand_fermi_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_fermi_term(FermiDefault
 #### Compare / predicates
 ####
 
-function Base.zero(ft::FermiTerm)
+function Base.zero(ft::FermiTerms)
     new_string = similar(op_string(ft))
     fill!(new_string, zero_op)
-    return FermiTerm(new_string, zero(ft.coeff))
+    return strip_typeof(ft)(new_string, zero(ft.coeff))
 end
 
-Base.iszero(ft::FermiTerm) = iszero(ft.coeff) || any(iszero, op_string(ft))
+Base.iszero(ft::FermiTerms) = iszero(ft.coeff) || any(iszero, op_string(ft))
 
 ####
 #### Algebra / mathematical operations
 ####
 
-function Base.:*(ft1::FermiTerm, ft2::FermiTerm)
+function Base.:*(ft1::FermiTerms, ft2::FermiTerms)
     if length(ft1) != length(ft2)
         throw(DimensionMismatch())
     end
@@ -182,14 +184,14 @@ function Base.:*(ft1::FermiTerm, ft2::FermiTerm)
         _prod = f1 * f2
         if iszero(_prod)  # If any factor is zero, the entire product is zero
             fill!(new_string, zero_op)
-            return FermiTerm(new_string, zero(ft1.coeff))
+            return strip_typeof(ft1)(new_string, zero(ft1.coeff))
         end
         new_string[i] = _prod
         # Tracking phase costs sometimes 5% - 20%, in some cases
 #        phase_count += do_phase_count(f1, f2)
     end
     phase_fac = iseven(phase_count) ? 1 : -1
-    return FermiTerm(new_string, ft1.coeff * ft2.coeff * phase_fac)
+    return strip_typeof(ft1)(new_string, ft1.coeff * ft2.coeff * phase_fac)
 end
 
 ## I have a more generic method in abstract_term.jl, but it is not
@@ -198,7 +200,7 @@ end
 #     return FermiTerm{W, T, promote_type(CoeffT, typeof(z))}(op_string(term), term.coeff * z)
 # end
 
-function Base.:^(ft::FermiTerm, n::Integer)
+function Base.:^(ft::FermiTerms, n::Integer)
     n < 0 && throw(DomainError(n))
     n == 0 && return one(ft)
     n == 1 && return ft
@@ -207,12 +209,12 @@ function Base.:^(ft::FermiTerm, n::Integer)
         return zero(ft)
     end
     ## E, N, I, are idempotent
-    return FermiTerm(copy(op_string(ft)), ft.coeff^n)
+    return strip_typeof(ft)(copy(op_string(ft)), ft.coeff^n)
 end
 
-Base.adjoint(ft::FermiTerm) = FermiTerm(adjoint.(op_string(ft)), conj(ft.coeff))
+Base.adjoint(ft::FermiTerms) = strip_typeof(ft)(adjoint.(op_string(ft)), conj(ft.coeff))
 
-count_bodies(ft::FermiTerm) = count_bodies(op_string(ft))
+count_bodies(ft::FermiTerms) = count_bodies(op_string(ft))
 
 function count_bodies(v::Vector{FermiOp})
     n = sum(count_raise_lower, v)
