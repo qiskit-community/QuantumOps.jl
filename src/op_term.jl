@@ -77,8 +77,8 @@ function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
     return OpSum(strings, coeffs; already_sorted=already_sorted)
 end
 
-sum_type(::Type{OpTerm{T}}) where T = OpSum{T}
-term_type(::Type{OpSum{T}}) where T = OpTerm{T}
+sum_type(::Type{<:OpTerm{T}}) where T = OpSum{T}
+term_type(::Type{<:OpSum{T}}) where T = OpTerm{T}
 
 ## Enable this again. why broken
 #term_type(::Type{T}) where {T <: AbstractOp} = OpTerm{T}
