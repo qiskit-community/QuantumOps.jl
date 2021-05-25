@@ -2,8 +2,8 @@
 #### OpTerm{AbstractFermiOp}
 ####
 
-const FermiTermA = OpTerm{FermiOp}
-const FermiSumA = OpSum{FermiOp}
+const FermiTerm = OpTerm{FermiOp}
+const FermiSum = OpSum{FermiOp}
 
 function OpTerm{T}(inds::NTuple{N, Int}, coeff, n_modes::Integer) where {T<:AbstractFermiOp, N}
     (ops, phase) = index_to_ops_phase(inds)

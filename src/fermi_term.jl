@@ -1,43 +1,43 @@
 using .FermiOps: number_op, raise_op, lower_op, no_op, I_op
 
-struct FermiTerm{W<:AbstractFermiOp, T<:AbstractVector{W}, CoeffT} <: AbstractTerm{W, CoeffT}
+struct FermiTermA{W<:AbstractFermiOp, T<:AbstractVector{W}, CoeffT} <: AbstractTerm{W, CoeffT}
     ops::T
     coeff::CoeffT
 end
 
-const FermiTerms = Union{FermiTerm, OpTerm{<:AbstractFermiOp}}
+const FermiTerms = Union{FermiTermA, OpTerm{<:AbstractFermiOp}}
 
-op_string(t::FermiTerm) = t.ops
+op_string(t::FermiTermA) = t.ops
 
-term_type(::Type{<:AbstractFermiOp}) = FermiTerm
+term_type(::Type{<:AbstractFermiOp}) = FermiTermA
 
-strip_typeof(::FermiTerm) = FermiTerm
+strip_typeof(::FermiTermA) = FermiTermA
 
-function Base.promote_rule(::Type{FermiTerm{FermiOp, Vector{FermiOp}, T}},
-                           ::Type{FermiTerm{FermiOp, Vector{FermiOp}, V}}) where {T, V}
-    return FermiTerm{FermiOp, Vector{FermiOp}, promote_type(T, V)}
+function Base.promote_rule(::Type{FermiTermA{FermiOp, Vector{FermiOp}, T}},
+                           ::Type{FermiTermA{FermiOp, Vector{FermiOp}, V}}) where {T, V}
+    return FermiTermA{FermiOp, Vector{FermiOp}, promote_type(T, V)}
 end
 
 ####
 #### Constructors
 ####
 
-function FermiTerm(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractFermiOp
-    return FermiTerm(Vector{T}(s), coeff)
+function FermiTermA(::Type{T}, s::AbstractString, coeff=_DEFAULT_COEFF) where T <: AbstractFermiOp
+    return FermiTermA(Vector{T}(s), coeff)
 end
 
-FermiTerm(s::AbstractString, coeff=_DEFAULT_COEFF) = FermiTerm(FermiOp, s, coeff)
+FermiTermA(s::AbstractString, coeff=_DEFAULT_COEFF) = FermiTermA(FermiOp, s, coeff)
 
-function FermiTerm(inds::NTuple{N, Int}, coeff, n_modes::Integer) where N
+function FermiTermA(inds::NTuple{N, Int}, coeff, n_modes::Integer) where N
     (ops, phase) = index_to_ops_phase(inds)
     (factors, new_coeff) = _fermi_term(ops, phase, coeff, n_modes)
-    return FermiTerm(factors, new_coeff)
+    return FermiTermA(factors, new_coeff)
 end
 
 ## This is defined just for construction by copying the printed type.
-function FermiTerm{W, T, V}(s::AbstractString,
+function FermiTermA{W, T, V}(s::AbstractString,
                             coeff=_DEFAULT_COEFF) where {W<:AbstractFermiOp,T<:AbstractVector{W},V}
-    return FermiTerm{W,T,V}(Vector{W}(s), coeff)
+    return FermiTermA{W,T,V}(Vector{W}(s), coeff)
 end
 
 index_to_ops(inds) = index_to_ops(inds...)
@@ -148,10 +148,10 @@ end
 """
     rand_fermi_term(::Type{FermiT}=FermiDefault, n::Integer; coeff=_DEFAULT_COEFF) where {FermiT <: AbstractFermiOp}
 
-Return a random `FermiTerm` of `n` tensor factors.
+Return a random `FermiTermA` of `n` tensor factors.
 """
 function rand_fermi_term(::Type{FermiT}, n::Integer; coeff=_DEFAULT_COEFF) where {FermiT <: AbstractFermiOp}
-    return FermiTerm(rand(FermiT, n), coeff)
+    return FermiTermA(rand(FermiT, n), coeff)
 end
 
 rand_fermi_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_fermi_term(FermiDefault, n, coeff=coeff)

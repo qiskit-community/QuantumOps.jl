@@ -1,33 +1,33 @@
 import ElectronicStructure
 
-struct FermiSum{OpT, StringT, CoeffT} <: AbstractSum{OpT, StringT, CoeffT}
+struct FermiSumA{OpT, StringT, CoeffT} <: AbstractSum{OpT, StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
 
-    function FermiSum(strings, coeffs; already_sorted=false)
+    function FermiSumA(strings, coeffs; already_sorted=false)
         _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
         return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
 
-function term_type(::Type{T}) where T <: FermiSum
-    return FermiTerm
+function term_type(::Type{T}) where T <: FermiSumA
+    return FermiTermA
 end
 
-function sum_type(::Type{T}) where T <: FermiTerm
-    return FermiSum
+function sum_type(::Type{T}) where T <: FermiTermA
+    return FermiSumA
 end
 
-strip_typeof(::FermiSum) = FermiSum
+strip_typeof(::FermiSumA) = FermiSumA
 
-const FermiSums = Union{FermiSum, OpSum{<:AbstractFermiOp}}
+const FermiSums = Union{FermiSumA, OpSum{<:AbstractFermiOp}}
 
 ## Factor this out of here and PauliSum
 ## Factoring this out may be over-abstraction. Or maybe there is a good way to do it.
-function FermiSum(v::AbstractVector{<:FermiTerm}; already_sorted=false)
+function FermiSumA(v::AbstractVector{<:FermiTermA}; already_sorted=false)
     strings = [x.ops for x in v]
     coeffs = [x.coeff for x in v]
-    return FermiSum(strings, coeffs; already_sorted=already_sorted)
+    return FermiSumA(strings, coeffs; already_sorted=already_sorted)
 end
 
 #FermiSum{T,V}(v, c; already_sorted=false) where {T, V} = FermiSum(v, c; already_sorted=already_sorted)
@@ -47,10 +47,10 @@ function tensor_to_fermi_sum!(fsum, tensor)
     return fsum
 end
 
-function FermiSum(tensors::AbstractArray{<:Number}...)
-    # fsum = FermiSum{Vector{Vector{FermiOp}},
+function FermiSumA(tensors::AbstractArray{<:Number}...)
+    # fsum = FermiSumA{Vector{Vector{FermiOp}},
     #                 Vector{eltype(tensors[1])}}(Vector{FermiOp}[], eltype(tensors[1])[])
-    fsum = FermiSum(Vector{FermiOp}[], eltype(tensors[1])[])
+    fsum = FermiSumA(Vector{FermiOp}[], eltype(tensors[1])[])
     for tensor in tensors
         tensor_to_fermi_sum!(fsum, tensor)
     end
@@ -58,12 +58,12 @@ function FermiSum(tensors::AbstractArray{<:Number}...)
 end
 
 """
-    FermiSum(iop::ElectronicStructure.InteractionOperator)
+    FermiSumA(iop::ElectronicStructure.InteractionOperator)
 
-Convert `iop` to a `FermiSum`.
+Convert `iop` to a `FermiSumA`.
 """
-function FermiSum(iop::ElectronicStructure.InteractionOperator)
-    fsum = FermiSum(iop.one_body_tensor, iop.two_body_tensor)
+function FermiSumA(iop::ElectronicStructure.InteractionOperator)
+    fsum = FermiSumA(iop.one_body_tensor, iop.two_body_tensor)
     add!(fsum, iop.nuclear_repulsion * one(fsum[1]))
     return fsum
 end

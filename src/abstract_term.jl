@@ -23,7 +23,6 @@ function Base.show(io::IO, mime::MIME{Symbol("text/input")}, term::AbstractTerm)
     print(io, strip_typeof(term), "(")
     print(io, "\"", op_string(term), "\"")
     print(io, ", ")
-#    print(io, term.coeff)
     show(io, mime, term.coeff)
     print(io, ")")
 end

@@ -17,7 +17,12 @@ import QuantumOps.FermiOps
     @test jordan_wigner(FermiOps.empty_op, 4, 8) == s4
     @test s4 == s2 * s1
 
-    @test jordan_wigner_fermi(FermiOps.raise_op, 4, 8) == FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}("ZZZ+IIII", 1.0 + 0.0im)
-    @test jordan_wigner_fermi(FermiOps.lower_op, 4, 8) == FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}("ZZZ-IIII", 1.0 + 0.0im)
-    @test jordan_wigner_fermi(FermiOps.number_op, 4, 8) == FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}("IIINIIII", 1.0 + 0.0im)
+    @test jordan_wigner_fermi(FermiOps.raise_op, 4, 8) == FermiTerm("ZZZ+IIII", 1.0 + 0.0im)
+    @test jordan_wigner_fermi(FermiOps.lower_op, 4, 8) == FermiTerm("ZZZ-IIII", 1.0 + 0.0im)
+    @test jordan_wigner_fermi(FermiOps.number_op, 4, 8) == FermiTerm("IIINIIII", 1.0 + 0.0im)
+
+    # @test jordan_wigner_fermi(FermiOps.raise_op, 4, 8) == FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}("ZZZ+IIII", 1.0 + 0.0im)
+    # @test jordan_wigner_fermi(FermiOps.lower_op, 4, 8) == FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}("ZZZ-IIII", 1.0 + 0.0im)
+    # @test jordan_wigner_fermi(FermiOps.number_op, 4, 8) == FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}("IIINIIII", 1.0 + 0.0im)
+
 end
