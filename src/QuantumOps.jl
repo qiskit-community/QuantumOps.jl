@@ -12,7 +12,7 @@ import ILog2
 import SparseArrays
 
 export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum,
-    OpTerm, OpSum
+    OpTerm, OpSum, FermiTermA
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
 

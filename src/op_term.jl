@@ -46,6 +46,8 @@ function OpSum{T}(strings::AbstractVector{<:AbstractString}, coeffs) where T
     return OpSum(Vector{T}.(strings), coeffs)
 end
 
+OpSum{T}(strings, coeffs) where T = OpSum(strings, coeffs)
+
 function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
     strings = [x.ops for x in v]
     coeffs = [x.coeff for x in v]

@@ -20,6 +20,8 @@ end
 
 strip_typeof(::FermiSum) = FermiSum
 
+const FermiSums = Union{FermiSum, OpSum{<:AbstractFermiOp}}
+
 ## Factor this out of here and PauliSum
 ## Factoring this out may be over-abstraction. Or maybe there is a good way to do it.
 function FermiSum(v::AbstractVector{<:FermiTerm}; already_sorted=false)
@@ -66,8 +68,8 @@ function FermiSum(iop::ElectronicStructure.InteractionOperator)
     return fsum
 end
 
-function Base.adjoint(ft::FermiSum)
+function Base.adjoint(ft::FermiSums)
     op_strings = [adjoint.(x) for x in ft.strings]
     coeffs = adjoint.(ft.coeffs)
-    return FermiSum(op_strings, coeffs)
+    return strip_typeof(ft)(op_strings, coeffs)
 end
