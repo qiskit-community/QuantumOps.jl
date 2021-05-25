@@ -117,7 +117,7 @@ function Base.Matrix(::Type{Z4Group0}, pt::PauliTerms)
 end
 
 function Base.Matrix(::Type{Float64}, pt::PauliTerms)
-    matrix = _kron(Matrix.(op_string(pt)...))
+    matrix = _kron(Matrix.(op_string(pt))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
