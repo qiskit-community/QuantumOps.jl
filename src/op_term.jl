@@ -29,9 +29,9 @@ end
 #### AbstractSumA
 ####
 
-abstract type AbstractSumA{OpT, StringT, CoeffT} end
+#abstract type AbstractSumA{OpT, StringT, CoeffT} end
 
-struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSumA{OpT, StringT, CoeffT}
+struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSum{OpT, StringT, CoeffT}
 #struct OpSum{OpT, StringT, CoeffT} <: AbstractSumA{OpT, StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
@@ -43,6 +43,8 @@ struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSumA{OpT, StringT, Coe
 end
 
 strip_typeof(::OpSum{W, T, CoeffT}) where {W, T, CoeffT} = OpSum{W}
+
+term_type(::Type{T}) where {V, T <: OpSum{V}} = OpTerm{V}
 
 function OpSum{T}(strings::AbstractVector{<:AbstractString}, coeffs) where T
     return OpSum(Vector{T}.(strings), coeffs)
