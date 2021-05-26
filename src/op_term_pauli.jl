@@ -1,7 +1,7 @@
 const PauliSum = OpSum{Pauli}
-const APauliTerm = OpTerm{T} where {T <: AbstractPauli}
-const PauliTerm = APauliTerm{Pauli}
-#const PauliTerm = OpTerm{Pauli}
+const PauliTerm = OpTerm{Pauli}
+#const APauliTerm = OpTerm{T} where {T <: AbstractPauli}
+#const PauliTerm = APauliTerm{Pauli}
 
 """
     PauliSumA(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true)
@@ -55,7 +55,6 @@ end
 function OpTerm{T}(index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
     return OpTerm(pauli_vector(T, index, n_paulis), coeff)
 end
-
 
 ####
 #### Math

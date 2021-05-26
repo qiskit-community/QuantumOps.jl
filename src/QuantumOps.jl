@@ -73,7 +73,7 @@ include("abstract_term.jl")
 include("abstract_sum.jl")
 include("op_term.jl")
 
-include("pauli_term.jl")
+include("old_pauli_term.jl")
 
 # include("pauli_sum.jl")
 
@@ -84,8 +84,8 @@ include("fermi_op.jl")
 
 using .FermiOps
 
-include("fermi_term.jl")
-include("fermi_sum.jl")
+include("old_fermi_term.jl")
+include("old_fermi_sum.jl")
 
 include("op_term_fermi.jl")
 include("op_term_pauli.jl")
