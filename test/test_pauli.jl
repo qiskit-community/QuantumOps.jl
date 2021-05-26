@@ -80,8 +80,8 @@ end
 
     @test numeric_function(PauliTerm("XX"), x -> x^2 + 2.0 * x^3) == PauliSum([PauliTerm("II"), PauliTerm("XX", 2)])
 
-    a = rand_pauli_sum(10, 3)
-    b = rand_pauli_sum(10, 3)
+    a = rand_op_sum(Pauli, 10, 3)
+    b = rand_op_sum(Pauli, 10, 3)
     sa = SparseArrays.sparse(a)
     sb = SparseArrays.sparse(b)
     @test SparseArrays.sparse(a * b * a) == sa * sb * sa
