@@ -2,6 +2,7 @@ using QuantumOps
 using Test
 import SparseArrays
 
+include("./test_op_sum.jl")
 include("./test_jordan_wigner.jl")
 include("./test_pauli.jl")
 include("./test_fermi.jl")
