@@ -1,5 +1,7 @@
-const PauliTerm = OpTerm{Pauli}
 const PauliSum = OpSum{Pauli}
+const APauliTerm = OpTerm{T} where {T <: AbstractPauli}
+const PauliTerm = APauliTerm{Pauli}
+#const PauliTerm = OpTerm{Pauli}
 
 """
     PauliSumA(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true)
@@ -85,11 +87,11 @@ Compute `f(pt)` by decomposing `f` into odd and even functions.
 """
 function numeric_function(pt::OpTerm{<:AbstractPauli}, f)
     c = pt.coeff
-    fe = (f(c) + f(-c)) / 2
-    fo = (f(c) - f(-c)) / 2
+    fe = (f(c) + f(-c)) / 2  # Even term
+    fo = (f(c) - f(-c)) / 2  # Odd term
     strings = [op_string(one(pt)), copy(op_string(pt))]
     coeffs = [fe, fo]
-    # else sorting takes 30x longer
+    # sorting would take 30x longer
     return OpSum(strings, coeffs; already_sorted=true)
 end
 

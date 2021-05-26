@@ -51,7 +51,7 @@ FermiOp(s::Union{AbstractChar, AbstractString, Symbol}) = _AbstractOp(FermiOp, s
 function Base.show(io::IO, op::FermiOp)
     i = op_index(op) + 1
     if i < 1 || i > 8
-        i = 8
+        i = 8  # uninitialized data is coerced to 8 which means no_op
     end
     print(io, _fermi_chars[i])
 end
@@ -59,9 +59,8 @@ end
 """
     ferm_op_mult
 
-Multiplication for single-fermion operators. We include `Z=N-E`.
-Multiplication does not keep track of phase incurred when `Z` is
-an operand
+Multiplication for single-fermion operators. We include `Z=N-E`. Multiplication does not
+keep track of phase incurred when `Z` is an operand
 """
 const ferm_op_mult =
     #   I       N          E        +         -         0       Z
