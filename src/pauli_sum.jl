@@ -129,40 +129,39 @@ end
 #     return sums[1]
 # end
 
-"""
-    rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
+# """
+#     rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
 
-Return a `PauliSumA` of `n_terms` terms of `n_factors` factors each.
+# Return a `PauliSumA` of `n_terms` terms of `n_factors` factors each.
 
-If `coeff_func` is `nothing`, then the coefficients are all equal to one. Otherwise `coeff_func` must be a function that
-takes one argument `n_terms`, and returns `n_terms` coefficients.
+# If `coeff_func` is `nothing`, then the coefficients are all equal to one. Otherwise `coeff_func` must be a function that
+# takes one argument `n_terms`, and returns `n_terms` coefficients.
 
-# Examples
-```julia
-julia> rand_pauli_sum(4, 3)
-(1 + 0im) * IIYX
-(1 + 0im) * IIZY
-(1 + 0im) * ZXIX
+# # Examples
+# ```julia
+# julia> rand_pauli_sum(4, 3)
+# (1 + 0im) * IIYX
+# (1 + 0im) * IIZY
+# (1 + 0im) * ZXIX
 
-julia> rand_pauli_sum(3, 4; coeff_func=randn)
--0.1929668228083002 * XZY
--0.5661154429051878 * YXX
-0.01820960911335266 * YXZ
--0.33717575080125783 * ZII
-```
-"""
-function rand_pauli_sum(::Type{PauliT}, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
-    paulis = [rand(PauliT, n_factors) for i in 1:n_terms]
-    if coeff_func == nothing
-        coeffs = fill(_DEFAULT_COEFF, n_terms)
-    else
-        coeffs = coeff_func(n_terms)
-    end
-    return PauliSumA(paulis, coeffs)
-end
-
-rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
-    rand_pauli_sum(PauliDefault, n_factors, n_terms; coeff_func=coeff_func)
+# julia> rand_pauli_sum(3, 4; coeff_func=randn)
+# -0.1929668228083002 * XZY
+# -0.5661154429051878 * YXX
+# 0.01820960911335266 * YXZ
+# -0.33717575080125783 * ZII
+# ```
+# """
+# function rand_pauli_sum(::Type{PauliT}, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}
+#     paulis = [rand(PauliT, n_factors) for i in 1:n_terms]
+#     if coeff_func == nothing
+#         coeffs = fill(_DEFAULT_COEFF, n_terms)
+#     else
+#         coeffs = coeff_func(n_terms)
+#     end
+#     return PauliSumA(paulis, coeffs)
+# end
+# rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
+#     rand_pauli_sum(PauliDefault, n_factors, n_terms; coeff_func=coeff_func)
 
 #####
 ##### Conversion

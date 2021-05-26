@@ -103,3 +103,35 @@ end
 
 OpSum{OpT}() where OpT <: AbstractOp = OpSum(Vector{OpT}[], Complex{Float64}[])
 
+"""
+    rand_op_sum(::Type{OpT}, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {OpT <: AbstractOp}
+
+Return an `OpSum{OpT}` of `n_terms` terms of `n_factors` factors each.
+
+If `coeff_func` is `nothing`, then the coefficients are all equal to one. Otherwise `coeff_func` must be a function that
+takes one argument `n_terms`, and returns `n_terms` coefficients.
+
+# Examples
+```julia
+julia> rand_op_sum(Pauli, 4, 3)
+(1 + 0im) * IIYX
+(1 + 0im) * IIZY
+(1 + 0im) * ZXIX
+
+julia> rand_op_sum(FermiOp, 3, 4; coeff_func=randn)
+N-I * -1.125005096910286
+EI- * 0.8400663971914751
+EE- * -0.11901005957119838
+-E- * 0.4507511196805674
+```
+"""
+function rand_op_sum(::Type{OpT}, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {OpT <: AbstractOp}
+    paulis = [rand(OpT, n_factors) for i in 1:n_terms]
+    if coeff_func == nothing
+        coeffs = fill(_DEFAULT_COEFF, n_terms)
+    else
+        coeffs = coeff_func(n_terms)
+    end
+    return OpSum{OpT}(paulis, coeffs)
+end
+
