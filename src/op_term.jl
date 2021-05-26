@@ -71,8 +71,14 @@ function OpSum{T}(strings::AbstractVector{<:AbstractString}, coeffs) where T
     return OpSum(Vector{T}.(strings), coeffs)
 end
 
+# function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
+#     strings = [x.ops for x in v]
+#     coeffs = [x.coeff for x in v]
+#     return OpSum(strings, coeffs; already_sorted=already_sorted)
+# end
+
 function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
-    strings = [x.ops for x in v]
+    strings = [op_string(x) for x in v]
     coeffs = [x.coeff for x in v]
     return OpSum(strings, coeffs; already_sorted=already_sorted)
 end
@@ -96,8 +102,3 @@ end
 
 OpSum{OpT}() where OpT <: AbstractOp = OpSum(Vector{OpT}[], Complex{Float64}[])
 
-function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
-    strings = [op_string(x) for x in v]
-    coeffs = [x.coeff for x in v]
-    return OpSum(strings, coeffs; already_sorted=already_sorted)
-end
