@@ -83,16 +83,15 @@ function PauliTermA(::Type{T}, inds::AbstractVector{<:Integer}, coeff=_DEFAULT_C
     return PauliTermA(T.(inds), coeff)
 end
 
-"""
-    rand_pauli_term(::Type{PauliT}=PauliDefault, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
+# """
+#     rand_pauli_term(::Type{PauliT}=PauliDefault, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
 
-Return a random `PauliTermA` of `n` tensor factors.
-"""
-function rand_pauli_term(::Type{PauliT}, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
-    return PauliTermA(rand(PauliT, n), coeff)
-end
-
-rand_pauli_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_pauli_term(PauliDefault, n, coeff=coeff)
+# Return a random `PauliTermA` of `n` tensor factors.
+# """
+# function rand_pauli_term(::Type{PauliT}, n::Integer; coeff=_DEFAULT_COEFF) where {PauliT <: AbstractPauli}
+#     return PauliTermA(rand(PauliT, n), coeff)
+# end
+# rand_pauli_term(n::Integer; coeff=_DEFAULT_COEFF) = rand_pauli_term(PauliDefault, n, coeff=coeff)
 
 ####
 #### Conversion
@@ -134,10 +133,6 @@ function SparseArrays.sparse(::Type{Z4Group0}, pt::PauliTerms)
     matrix = _kron((Z4Group0.(m) for m in SparseArrays.sparse.(op_string(pt)))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
-
-####
-#### IO
-####
 
 ####
 #### Compare / predicates
@@ -190,11 +185,11 @@ end
 function Base.transpose(pt::PauliTerms)
     num_ys = count(p -> op_index(p) == 2, op_string(pt))
     fac = iseven(num_ys) ? 1 : -1
-    return strip_typeof(pt)(pt.paulis, pt.coeff * fac)
+    return strip_typeof(pt)(op_string(pt), pt.coeff * fac)
 end
 
 function Base.adjoint(pt::PauliTerms)
-    return strip_typeof(pt)(pt.paulis, conj(pt.coeff))
+    return strip_typeof(pt)(op_string(pt), conj(pt.coeff))
 end
 
 function LinearAlgebra.eigvals(pt::PauliTerms)
@@ -251,4 +246,4 @@ function pauli_basis(::Type{PauliT}, n_qubits; coeff=_DEFAULT_COEFF) where Pauli
     return (PauliTermA(PauliT, i, n_qubits, coeff) for i in 0:(4^n_qubits - 1))
 end
 
-weight(ps::PauliTermA) = weight(ps.paulis)
+weight(ps::PauliTerms) = weight(op_string(ps))

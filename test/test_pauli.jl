@@ -57,6 +57,13 @@ end
     @test PauliTerm(:XYZ) == PauliTerm("XYZ")
 
     @test sqrt(PauliTerm(X,Y)) == PauliSum(["II", "XY"], [0.5 + 0.5im, 0.5 - 0.5im])
+
+
+    @test adjoint(PauliTerm("XYZ")) == PauliTerm("XYZ")
+    @test conj(PauliTerm("XYZ")) ==  PauliTerm("XYZ", -1)
+    @test transpose(PauliTerm("XYZ")) == PauliTerm("XYZ", -1)
+    @test transpose(PauliTerm("XYZY")) == PauliTerm("XYZY")
+
 end
 
 @testset "PauliSum" begin

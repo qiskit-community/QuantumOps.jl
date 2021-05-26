@@ -3,7 +3,12 @@
         m = rand(_type, 2, 3)
         @test size(OpSum(m)) == (2, 3)
     end
+    for _type = (Pauli, PauliI, FermiOp)
+        @test length(OpSum{_type}()) == 0
+    end
+end
 
+@testset "OpTerm" begin
     for term in (PauliTerm("XYZ"), FermiTerm("--++"))
         @test reverse(term) != term
         @test reverse(reverse(term)) == term
