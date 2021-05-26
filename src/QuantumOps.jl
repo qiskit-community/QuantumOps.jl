@@ -13,7 +13,7 @@ import SparseArrays
 
 export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum, APauliTerm,
     OpTerm, OpSum, FermiTermA  #, PauliTermA  , PauliSumA
-#export PauliTerms
+#export APauliTerm
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
 

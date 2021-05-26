@@ -3,9 +3,9 @@ const PauliTerm = OpTerm{Pauli}
 #const APauliTerm = OpTerm{T} where {T <: AbstractPauli}
 #const PauliTerm = APauliTerm{Pauli}
 
-## This ruins printing PauliTerm as an alias if `PauliTerms` is in the export list
-const PauliTerms = OpTerm{T} where {T <:AbstractPauli}
-#const PauliTerms = OpTerm{<:AbstractPauli}
+## This ruins printing PauliTerm as an alias if `APauliTerm` is in the export list
+const APauliTerm = OpTerm{T} where {T <:AbstractPauli}
+#const APauliTerm = OpTerm{<:AbstractPauli}
 
 """
     PauliSumA(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true)
@@ -120,28 +120,28 @@ function _multiply_coefficient(coeff, matrix)
     return coeff1 .* matrix
 end
 
-Base.Matrix(pt::PauliTerms) = Matrix(Float64, pt)
+Base.Matrix(pt::APauliTerm) = Matrix(Float64, pt)
 
 # FIXME: Not type stable.
-function Base.Matrix(::Type{Z4Group0}, pt::PauliTerms)
+function Base.Matrix(::Type{Z4Group0}, pt::APauliTerm)
     matrix = _kron((Z4Group0.(m) for m in Matrix.(op_string(pt)))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
-function Base.Matrix(::Type{Float64}, pt::PauliTerms)
+function Base.Matrix(::Type{Float64}, pt::APauliTerm)
     matrix = _kron(Matrix.(op_string(pt))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
-SparseArrays.sparse(pt::PauliTerms) = SparseArrays.sparse(Float64, pt)
+SparseArrays.sparse(pt::APauliTerm) = SparseArrays.sparse(Float64, pt)
 
-function SparseArrays.sparse(::Type{Float64}, pt::PauliTerms)
+function SparseArrays.sparse(::Type{Float64}, pt::APauliTerm)
     matrix = _kron(SparseArrays.sparse.(op_string(pt))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
 # FIXME: broken, should throw inexact error earlier rather than return wrong type
-function SparseArrays.sparse(::Type{Z4Group0}, pt::PauliTerms)
+function SparseArrays.sparse(::Type{Z4Group0}, pt::APauliTerm)
     matrix = _kron((Z4Group0.(m) for m in SparseArrays.sparse.(op_string(pt)))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
@@ -155,31 +155,31 @@ end
 
 Return `true` if `pt` is a unitary operator.
 """
-IsApprox.isunitary(pt::PauliTerms) = IsApprox.isunitary(pt.coeff)
+IsApprox.isunitary(pt::APauliTerm) = IsApprox.isunitary(pt.coeff)
 
 """
     ishermitian(pt::PauliTermA)
 
 Return `true` if `pt` is a Hermitian operator.
 """
-LinearAlgebra.ishermitian(pt::PauliTerms) = isreal(pt.coeff)
+LinearAlgebra.ishermitian(pt::APauliTerm) = isreal(pt.coeff)
 
 ####
 #### Algebra
 ####
 
-function mul!(target::AbstractArray{<:AbstractPauli}, ps1::PauliTerms, ps2::PauliTerms)
+function mul!(target::AbstractArray{<:AbstractPauli}, ps1::APauliTerm, ps2::APauliTerm)
     s_new, phase = multiply_keeping_phase!(target, op_string(ps1), op_string(ps2))
     return strip_typeof(ps1)(s_new, ps1.coeff * ps2.coeff * phase)
 end
 
-function Base.:*(ps1::PauliTerms, ps2::PauliTerms)
+function Base.:*(ps1::APauliTerm, ps2::APauliTerm)
     return mul!(similar(op_string(ps1)), ps1, ps2)
 end
 
-Base.inv(p::PauliTerms) = strip_typeof(p)(op_string(p), inv(p.coeff))
+Base.inv(p::APauliTerm) = strip_typeof(p)(op_string(p), inv(p.coeff))
 
-function Base.:^(p::PauliTerms, n::Integer)
+function Base.:^(p::APauliTerm, n::Integer)
     new_coeff = p.coeff^n
     if iseven(n)
         return strip_typeof(p)(fill(Pauli(:I), length(p)), new_coeff)
@@ -188,23 +188,23 @@ function Base.:^(p::PauliTerms, n::Integer)
     end
 end
 
-function Base.conj(pt::PauliTerms)
+function Base.conj(pt::APauliTerm)
     num_ys = count(p -> op_index(p) == 2, op_string(pt))
     fac = iseven(num_ys) ? 1 : -1
     return strip_typeof(pt)(op_string(pt), conj(pt.coeff) * fac)
 end
 
-function Base.transpose(pt::PauliTerms)
+function Base.transpose(pt::APauliTerm)
     num_ys = count(p -> op_index(p) == 2, op_string(pt))
     fac = iseven(num_ys) ? 1 : -1
     return strip_typeof(pt)(op_string(pt), pt.coeff * fac)
 end
 
-function Base.adjoint(pt::PauliTerms)
+function Base.adjoint(pt::APauliTerm)
     return strip_typeof(pt)(op_string(pt), conj(pt.coeff))
 end
 
-function LinearAlgebra.eigvals(pt::PauliTerms)
+function LinearAlgebra.eigvals(pt::APauliTerm)
     vals = Vector{promote_type(Float64, typeof(pt.coeff))}(undef, 2 * length(pt))
     pos_eigval = pt.coeff
     neg_eigval = -pos_eigval
@@ -218,13 +218,13 @@ function LinearAlgebra.eigvals(pt::PauliTerms)
     return vals
 end
 
-Base.kron(ps1::PauliTerms, ps2::PauliTerms) = strip_typeof(ps1)(vcat(op_string(ps1), op_string(ps2)), ps1.coeff * ps2.coeff)
+Base.kron(ps1::APauliTerm, ps2::APauliTerm) = strip_typeof(ps1)(vcat(op_string(ps1), op_string(ps2)), ps1.coeff * ps2.coeff)
 
 Base.kron(paulis::AbstractPauli...) = PauliTerm([paulis...])
 
 ## TODO: PauliTerm is hardcoded. Should be OpTerm{T} where T is some AbstractPauli
 # TODO: @code_warntype shows red here
-function Base.kron(ps::Union{PauliTerms, AbstractPauli}...)
+function Base.kron(ps::Union{APauliTerm, AbstractPauli}...)
     if ps[1] isa AbstractPauli
         v = typeof(ps[1])[]
     else
@@ -232,7 +232,7 @@ function Base.kron(ps::Union{PauliTerms, AbstractPauli}...)
     end
     coeffs = []
     for x in ps
-        if x isa PauliTerms
+        if x isa APauliTerm
             push!(coeffs, x.coeff)
             append!(v, x)
         else
@@ -259,4 +259,4 @@ function pauli_basis(::Type{PauliT}, n_qubits; coeff=_DEFAULT_COEFF) where Pauli
     return (OpTerm(PauliT, i, n_qubits, coeff) for i in 0:(4^n_qubits - 1))
 end
 
-weight(ps::PauliTerms) = weight(op_string(ps))
+weight(ps::APauliTerm) = weight(op_string(ps))
