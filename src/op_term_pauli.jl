@@ -53,3 +53,49 @@ end
 function OpTerm{T}(index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
     return OpTerm(pauli_vector(T, index, n_paulis), coeff)
 end
+
+
+####
+#### Math
+####
+
+"""
+    cis(p::PauliTerm)::PauliSum
+
+Compute ``\\exp(i p)``
+"""
+function Base.cis(pt::OpTerm{<:AbstractPauli})
+    return OpSum([op_string(one(pt)), copy(op_string(pt))], [cos(pt.coeff), im * sin(pt.coeff)], true)
+end
+
+"""
+    exp(p::PauliTerm)::PauliSum
+
+Compute ``\\exp(p)``
+"""
+function Base.exp(pt::OpTerm{<:AbstractPauli})
+    coeff = im * pt.coeff
+    return OpSum([op_string(one(pt)), copy(op_string(pt))], [cos(coeff), -im * sin(coeff)], true)
+end
+
+"""
+    numeric_function(pt::PauliTerm, f)::PauliSum
+
+Compute `f(pt)` by decomposing `f` into odd and even functions.
+"""
+function numeric_function(pt::OpTerm{<:AbstractPauli}, f)
+    c = pt.coeff
+    fe = (f(c) + f(-c)) / 2
+    fo = (f(c) - f(-c)) / 2
+    strings = [op_string(one(pt)), copy(op_string(pt))]
+    coeffs = [fe, fo]
+    # else sorting takes 30x longer
+    return OpSum(strings, coeffs; already_sorted=true)
+end
+
+# Julia 1.5 does not have cispi
+for f in (:cos, :sin, :tan, :sqrt, :sind, :sinpi, :cospi, :sinh, :tanh,
+          :acos, :asin, :atan, :sec, :csc, :cot, :log, :log2, :log10,
+          :log1p)
+    @eval Base.$f(pt::OpTerm{<:AbstractPauli}) = numeric_function(pt, $f)
+end

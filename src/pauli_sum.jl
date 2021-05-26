@@ -168,61 +168,46 @@ end
 # Base.Matrix(ps::PauliSum) = ThreadsX.sum(Matrix(Z4Group0, ps[i]) for i in eachindex(ps))
 
 ####
-#### Algebra / mathematical operations
-####
-
-# We use lmul! because that's how LinearAlgebra offers "scaling" of a Matrix (or rmul!)
-"""
-    lmul!(psum::PauliSum, n)
-
-Left multiplies the coefficient of `psum` by `n` in place.
-"""
-function LinearAlgebra.lmul!(psum::PauliSums, n)
-    @. psum.coeffs = n * psum.coeffs
-    return psum
-end
-
-####
 #### Math
 ####
 
-"""
-    cis(p::PauliTerm)::PauliSum
+# """
+#     cis(p::PauliTerm)::PauliSum
 
-Compute ``\\exp(i p)``
-"""
-function Base.cis(pt::PauliTerms)
-    return PauliSumA([op_string(one(pt)), copy(op_string(pt))], [cos(pt.coeff), im * sin(pt.coeff)], true)
-end
+# Compute ``\\exp(i p)``
+# """
+# function Base.cis(pt::PauliTerms)
+#     return PauliSumA([op_string(one(pt)), copy(op_string(pt))], [cos(pt.coeff), im * sin(pt.coeff)], true)
+# end
 
-"""
-    exp(p::PauliTerm)::PauliSum
+# """
+#     exp(p::PauliTerm)::PauliSum
 
-Compute ``\\exp(p)``
-"""
-function Base.exp(pt::PauliTerms)
-    coeff = im * pt.coeff
-    return PauliSumA([op_string(one(pt)), copy(op_string(pt))], [cos(coeff), -im * sin(coeff)], true)
-end
+# Compute ``\\exp(p)``
+# """
+# function Base.exp(pt::PauliTerms)
+#     coeff = im * pt.coeff
+#     return PauliSumA([op_string(one(pt)), copy(op_string(pt))], [cos(coeff), -im * sin(coeff)], true)
+# end
 
-"""
-    numeric_function(pt::PauliTerm, f)::PauliSum
+# """
+#     numeric_function(pt::PauliTerm, f)::PauliSum
 
-Compute `f(pt)` by decomposing `f` into odd and even functions.
-"""
-function numeric_function(pt::PauliTerms, f)
-    c = pt.coeff
-    fe = (f(c) + f(-c)) / 2
-    fo = (f(c) - f(-c)) / 2
-    strings = [op_string(one(pt)), copy(op_string(pt))]
-    coeffs = [fe, fo]
-    # else sorting takes 30x longer
-    return PauliSum(strings, coeffs; already_sorted=true)
-end
+# Compute `f(pt)` by decomposing `f` into odd and even functions.
+# """
+# function numeric_function(pt::PauliTerms, f)
+#     c = pt.coeff
+#     fe = (f(c) + f(-c)) / 2
+#     fo = (f(c) - f(-c)) / 2
+#     strings = [op_string(one(pt)), copy(op_string(pt))]
+#     coeffs = [fe, fo]
+#     # else sorting takes 30x longer
+     return PauliSum(strings, coeffs; already_sorted=true)
+# end
 
-# Julia 1.5 does not have cispi
-for f in (:cos, :sin, :tan, :sqrt, :sind, :sinpi, :cospi, :sinh, :tanh,
-          :acos, :asin, :atan, :sec, :csc, :cot, :log, :log2, :log10,
-          :log1p)
-    @eval Base.$f(pt::PauliTerms) = numeric_function(pt, $f)
-end
+# # Julia 1.5 does not have cispi
+# for f in (:cos, :sin, :tan, :sqrt, :sind, :sinpi, :cospi, :sinh, :tanh,
+#           :acos, :asin, :atan, :sec, :csc, :cot, :log, :log2, :log10,
+#           :log1p)
+#     @eval Base.$f(pt::PauliTerms) = numeric_function(pt, $f)
+# end

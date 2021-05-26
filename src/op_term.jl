@@ -169,3 +169,20 @@ Base.Matrix(ps::OpSum) = Matrix(SparseArrays.sparse(ps))
 Convert `ps` to a sparse matrix.
 """
 SparseArrays.sparse(ps::OpSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
+
+####
+#### Algebra / mathematical operations
+####
+
+# We use lmul! because that's how LinearAlgebra offers "scaling" of a Matrix (or rmul!)
+"""
+    lmul!(psum::PauliSum, n)
+
+Left multiplies the coefficient of `psum` by `n` in place.
+"""
+function LinearAlgebra.lmul!(opsum::OpSum, n)
+    @. opsum.coeffs = n * opsum.coeffs
+    return opsum
+end
+
+
