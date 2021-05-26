@@ -99,3 +99,16 @@ for f in (:cos, :sin, :tan, :sqrt, :sind, :sinpi, :cospi, :sinh, :tanh,
           :log1p)
     @eval Base.$f(pt::OpTerm{<:AbstractPauli}) = numeric_function(pt, $f)
 end
+
+####
+#### Other ?
+####
+
+"""
+    pauli_basis(::Type{PauliT}, n_qubits; coeff=_DEFAULT_COEFF)
+
+Return a `Generator` over all `PauliTerm`s of `n_qubits`.
+"""
+function pauli_basis(::Type{PauliT}, n_qubits; coeff=_DEFAULT_COEFF) where PauliT
+    return (OpTerm(PauliT, i, n_qubits, coeff) for i in 0:(4^n_qubits - 1))
+end

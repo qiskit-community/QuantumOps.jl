@@ -202,7 +202,7 @@ end
 #     strings = [op_string(one(pt)), copy(op_string(pt))]
 #     coeffs = [fe, fo]
 #     # else sorting takes 30x longer
-     return PauliSum(strings, coeffs; already_sorted=true)
+#     return PauliSum(strings, coeffs; already_sorted=true)
 # end
 
 # # Julia 1.5 does not have cispi
