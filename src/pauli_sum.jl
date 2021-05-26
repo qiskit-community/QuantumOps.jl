@@ -94,40 +94,40 @@ function PauliSumA(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=tru
     end
 end
 
-function pauli_sum_from_matrix_one_thread(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
-    nside = LinearAlgebra.checksquare(matrix)
-    n_qubits = ILog2.checkispow2(nside)
-    denom = 2^n_qubits  # == nside
-    s = PauliSumA(PauliT)
-    for pauli in pauli_basis(PauliT, n_qubits)
-        mp = SparseArrays.sparse(pauli)  # Much faster than dense
-        coeff = LinearAlgebra.dot(mp, matrix)
-        if ! isapprox_zero(coeff)
-            push!(s, (op_string(pauli), coeff / denom))  # a bit faster than PauliTermA for small `matrix` (eg 2x2)
-        end
-    end
-    return s
-end
+# function pauli_sum_from_matrix_one_thread(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
+#     nside = LinearAlgebra.checksquare(matrix)
+#     n_qubits = ILog2.checkispow2(nside)
+#     denom = 2^n_qubits  # == nside
+#     s = PauliSumA(PauliT)
+#     for pauli in pauli_basis(PauliT, n_qubits)
+#         mp = SparseArrays.sparse(pauli)  # Much faster than dense
+#         coeff = LinearAlgebra.dot(mp, matrix)
+#         if ! isapprox_zero(coeff)
+#             push!(s, (op_string(pauli), coeff / denom))  # a bit faster than PauliTermA for small `matrix` (eg 2x2)
+#         end
+#     end
+#     return s
+# end
 
-function pauli_sum_from_matrix_threaded(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
-    nside = LinearAlgebra.checksquare(matrix)
-    n_qubits = ILog2.checkispow2(nside)
-    denom = 2^n_qubits  # == nside
-    ## Create a PauliSumA for each thread, for accumulation.
-    sums = [PauliSumA(PauliT) for i in 1:Threads.nthreads()]
-    Threads.@threads for j in 0:(4^n_qubits - 1)
-        pauli = PauliTerm(PauliT, j, n_qubits)
-        mp = SparseArrays.sparse(pauli)  # Much faster than dense
-        coeff = LinearAlgebra.dot(mp, matrix)
-        if ! isapprox_zero(coeff)
-            push!(sums[Threads.threadid()], (op_string(pauli), coeff / denom))
-        end
-    end
-    for ind in 2:length(sums)  # Collate results from all threads.
-        add!(sums[1], sums[ind])
-    end
-    return sums[1]
-end
+# function pauli_sum_from_matrix_threaded(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
+#     nside = LinearAlgebra.checksquare(matrix)
+#     n_qubits = ILog2.checkispow2(nside)
+#     denom = 2^n_qubits  # == nside
+#     ## Create a PauliSumA for each thread, for accumulation.
+#     sums = [PauliSumA(PauliT) for i in 1:Threads.nthreads()]
+#     Threads.@threads for j in 0:(4^n_qubits - 1)
+#         pauli = PauliTerm(PauliT, j, n_qubits)
+#         mp = SparseArrays.sparse(pauli)  # Much faster than dense
+#         coeff = LinearAlgebra.dot(mp, matrix)
+#         if ! isapprox_zero(coeff)
+#             push!(sums[Threads.threadid()], (op_string(pauli), coeff / denom))
+#         end
+#     end
+#     for ind in 2:length(sums)  # Collate results from all threads.
+#         add!(sums[1], sums[ind])
+#     end
+#     return sums[1]
+# end
 
 """
     rand_pauli_sum(::Type{PauliT}=PauliDefault, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {PauliT <: AbstractPauli}

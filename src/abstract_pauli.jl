@@ -288,7 +288,8 @@ Base.isempty(p::AbstractPauli) = false
 
 Count the number of Paulis in the string that are not the identity.
 """
-weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> op_index(pauli) != 0, v)
+weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> !isone(pauli), v)
+#weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> op_index(pauli) !== 0, v)
 
 ####
 #### Interface for subtypes
