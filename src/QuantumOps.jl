@@ -11,8 +11,10 @@ import ThreadsX
 import ILog2
 import SparseArrays
 
+import ElectronicStructure
+
 export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum, APauliTerm,
-    OpTerm, OpSum, FermiTermA  #, PauliTermA  , PauliSumA
+    OpTerm, OpSum # , FermiTermA  #, PauliTermA  , PauliSumA
 #export APauliTerm
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
@@ -84,8 +86,8 @@ include("fermi_op.jl")
 
 using .FermiOps
 
-include("old_fermi_term.jl")
-include("old_fermi_sum.jl")
+# include("old_fermi_term.jl")
+# include("old_fermi_sum.jl")
 
 include("op_term_fermi.jl")
 include("op_term_pauli.jl")

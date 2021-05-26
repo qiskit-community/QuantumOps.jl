@@ -1,3 +1,4 @@
+## FIXME: random OpSum{FermiOp} sometimes gets zeros and the size of the sum is wrong
 @testset "OpSum" begin
     for _type = (Pauli, PauliI, FermiOp)
         m = rand(_type, 2, 3)

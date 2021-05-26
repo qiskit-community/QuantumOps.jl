@@ -185,4 +185,10 @@ function LinearAlgebra.lmul!(opsum::OpSum, n)
     return opsum
 end
 
+function Base.zero(term::OpTerm{T}) where T
+    new_string = similar(op_string(term))
+    fill!(new_string, zero(T))
+    return strip_typeof(term)(new_string, zero(term.coeff))
+end
 
+Base.iszero(term::OpTerm) = iszero(term.coeff) || any(iszero, op_string(term))
