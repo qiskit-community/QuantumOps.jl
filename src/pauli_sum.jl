@@ -163,40 +163,6 @@ end
 # rand_pauli_sum(n_factors::Integer, n_terms::Integer; coeff_func=nothing) =
 #     rand_pauli_sum(PauliDefault, n_factors, n_terms; coeff_func=coeff_func)
 
-#####
-##### Conversion
-#####
-
-"""
-    Matrix(ps::PauliSumA)
-
-Convert `ps` to a dense `Matrix`.
-
-# Examples
-
-We convert a matrix to a `PauliSumA` and then back to a matrix.
-```jldoctest
-julia> m = [0.1 0.2; 0.3 0.4];
-
-julia> PauliSumA(m)
-(0.25 + 0.0im) * I
-(0.25 + 0.0im) * X
-(0.0 - 0.04999999999999999im) * Y
-(-0.15000000000000002 + 0.0im) * Z
-
-julia> Matrix(PauliSumA(m)) ≈ m
-true
-```
-"""
-Base.Matrix(ps::PauliSums) = Matrix(SparseArrays.sparse(ps))
-
-## ThreadsX helps enormously for large sums. 22x faster for 4^8 terms
-"""
-    sparse(ps::PauliSum)
-
-Convert `ps` to a sparse matrix.
-"""
-SparseArrays.sparse(ps::PauliSums) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
 
 # Using Z4Group0 is 30% faster in many tests, for dense matrices
 # Base.Matrix(ps::PauliSum) = ThreadsX.sum(Matrix(Z4Group0, ps[i]) for i in eachindex(ps))
