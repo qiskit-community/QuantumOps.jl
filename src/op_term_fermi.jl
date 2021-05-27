@@ -48,12 +48,12 @@ function index_to_ops(i, j, k, l)
     if k != i && k != j
         op3 = (op=lower_op, ind=k)
     else
-        op3 = (op=no_op, ind=k)
+        op3 = (op=FermiOps.no_op, ind=k)
     end
     if l != i && l != j
         op4 = (op=lower_op, ind=l)
     else
-        op4 = (op=no_op, ind=k)
+        op4 = (op=FermiOps.no_op, ind=k)
     end
     return (op1, op2, op3, op4)
 end
@@ -106,7 +106,7 @@ index_to_ops_phase(inds) = (ops=index_to_ops(inds), phase=index_phase(inds))
 function _fermi_term(ops::NTuple, phase::Integer, coeff, n_modes::Integer)
     factors = fill(I_op, n_modes)
     for (op, ind) in ops
-        if op == no_op
+        if op == FermiOps.no_op
             continue
         end
         factors[ind] = op

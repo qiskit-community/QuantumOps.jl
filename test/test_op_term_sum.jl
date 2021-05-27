@@ -17,4 +17,6 @@ end
         reverse!(term2)
         @test term2 == term
     end
+    @test OpTerm(Paulis.X, Paulis.Y, Paulis.Z)  == OpTerm{Pauli}("XYZ")
+    @test OpTerm(FermiOps.raise_op, FermiOps.lower_op, FermiOps.number_op) == OpTerm{FermiOp}("+-N")
 end

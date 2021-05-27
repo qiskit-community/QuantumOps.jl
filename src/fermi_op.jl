@@ -14,7 +14,8 @@ export I_op, number_op, empty_op, raise_op, lower_op, zero_op,
 import .._AbstractOp, ..op_symbols, ..AbstractOp, ..AbstractFermiOp
 
 struct FermiOp <: AbstractFermiOp
-    ind::UInt8
+    ind::Int  # Int is often faster than UInt8
+#    ind::UInt8
 end
 
 const FermiDefault = FermiOp

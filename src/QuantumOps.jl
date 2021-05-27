@@ -15,6 +15,7 @@ import ElectronicStructure
 
 export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum, APauliTerm,
     OpTerm, OpSum # , FermiTermA  #, PauliTermA  , PauliSumA
+export IndOp
 #export APauliTerm
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
@@ -93,5 +94,7 @@ include("op_term_fermi.jl")
 include("op_term_pauli.jl")
 
 include("jordan_wigner.jl")
+
+include("ind_op.jl")
 
 end # module
