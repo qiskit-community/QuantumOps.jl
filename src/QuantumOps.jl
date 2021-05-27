@@ -13,7 +13,7 @@ import SparseArrays
 
 import ElectronicStructure
 
-export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum, APauliTerm,
+export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum,
     OpTerm, OpSum # , FermiTermA  #, PauliTermA  , PauliSumA
 export IndOp
 #export APauliTerm

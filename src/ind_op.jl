@@ -25,6 +25,15 @@ function OpTerm{IndOp}(term::OpTerm{T}) where T
     return OpTerm(v, term.coeff)
 end
 
+## Don't wrap IndOp in IndOp
+OpTerm{IndOp}(term::OpTerm{<:IndOp}) = term
+
+"""
+    OpSum{IndOp}(_sum::OpSum{T}) where T
+
+Convert `_sum::OpSum` to sparser `OpSum{IndOp}`. If `_sum` is already of type `OpSum{IndOp}`,
+it is returned  unchanged.
+"""
 function OpSum{IndOp}(_sum::OpSum{T}) where T
     isum = OpSum{IndOp{T}}()
     for term in _sum
@@ -32,6 +41,9 @@ function OpSum{IndOp}(_sum::OpSum{T}) where T
     end
     return isum
 end
+
+## Don't wrap IndOp in IndOp
+OpSum{IndOp}(_sum::OpSum{<:IndOp}) = _sum
 
 ####
 #### Container interface
@@ -52,6 +64,14 @@ end
 
 Base.isless(op1::IndOp, op2::IndOp) = Base.isless(op1.op, op2.op)
 
+"""
+    *(op1::IndOp, op2::IndOp)
+
+Compute `op1 * op2` ignoring possible phase.
+
+# Throws
+- `ArgumentError` if `op1` and `op2` do not have the same index.
+"""
 function Base.:*(op1::IndOp, op2::IndOp)
     if op1.ind == op2.ind
         return IndOp(op1.op * op2.op, op1.ind)
