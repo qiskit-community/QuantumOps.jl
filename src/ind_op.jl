@@ -3,6 +3,8 @@ struct IndOp{OpT} <: AbstractOp
     ind::Int
 end
 
+Base.copy(op::IndOp) = IndOp(copy(op.op), copy(op.ind))
+
 function Base.show(io::IO, op::IndOp)
     print(io, "(", op.op, op.ind, ")")
 #    print(io, "(", op.op, ", ", op.ind, ")")
@@ -23,14 +25,13 @@ function OpTerm{IndOp}(term::OpTerm{T}) where T
     return OpTerm(v, term.coeff)
 end
 
-function OpSum{IndOp}(_sum::OpSum{T}) where  T
+function OpSum{IndOp}(_sum::OpSum{T}) where T
     isum = OpSum{IndOp{T}}()
     for term in _sum
         push!(isum, OpTerm{IndOp}(term))
     end
     return isum
 end
-
 
 ####
 #### Container interface
