@@ -3,9 +3,9 @@ using Test
 import SparseArrays
 using QuantumOps: Paulis, FermiOps
 
+include("./test_jordan_wigner.jl")
 include("./test_ind_op.jl")
 include("./test_op_term_sum.jl")
-include("./test_jordan_wigner.jl")
 include("./test_pauli.jl")
 include("./test_fermi.jl")
 

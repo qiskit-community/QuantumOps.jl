@@ -1,8 +1,8 @@
 ## FIXME: random OpSum{FermiOp} sometimes gets zeros and the size of the sum is wrong
 @testset "OpSum" begin
     for _type = (Pauli, PauliI, FermiOp)
-        m = rand(_type, 2, 3)
-        @test size(OpSum(m)) == (2, 3)
+        m = rand(_type, 5, 10)
+        @test size(OpSum(m)) == (5, 10)
     end
     for _type = (Pauli, PauliI, FermiOp)
         @test length(OpSum{_type}()) == 0
