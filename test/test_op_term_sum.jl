@@ -19,4 +19,11 @@ end
     end
     @test OpTerm(Paulis.X, Paulis.Y, Paulis.Z)  == OpTerm{Pauli}("XYZ")
     @test OpTerm(FermiOps.raise_op, FermiOps.lower_op, FermiOps.number_op) == OpTerm{FermiOp}("+-N")
+
+    pt = PauliTerm("XXIIYY")
+    @test weight(pt) == 4
+    @test length(pt) == 6
+    ft = FermiTerm("++II--")
+    @test weight(ft) == 4
+    @test length(ft) == 6
 end

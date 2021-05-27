@@ -24,3 +24,11 @@ end
 Initialize a `Vector{T}` by converting each character to type `T`.
 """
 Vector{T}(opstring::AbstractString) where {T <: AbstractOp} = [T(s) for s in opstring]
+
+"""
+    weight(v::AbstractArray{<:AbstractPauli})
+    weight(ps::PauliTerm)
+
+Count the number of Paulis in the string that are not the identity.
+"""
+weight(v::AbstractArray{<:AbstractOp}) = count(op -> !isone(op), v)

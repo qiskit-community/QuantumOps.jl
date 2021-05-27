@@ -258,5 +258,3 @@ Return a `Generator` over all `PauliTerm`s of `n_qubits`.
 function pauli_basis(::Type{PauliT}, n_qubits; coeff=_DEFAULT_COEFF) where PauliT
     return (OpTerm(PauliT, i, n_qubits, coeff) for i in 0:(4^n_qubits - 1))
 end
-
-weight(ps::APauliTerm) = weight(op_string(ps))

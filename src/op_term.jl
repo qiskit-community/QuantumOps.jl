@@ -192,3 +192,5 @@ function Base.zero(term::OpTerm{T}) where T
 end
 
 Base.iszero(term::OpTerm) = iszero(term.coeff) || any(iszero, op_string(term))
+
+weight(term::OpTerm) = weight(op_string(term))
