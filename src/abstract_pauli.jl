@@ -273,10 +273,12 @@ LinearAlgebra.tr(::AbstractPauli) = 0
 ## This would otherwise be computed by LinearAlgebra calling getindex
 LinearAlgebra.eigvals(::AbstractPauli) = [-1.0, 1.0]
 
-Base.length(p::AbstractPauli) = 1
+Base.length(::AbstractPauli) = 1
 Base.iterate(p::AbstractPauli) = (p, nothing)
-Base.iterate(p::AbstractPauli, ::Any) = nothing
-Base.isempty(p::AbstractPauli) = false
+Base.iterate(::AbstractPauli, ::Any) = nothing
+Base.isempty(::AbstractPauli) = false
+
+Base.iszero(::AbstractPauli) = false
 
 ####
 #### Other
