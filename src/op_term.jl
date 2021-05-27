@@ -19,6 +19,8 @@ function OpTerm{OpT}(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) wher
     return OpTerm(OpT.(inds), coeff)
 end
 
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME: empty ops causes overflow here
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function OpTerm{OpT}(ops::AbstractOp...; coeff=_DEFAULT_COEFF) where OpT
     return OpTerm([ops...], coeff)
 end

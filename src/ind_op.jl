@@ -23,6 +23,15 @@ function OpTerm{IndOp}(term::OpTerm{T}) where T
     return OpTerm(v, term.coeff)
 end
 
+function OpSum{IndOp}(_sum::OpSum{T}) where  T
+    isum = OpSum{IndOp{T}}()
+    for term in _sum
+        push!(isum, OpTerm{IndOp}(term))
+    end
+    return isum
+end
+
+
 ####
 #### Container interface
 ####
@@ -103,6 +112,9 @@ function Base.:*(t1::OpTerm{T}, t2::OpTerm{T}) where {V, T <: IndOp{V}}
             i2 += 1
         else
             new_op = tt1.op * tt2.op
+            if iszero(new_op)
+                return OpTerm(IndOp{V}[], zero(t1.coeff))
+            end
             i1 += 1
             i2 += 1
             if isone(new_op)
