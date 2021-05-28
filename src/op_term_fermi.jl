@@ -22,6 +22,11 @@ function OpSum{OpT}(tensor::AbstractArray{<:Number}, tensors::AbstractArray{<:Nu
     return fsum
 end
 
+"""
+    FermiSumA(iop::ElectronicStructure.InteractionOperator)
+
+Convert `iop` to a `FermiSum`.
+"""
 function OpSum{OpT}(iop::ElectronicStructure.InteractionOperator) where {OpT<:AbstractFermiOp}
     fsum = OpSum{OpT}(iop.one_body_tensor, iop.two_body_tensor)
     add!(fsum, iop.nuclear_repulsion * one(fsum[1]))
@@ -184,17 +189,6 @@ function tensor_to_fermi_sum!(fsum, tensor)
     end
     return fsum
 end
-
-# """
-#     FermiSumA(iop::ElectronicStructure.InteractionOperator)
-
-# Convert `iop` to a `FermiSumA`.
-# """
-# function FermiSumA(iop::ElectronicStructure.InteractionOperator)
-#     fsum = FermiSumA(iop.one_body_tensor, iop.two_body_tensor)
-#     add!(fsum, iop.nuclear_repulsion * one(fsum[1]))
-#     return fsum
-# end
 
 function Base.adjoint(ft::FermiSums)
     op_strings = [adjoint.(x) for x in ft.strings]

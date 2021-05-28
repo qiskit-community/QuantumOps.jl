@@ -60,6 +60,12 @@ function jordan_wigner(fsum::FermiSum)
     return sort_and_sum_duplicates!(psum)
 end
 
+####
+#### Jordan-Wigner using Fermi operators augmented by Z = N - E
+####
+
+## These are experimental, and so far do not seem very useful
+
 function fill_fermi(pad, op_ind, fill_op, end_op)
     str = Vector{FermiOps.FermiOp}(undef, pad)
     if pad <  op_ind

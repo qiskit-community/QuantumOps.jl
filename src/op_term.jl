@@ -192,7 +192,3 @@ function Base.zero(term::OpTerm{T}) where T
     fill!(new_string, zero(T))
     return strip_typeof(term)(new_string, zero(term.coeff))
 end
-
-Base.iszero(term::OpTerm) = iszero(term.coeff) || any(iszero, op_string(term))
-
-weight(term::OpTerm) = weight(op_string(term))

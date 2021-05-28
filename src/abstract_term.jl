@@ -53,11 +53,20 @@ for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
     end
 end
 
+## TODO: Is there a way to combine this with methods for Base functions above ?
+for func in (:weight, )
+    @eval begin
+        $func(ps::AbstractTerm, args...) = $func(op_string(ps), args...)
+    end
+end
+
 for func in (:push!, :pushfirst!, :insert!)
     @eval begin
         Base.$func(ps::AbstractTerm, args...) = ($func(op_string(ps), args...); ps)
     end
 end
+
+Base.iszero(term::AbstractTerm) = iszero(term.coeff) || any(iszero, op_string(term))
 
 """
     reverse!(pt::AbstractTerm)
