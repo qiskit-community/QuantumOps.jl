@@ -97,5 +97,6 @@ include("op_term_pauli.jl")
 include("jordan_wigner.jl")
 
 include("ind_op.jl")
+include("ind_op_fermi.jl")
 
 end # module

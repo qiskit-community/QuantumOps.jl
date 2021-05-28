@@ -160,10 +160,10 @@ end
 
 Base.adjoint(ft::AFermiTerm) = strip_typeof(ft)(adjoint.(op_string(ft)), conj(ft.coeff))
 
-count_bodies(ft::AFermiTerm) = count_bodies(op_string(ft))
+count_bodies(ft::OpTerm) = count_bodies(op_string(ft))
 
-function count_bodies(v::Vector{FermiOp})
-    n = sum(count_raise_lower, v)
+function count_bodies(v::Vector)
+    n = sum(FermiOps.count_raise_lower, v)
     return n ÷ 2
 end
 

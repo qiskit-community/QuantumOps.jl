@@ -8,8 +8,7 @@ import Random
 import LinearAlgebra
 
 export FermiOp, FermiDefault
-export I_op, number_op, empty_op, raise_op, lower_op, zero_op,
-    count_raise_lower
+export I_op, number_op, empty_op, raise_op, lower_op, zero_op, count_raise_lower
 
 import .._AbstractOp, ..op_symbols, ..AbstractOp, ..AbstractFermiOp
 

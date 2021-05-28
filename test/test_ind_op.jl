@@ -13,4 +13,9 @@
     @test map(weight, ps) == map(weight, ops)
     @test ops isa OpSum{<:IndOp}
     @test typeof(ops) == typeof(OpSum{IndOp}(ops))
+
+    ft = FermiTerm("ENE+")
+    oft = OpTerm{IndOp}(ft)
+    @test count_bodies(ft) == 3
+    @test count_bodies(oft) == 3
 end

@@ -3,6 +3,8 @@ struct IndOp{OpT} <: AbstractOp
     ind::Int
 end
 
+reg_index(op::IndOp) = op.ind
+
 Base.copy(op::IndOp) = IndOp(copy(op.op), copy(op.ind))
 
 function Base.show(io::IO, op::IndOp)
@@ -50,7 +52,7 @@ OpSum{IndOp}(_sum::OpSum{<:IndOp}) = _sum
 ####
 
 weight(term::OpTerm{<:IndOp}) = length(op_string(term))
-Base.length(term::OpTerm{<:IndOp}) = length(op_string(term)) == 0 ? 0 : op_string(term)[end].ind
+Base.length(term::OpTerm{<:IndOp}) = length(op_string(term)) == 0 ? 0 : reg_index(op_string(term)[end])
 
 ####
 #### Math
@@ -60,6 +62,12 @@ import Base: isone, iszero
 import LinearAlgebra: ishermitian
 for f in (:isone, :iszero, :isunitary, :ishermitian)
     @eval $f(op::IndOp) = $f(op.op)
+end
+
+import Base: one, zero, ^, adjoint
+
+for f in (:one, :zero, :^, :adjoint, :ishermitian)
+    @eval $f(op::IndOp, args...) = typeof(op)($f(op.op, args...), reg_index(op))
 end
 
 Base.isless(op1::IndOp, op2::IndOp) = Base.isless(op1.op, op2.op)
@@ -73,13 +81,11 @@ Compute `op1 * op2` ignoring possible phase.
 - `ArgumentError` if `op1` and `op2` do not have the same index.
 """
 function Base.:*(op1::IndOp, op2::IndOp)
-    if op1.ind == op2.ind
-        return IndOp(op1.op * op2.op, op1.ind)
+    if reg_index(op1)== reg_index(op2)
+        return IndOp(op1.op * op2.op, reg_index(op1))
     end
     throw(ArgumentError("Operands are not on the same index."))
 end
-
-Base.:^(op::IndOp, n::Integer) = IndOp(op.op^n, op.ind)
 
 function Base.:*(t1::OpTerm{T}, t2::OpTerm{T}) where {OpT, T <: IndOp{OpT}}
     i1 = 1  # index into terms in t1
