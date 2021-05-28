@@ -81,10 +81,6 @@ end
 
 Base.:^(op::IndOp, n::Integer) = IndOp(op.op^n, op.ind)
 
-## We do not need to track phase for FermiOps (for the set of Fermi ops that we support)
-accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractFermiOp} = old_phase_data
-compute_phase(::Type{<:AbstractFermiOp}, _) = 1
-
 function Base.:*(t1::OpTerm{T}, t2::OpTerm{T}) where {OpT, T <: IndOp{OpT}}
     i1 = 1  # index into terms in t1
     i2 = 1

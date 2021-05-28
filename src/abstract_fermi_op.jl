@@ -12,3 +12,7 @@ function Base.show(io::IO, ps::AbstractArray{<:AbstractFermiOp})
         show(io, p)
     end
 end
+
+## We do not need to track phase for FermiOps (for the set of Fermi ops that we support)
+accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractFermiOp} = old_phase_data
+compute_phase(::Type{<:AbstractFermiOp}, _) = 1
