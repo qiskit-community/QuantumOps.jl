@@ -5,7 +5,7 @@
 const FermiTerm = OpTerm{FermiOp}
 const FermiSum = OpSum{FermiOp}
 
-const FermiTerms = OpTerm{<:AbstractFermiOp}
+const AFermiTerm = OpTerm{<:AbstractFermiOp}
 const FermiSums = OpSum{<:AbstractFermiOp}
 
 function OpTerm{T}(inds::NTuple{N, Int}, coeff, n_modes::Integer) where {T<:AbstractFermiOp, N}
@@ -114,12 +114,11 @@ function _fermi_term(ops::NTuple, phase::Integer, coeff, n_modes::Integer)
     return (factors, phase * coeff)
 end
 
-
 ####
 #### Algebra / mathematical operations
 ####
 
-function Base.:*(ft1::FermiTerms, ft2::FermiTerms)
+function Base.:*(ft1::AFermiTerm, ft2::AFermiTerm)
     if length(ft1) != length(ft2)
         throw(DimensionMismatch())
     end
@@ -147,7 +146,7 @@ end
 #     return FermiTerm{W, T, promote_type(CoeffT, typeof(z))}(op_string(term), term.coeff * z)
 # end
 
-function Base.:^(ft::FermiTerms, n::Integer)
+function Base.:^(ft::AFermiTerm, n::Integer)
     n < 0 && throw(DomainError(n))
     n == 0 && return one(ft)
     n == 1 && return ft
@@ -159,9 +158,9 @@ function Base.:^(ft::FermiTerms, n::Integer)
     return strip_typeof(ft)(copy(op_string(ft)), ft.coeff^n)
 end
 
-Base.adjoint(ft::FermiTerms) = strip_typeof(ft)(adjoint.(op_string(ft)), conj(ft.coeff))
+Base.adjoint(ft::AFermiTerm) = strip_typeof(ft)(adjoint.(op_string(ft)), conj(ft.coeff))
 
-count_bodies(ft::FermiTerms) = count_bodies(op_string(ft))
+count_bodies(ft::AFermiTerm) = count_bodies(op_string(ft))
 
 function count_bodies(v::Vector{FermiOp})
     n = sum(count_raise_lower, v)

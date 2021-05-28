@@ -17,6 +17,7 @@ export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, Pa
     OpTerm, OpSum # , FermiTermA  #, PauliTermA  , PauliSumA
 export IndOp
 #export APauliTerm
+export op_string
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
 

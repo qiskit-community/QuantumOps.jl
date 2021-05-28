@@ -81,35 +81,11 @@ end
 
 Base.:^(op::IndOp, n::Integer) = IndOp(op.op^n, op.ind)
 
-## TODO: Use the following two functions to compute phase elsewhere as well.
-
-function accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractPauli}
-    phase_info = phase(op1, op2)
-    new_phase_data = (old_phase_data[1] + phase_info[1], old_phase_data[2] + phase_info[2])
-    return new_phase_data
-end
-
-function compute_phase(::Type{<:AbstractPauli}, phase_data)
-    (n_sign_flips, n_imag_units) = phase_data
-    _sign = iseven(n_sign_flips) ? 1 : -1
-    n = n_imag_units % 4
-    if n == 0
-        cim = complex(1)
-    elseif n == 1
-        cim = complex(im)
-    elseif n == 2
-        cim = complex(-im)
-    else
-        cim = complex(-1)
-    end
-    return _sign * cim
-end
-
 ## We do not need to track phase for FermiOps (for the set of Fermi ops that we support)
 accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractFermiOp} = old_phase_data
 compute_phase(::Type{<:AbstractFermiOp}, _) = 1
 
-function Base.:*(t1::OpTerm{T}, t2::OpTerm{T}) where {V, T <: IndOp{V}}
+function Base.:*(t1::OpTerm{T}, t2::OpTerm{T}) where {OpT, T <: IndOp{OpT}}
     i1 = 1  # index into terms in t1
     i2 = 1
     ops = T[]
@@ -131,14 +107,14 @@ function Base.:*(t1::OpTerm{T}, t2::OpTerm{T}) where {V, T <: IndOp{V}}
         elseif tt1.ind > tt2.ind
             push!(ops, tt2)
             i2 += 1
-        else
+        else  # tt1.op and tt2.op operate on the same index (DOF)
             new_op = tt1.op * tt2.op
-            if iszero(new_op)
-                return OpTerm(IndOp{V}[], zero(t1.coeff))
+            if iszero(new_op)  # if any factor vanishes, the term vanishes.
+                return OpTerm(empty!(ops), zero(t1.coeff))
             end
             i1 += 1
             i2 += 1
-            if isone(new_op)
+            if isone(new_op)  # Identity is not stored in sparse representation
                 continue
             end
             phase_data = accumulate_phase(phase_data, tt1.op, tt2.op)
@@ -155,7 +131,7 @@ function Base.:*(t1::OpTerm{T}, t2::OpTerm{T}) where {V, T <: IndOp{V}}
             push!(ops, t2[i])
         end
     end
-    return OpTerm(ops, t1.coeff * t2.coeff * compute_phase(V, phase_data))
+    return OpTerm(ops, t1.coeff * t2.coeff * compute_phase(OpT, phase_data))
 end
 
 function test_mult(n)

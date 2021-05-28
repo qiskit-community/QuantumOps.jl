@@ -280,11 +280,29 @@ Base.isempty(::AbstractPauli) = false
 
 Base.iszero(::AbstractPauli) = false
 
-####
-#### Other
-####
+## TODO: Use the following two functions to compute phase elsewhere as well.
 
-#weight(v::AbstractArray{<:AbstractPauli}) = count(pauli -> op_index(pauli) !== 0, v)
+function accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractPauli}
+    phase_info = phase(op1, op2)
+    new_phase_data = (old_phase_data[1] + phase_info[1], old_phase_data[2] + phase_info[2])
+    return new_phase_data
+end
+
+function compute_phase(::Type{<:AbstractPauli}, phase_data)
+    (n_sign_flips, n_imag_units) = phase_data
+    _sign = iseven(n_sign_flips) ? 1 : -1
+    n = n_imag_units % 4
+    if n == 0
+        cim = complex(1)
+    elseif n == 1
+        cim = complex(im)
+    elseif n == 2
+        cim = complex(-im)
+    else
+        cim = complex(-1)
+    end
+    return _sign * cim
+end
 
 ####
 #### Interface for subtypes
