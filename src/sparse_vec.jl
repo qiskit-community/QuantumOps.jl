@@ -94,3 +94,35 @@ function Base.show(io::IO, ::MIME"text/plain", x::AbstractSparseVec)
         show(IOContext(io, :typeinfo => eltype(x)), x)
     end
 end
+
+show(io::IO, x::AbstractSparseVec) = show(convert(IOContext, io), x)
+function show(io::IOContext, x::AbstractSparseVec)
+    # TODO: make this a one-line form
+    n = length(x)
+    nzind = inds(x)
+    nzval = vals(x)
+    if isempty(nzind)
+        return show(io, MIME("text/plain"), x)
+    end
+    limit = get(io, :limit, false)::Bool
+    half_screen_rows = limit ? div(displaysize(io)[1] - 8, 2) : typemax(Int)
+    pad = ndigits(n)
+    if !haskey(io, :compact)
+        io = IOContext(io, :compact => true)
+    end
+    for k = eachindex(nzind)
+        if k < half_screen_rows || k > length(nzind) - half_screen_rows
+            print(io, "  ", '[', rpad(nzind[k], pad), "]  =  ")
+            if isassigned(nzval, Int(k))
+                show(io, nzval[k])
+            else
+                print(io, Base.undef_ref_str)
+            end
+            k != length(nzind) && println(io)
+        elseif k == half_screen_rows
+            println(io, "   ", " "^pad, "   \u22ee")
+        end
+    end
+end
+
+
