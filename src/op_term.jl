@@ -45,8 +45,6 @@ rand_op_term(::Type{OpT}, n::Integer; coeff=_DEFAULT_COEFF) where {OpT <: Abstra
 #### OpSum
 ####
 
-#abstract type AbstractSumA{OpT, StringT, CoeffT} end
-
 struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSum{OpT, StringT, CoeffT}
     strings::StringT
     coeffs::CoeffT
@@ -55,11 +53,6 @@ struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSum{OpT, StringT, Coef
         _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
         return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
-
-    # function OpSum{OpT}(strings, coeffs; already_sorted=false) where {OpT}
-    #     _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
-    #     return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
-    # end
 end
 
 strip_typeof(::OpSum{W, T, CoeffT}) where {W, T, CoeffT} = OpSum{W}

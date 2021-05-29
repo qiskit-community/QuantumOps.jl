@@ -21,6 +21,9 @@ export op_string
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
 
+export SparseVec
+export neutral, isneutral
+
 export isunitary
 export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum, rand_fermi_term, rand_op_term, rand_op_sum
 export op_index, phase, weight, pauli_vector
@@ -98,5 +101,7 @@ include("jordan_wigner.jl")
 
 include("ind_op.jl")
 include("ind_op_fermi.jl")
+
+include("sparse_vec.jl")
 
 end # module
