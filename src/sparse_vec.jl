@@ -1,9 +1,21 @@
+module SparseVecs
+
+export SparseVec, neutral, isneutral, neutrals
+
+
 @inline neutral(x) = zero(x)
 @inline isneutral(x) = iszero(x)
+neutrals(::Type{T}, args...) where T = zeros(T, args...)
 
-@inline neutral(T::Type{<:AbstractOp}) = one(T)
-@inline neutral(x::AbstractOp) = one(x)
-@inline isneutral(x::AbstractOp) = isone(x)
+"""
+    neutrals(T, args...)
+
+Return an `Array` of neutral elements for type `T`. `args` are the same
+as for `zeros` and `ones`.
+
+`neutrals` is typically a wrapper for `zeros` or `ones`.
+"""
+neutrals(args...) = zeros(args...)
 
 abstract type AbstractSparseVec{Tv, Ti} <:AbstractArray{Tv, 1} end
 
@@ -15,12 +27,13 @@ struct SparseVec{Tv,Ti<:Integer} <: AbstractSparseVec{Tv, Ti}
     function SparseVec{Tv,Ti}(n::Integer, ind::Vector{Ti}, val::Vector{Tv}) where {Tv,Ti<:Integer}
         n >= 0 || throw(ArgumentError("The number of elements must be non-negative."))
         length(ind) == length(val) ||
-            throw(ArgumentError("index and value vectors must be the same length"))
+            throw(ArgumentError("Index and value vectors must be the same length."))
         new(convert(Int, n), ind, val)
     end
 end
 
-nvals(sp::AbstractSparseVec) = sp.n  # like nnz
+#nvals(sp::AbstractSparseVec) = sp.n  # like nnz
+nvals(sp::AbstractSparseVec) = length(vals(sp))  # like nnz
 inds(sp::AbstractSparseVec) = sp.ind  # like nonzeroinds
 vals(sp::AbstractSparseVec) = sp.val  # like nonzerovals
 #Base.length(sp::AbstractSparseVec) = sp.n
@@ -95,8 +108,8 @@ function Base.show(io::IO, ::MIME"text/plain", x::AbstractSparseVec)
     end
 end
 
-show(io::IO, x::AbstractSparseVec) = show(convert(IOContext, io), x)
-function show(io::IOContext, x::AbstractSparseVec)
+Base.show(io::IO, x::AbstractSparseVec) = show(convert(IOContext, io), x)
+function Base.show(io::IOContext, x::AbstractSparseVec)
     # TODO: make this a one-line form
     n = length(x)
     nzind = inds(x)
@@ -125,4 +138,20 @@ function show(io::IOContext, x::AbstractSparseVec)
     end
 end
 
+function Vector(x::AbstractSparseVec{Tv}) where Tv
+    Base.require_one_based_indexing(x)
+    n = length(x)
+    n == 0 && return Vector{Tv}()
+    nzind = inds(x)
+    nzval = vals(x)
+    r = neutrals(Tv, n)
+    for k in 1:nvals(x)
+        i = nzind[k]
+        v = nzval[k]
+        r[i] = v
+    end
+    return r
+end
+Array(x::AbstractSparseVec) = Vector(x)
 
+end # module SparseVecs

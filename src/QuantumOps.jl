@@ -9,6 +9,10 @@ using StaticArrays
 import ThreadsX
 #import FLoops
 import ILog2
+
+import SparseArraysN
+import SparseArraysN: neutral, isneutral, neutrals
+
 import SparseArrays
 
 import ElectronicStructure
@@ -59,6 +63,9 @@ function __init__()
     end
 end
 
+# include("sparse_vec.jl")
+# using .SparseVecs
+
 include("util.jl")
 include("z4group.jl")
 
@@ -101,7 +108,5 @@ include("jordan_wigner.jl")
 
 include("ind_op.jl")
 include("ind_op_fermi.jl")
-
-include("sparse_vec.jl")
 
 end # module
