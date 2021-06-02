@@ -173,7 +173,8 @@ function mul!(target::AbstractArray{<:AbstractPauli}, ps1::APauliTerm, ps2::APau
     return strip_typeof(ps1)(s_new, ps1.coeff * ps2.coeff * phase)
 end
 
-function Base.:*(ps1::APauliTerm, ps2::APauliTerm)
+const DensePauliTerm = PauliTerm{<:Vector}
+function Base.:*(ps1::DensePauliTerm, ps2::DensePauliTerm)
     return mul!(similar(op_string(ps1)), ps1, ps2)
 end
 

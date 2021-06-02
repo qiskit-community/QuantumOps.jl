@@ -123,7 +123,9 @@ end
 #### Algebra / mathematical operations
 ####
 
-function Base.:*(ft1::AFermiTerm, ft2::AFermiTerm)
+const DenseFermiTerm = FermiTerm{<:Vector}
+function Base.:*(ft1::DenseFermiTerm, ft2::DenseFermiTerm)
+#function Base.:*(ft1::AFermiTerm, ft2::AFermiTerm)
     if length(ft1) != length(ft2)
         throw(DimensionMismatch())
     end

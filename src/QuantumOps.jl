@@ -12,6 +12,7 @@ import ILog2
 
 import SparseArraysN
 import SparseArraysN: neutral, isneutral, neutrals
+export neutral, isneutral
 
 #import SparseArrays
 const SparseArrays = SparseArraysN
@@ -26,8 +27,8 @@ export op_string
 export count_bodies, jordan_wigner, jordan_wigner_fermi
 export Z4Group0, Z4Group, AbstractZ4Group
 
-export SparseVec
-export neutral, isneutral
+#export SparseVec
+
 
 export isunitary
 export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum, rand_fermi_term, rand_op_term, rand_op_sum
