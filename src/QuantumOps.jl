@@ -13,7 +13,8 @@ import ILog2
 import SparseArraysN
 import SparseArraysN: neutral, isneutral, neutrals
 
-import SparseArrays
+#import SparseArrays
+const SparseArrays = SparseArraysN
 
 import ElectronicStructure
 
@@ -108,5 +109,7 @@ include("jordan_wigner.jl")
 
 include("ind_op.jl")
 include("ind_op_fermi.jl")
+
+include("sparse.jl")
 
 end # module

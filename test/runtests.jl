@@ -1,6 +1,7 @@
 using QuantumOps
 using Test
-import SparseArrays
+import SparseArraysN
+const SparseArrays = SparseArraysN
 using QuantumOps: Paulis, FermiOps
 
 include("./test_jordan_wigner.jl")
