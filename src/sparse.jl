@@ -30,10 +30,7 @@ function mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T
             ## Only here do we multiply non-trivial factors
             new_op = val1 * val2
             if iszero(new_op)  # if any factor vanishes, the term vanishes.
-                empty!(inds)
-                empty!(vals)
-                return (SparseArraysN.SparseVector(0, inds, vals), 0)
-#                return (empty(v1), 0)
+                return (SparseArraysN.SparseVector(0, empty!(inds), empty!(vals)), 0)
             end
             i1 += 1
             i2 += 1
@@ -60,7 +57,6 @@ function mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T
     return (SparseArraysN.SparseVector(inds[end], inds, vals), compute_phase(T, phase_data))
 end
 
-#Base.show(t::OpTerm{T, <:SparseArraysN.SparseVector}) = show(stdout, t)
 function Base.show(io::IO, term::OpTerm{T, <:SparseArraysN.SparseVector}) where {T}
     ops = term.ops
     xnnz = length(ops.nzind)
