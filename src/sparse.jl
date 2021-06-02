@@ -1,8 +1,19 @@
+SparseArraysN.neutral(T::Type{<:AbstractOp}) = one(T)
+SparseArraysN.neutral(x::AbstractOp) = one(x)
+SparseArraysN.isneutral(x::AbstractOp) = isone(x)
+SparseArraysN.neutrals(T::Type{<:AbstractOp}, args...) = ones(T, args...)
+
 function Base.:*(t1::OpTerm{T, V}, t2::OpTerm{T, V}) where {T<:AbstractOp, V<:SparseArraysN.SparseVector{T}}
     (t_out, phase) = mul(t1.ops, t2.ops)
     return OpTerm(t_out, phase * t1.coeff * t2.coeff)
 end
 
+"""
+    mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T}) where {T <: AbstractOp}
+
+Multiply `v1` and `v2`, factorwise, returning a tuple of a `SparseVector` and the phase accumulated
+from each multiplication.
+"""
 function mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T}) where {T <: AbstractOp}
     vals = T[]
     inds = empty(v1.nzind)

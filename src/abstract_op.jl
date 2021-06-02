@@ -5,11 +5,6 @@ abstract type AbstractOp end
 function op_index end
 function op_symbols end
 
-SparseArraysN.neutral(T::Type{<:AbstractOp}) = one(T)
-SparseArraysN.neutral(x::AbstractOp) = one(x)
-SparseArraysN.isneutral(x::AbstractOp) = isone(x)
-SparseArraysN.neutrals(T::Type{<:AbstractOp}, args...) = ones(T, args...)
-
 function _AbstractOp(::Type{T}, ind::V) where {T, V}
     syms = op_symbols(T, V)
     j = 0
