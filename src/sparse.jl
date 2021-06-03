@@ -91,25 +91,32 @@ function Base.show(io::IO, term::OpTerm{T, <:SparseArraysN.SparseVector}) where 
 end
 
 ## TODO: should we remove this? I think the remaining method would then return a copy
-sparse_term(term::OpTerm{T, V}) where {T<:AbstractOp, V<:SparseArraysN.SparseVector{T}} =
+sparse_op(term::OpTerm{T, V}) where {T<:AbstractOp, V<:SparseArraysN.SparseVector{T}} =
     term
 
 """
-    sparse_term(term::OpTerm)
+    sparse_op(term::OpTerm)
 
 Convert `term` to a sparse representation. Note that `sparse` instead may convert `term` to
 a sparse matrix.
 """
-function sparse_term(term::OpTerm)
+function sparse_op(term::OpTerm)
     return OpTerm(SparseArraysN.sparse(term.ops), term.coeff)
 end
 
-## TODO: these should perhaps be dense_op, etc.
 """
-    dense_term(term::OpTerm)
+    dense_op(term::OpTerm)
 
 Convert `term` to a dense representation.
 """
-function dense_term(term::OpTerm)
+function dense_op(term::OpTerm)
     return OpTerm(Vector(term.ops), term.coeff)
+end
+
+function sparse_op(_sum::OpSum)
+    sum_out = OpSum([sparse_op(first(_sum))]; already_sorted=true)
+    for i in 2:length(_sum)
+        push!(sum_out, sparse_op(_sum[i]))
+    end
+    return sum_out
 end

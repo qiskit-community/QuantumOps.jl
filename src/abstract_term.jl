@@ -47,7 +47,7 @@ end
 
 # :popat!
 for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
-             :setindex!, :iterate, :pop!, :popfirst!)
+             :setindex!, :iterate, :pop!, :popfirst!, :lastindex, :firstindex, :first, :last)
     @eval begin
         Base.$func(ps::AbstractTerm, args...) = $func(op_string(ps), args...)
     end

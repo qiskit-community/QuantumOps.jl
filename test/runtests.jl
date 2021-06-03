@@ -4,6 +4,7 @@ import SparseArraysN
 const SparseArrays = SparseArraysN
 using QuantumOps: Paulis, FermiOps
 
+include("./test_sparse.jl")
 include("./test_jordan_wigner.jl")
 include("./test_ind_op.jl")
 include("./test_op_term_sum.jl")
