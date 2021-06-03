@@ -53,7 +53,7 @@ function mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T
             push!(vals, new_op)
         end
     end
-    ## Include remaining factors from the longer string
+    ## Include remaining factors from the longer string.
     if i1 <= weight(v1)
         for i in i1:weight(v1)
             push!(inds, v1.nzind[i])
@@ -88,4 +88,28 @@ function Base.show(io::IO, term::OpTerm{T, <:SparseArraysN.SparseVector}) where 
             print(io, "(", term.coeff, ")")
         end
     end
+end
+
+## TODO: should we remove this? I think the remaining method would then return a copy
+sparse_term(term::OpTerm{T, V}) where {T<:AbstractOp, V<:SparseArraysN.SparseVector{T}} =
+    term
+
+"""
+    sparse_term(term::OpTerm)
+
+Convert `term` to a sparse representation. Note that `sparse` instead may convert `term` to
+a sparse matrix.
+"""
+function sparse_term(term::OpTerm)
+    return OpTerm(SparseArraysN.sparse(term.ops), term.coeff)
+end
+
+## TODO: these should perhaps be dense_op, etc.
+"""
+    dense_term(term::OpTerm)
+
+Convert `term` to a dense representation.
+"""
+function dense_term(term::OpTerm)
+    return OpTerm(Vector(term.ops), term.coeff)
 end
