@@ -68,24 +68,41 @@ function mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T
     return (SparseArraysN.SparseVector(inds[end], inds, vals), compute_phase(T, phase_data))
 end
 
+function _show_sparse_term(io, term)
+    ops = term.ops
+    xnnz = length(ops.nzind)
+    for i in 1:length(ops.nzind)
+        print(io, ops.nzval[i], ops.nzind[i])
+        if i < length(ops.nzind)
+            print(io, " ")
+        end
+    end
+    if xnnz != 0
+        print(io, " * ")
+    end
+    if term.coeff isa Real
+        print(io, term.coeff)
+    else
+        print(io, "(", term.coeff, ")")
+    end
+end
+
 function Base.show(io::IO, term::OpTerm{T, <:SparseArraysN.SparseVector}) where {T}
     ops = term.ops
     xnnz = length(ops.nzind)
     print(io, length(term), "-element ", typeof(term), " with ", xnnz,
           " stored ", xnnz == 1 ? "entry" : "entries")
-    if xnnz != 0
-        print(io, ":\n")
-        for i in 1:length(ops.nzind)
-            print(io, ops.nzval[i], ops.nzind[i])
-            if i < length(ops.nzind)
-                print(io, " ")
-            end
-        end
-        print(io, " * ")
-        if term.coeff isa Real
-            print(io, term.coeff)
-        else
-            print(io, "(", term.coeff, ")")
+    print(io, ":\n")
+    _show_sparse_term(io, term)
+end
+
+function Base.show(io::IO, opsum::OpSum{T, V}) where {T<:AbstractOp, V <: Vector{<:SparseArraysN.SparseVector}}
+    (m, n) = size(opsum)
+    print(io, m, "x", n, " ", typeof(opsum), ":\n")
+    for i in eachindex(opsum)
+        _show_sparse_term(io, opsum[i])
+        if i != lastindex(opsum)
+            print(io, "\n")
         end
     end
 end
