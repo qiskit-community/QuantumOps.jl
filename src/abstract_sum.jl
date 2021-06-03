@@ -47,8 +47,10 @@ end
 ####
 
 function Base.show(io::IO, asum::AbstractSum)
+    (m, n) = size(asum)
+    print(io, m, "x", n, " ", typeof(asum), ":\n")
     for i in eachindex(asum)
-        show(io, asum[i])
+        _show_abstract_term(io, asum[i])
         if i != lastindex(asum)
             print(io, "\n")
         end

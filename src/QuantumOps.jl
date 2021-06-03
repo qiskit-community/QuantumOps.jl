@@ -86,6 +86,8 @@ using .Paulis
 include("pauli_i.jl")
 using .PaulisI
 
+const PauliDefault = Pauli
+
 include("abstract_term.jl")
 include("abstract_sum.jl")
 include("op_term.jl")
@@ -107,6 +109,8 @@ include("op_term_fermi.jl")
 include("op_term_pauli.jl")
 
 include("jordan_wigner.jl")
+
+using .JordanWigner
 
 include("ind_op.jl")
 include("ind_op_fermi.jl")

@@ -39,4 +39,5 @@ import JLD2
 
     @test jordan_wigner(h2_hamiltonian) == jw_h2_hamiltonian
 
+    @test jordan_wigner(h2_hamiltonian, Pauli) == jordan_wigner(h2_hamiltonian, PauliI)
 end

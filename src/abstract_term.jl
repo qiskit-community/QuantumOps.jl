@@ -2,8 +2,7 @@ abstract type AbstractTerm{W, CoeffT} end
 
 Base.copy(pt::AbstractTerm) = typeof(pt)(copy(op_string(pt)), copy(pt.coeff))
 
-## type params only to get correct dispatch. There must be a better way
-function Base.show(io::IO, term::AbstractTerm) # where { T, V, CoeffT, AbstractTerm{T,V,CoeffT}}
+function _show_abstract_term(io::IO, term::AbstractTerm)
     print(io, op_string(term))
     print(io, " * ")
     if term.coeff isa Real  # could use CoeffT here.
@@ -11,6 +10,12 @@ function Base.show(io::IO, term::AbstractTerm) # where { T, V, CoeffT, AbstractT
     else
         print(io, "(", term.coeff, ")")
     end
+end
+
+function Base.show(io::IO, term::AbstractTerm)
+    m = length(term)
+    print(io, m, "-factor", " ", typeof(term), ":\n")
+    _show_abstract_term(io, term)
 end
 
 function Base.show(io::IO, ps::AbstractTerm{T,Z4Group}) where {T}

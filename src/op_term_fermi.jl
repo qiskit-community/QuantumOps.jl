@@ -123,7 +123,8 @@ end
 #### Algebra / mathematical operations
 ####
 
-const DenseFermiTerm = FermiTerm{<:Vector}
+#const DenseFermiTerm = FermiTerm{<:Vector}
+const DenseFermiTerm = OpTerm{<:AbstractFermiOp, <:Vector}
 function Base.:*(ft1::DenseFermiTerm, ft2::DenseFermiTerm)
 #function Base.:*(ft1::AFermiTerm, ft2::AFermiTerm)
     if length(ft1) != length(ft2)

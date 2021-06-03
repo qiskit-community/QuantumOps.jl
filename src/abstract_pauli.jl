@@ -1,5 +1,8 @@
 #abstract type AbstractPauli{T} <: AbstractMatrix{T} end
+
 abstract type AbstractPauli{T} <: AbstractOp end
+
+const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
 
 ####
 #### Constructors
