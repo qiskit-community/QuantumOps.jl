@@ -92,8 +92,16 @@ function numeric_function(pt::OpTerm{<:AbstractPauli}, f)
     c = pt.coeff
     fe = (f(c) + f(-c)) / 2  # Even term
     fo = (f(c) - f(-c)) / 2  # Odd term
-    strings = [op_string(one(pt)), copy(op_string(pt))]
-    coeffs = [fe, fo]
+    if isapprox_zero(fe)
+        strings = [copy(op_string(pt))]
+        coeffs = [fo]
+    elseif isapprox_zero(fo)
+        strings = [op_string(one(pt))]
+        coeffs = [fe]
+    else
+        strings = [op_string(one(pt)), copy(op_string(pt))]
+        coeffs = [fe, fo]
+    end
     # sorting would take 30x longer
     return OpSum(strings, coeffs; already_sorted=true)
 end

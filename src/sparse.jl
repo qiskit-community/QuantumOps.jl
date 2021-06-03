@@ -1,3 +1,7 @@
+####
+#### OpTerm and OpSum backed by SparseVector
+####
+
 SparseArraysN.neutral(T::Type{<:AbstractOp}) = one(T)
 SparseArraysN.neutral(x::AbstractOp) = one(x)
 SparseArraysN.isneutral(x::AbstractOp) = isone(x)
@@ -112,9 +116,10 @@ sparse_op(term::OpTerm{T, V}) where {T<:AbstractOp, V<:SparseArraysN.SparseVecto
     term
 
 """
-    sparse_op(term::OpTerm)
+    sparse_op(x::OpTerm)
+    sparse_op(x::OpSum)
 
-Convert `term` to a sparse representation. Note that `sparse` instead may convert `term` to
+Convert `x` to a sparse representation. Note that `sparse` instead may convert `x` to
 a sparse matrix.
 """
 function sparse_op(term::OpTerm)
@@ -123,17 +128,20 @@ end
 
 """
     dense_op(term::OpTerm)
+    dense_op(_sum::OpSum)
 
-Convert `term` to a dense representation.
+Convert `term` or `_sum` to a dense representation.
 """
 function dense_op(term::OpTerm)
     return OpTerm(Vector(term.ops), term.coeff)
 end
 
-function sparse_op(_sum::OpSum)
-    sum_out = OpSum([sparse_op(first(_sum))]; already_sorted=true)
+function sparse_op(_sum::OpSum, convert=sparse_op)
+    sum_out = OpSum([convert(first(_sum))]; already_sorted=true)
     for i in 2:length(_sum)
-        push!(sum_out, sparse_op(_sum[i]))
+        push!(sum_out, convert(_sum[i]))
     end
     return sum_out
 end
+
+dense_op(_sum::OpSum) = sparse_op(_sum, dense_op)
