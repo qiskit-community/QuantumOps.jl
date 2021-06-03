@@ -1,3 +1,7 @@
+### This is deprecated. I mean it is probably not useful
+### This is an attempt at a sparse representation of operator terms.
+### Instead we support using `SparseVector` as the vector in `OpTerm`.
+
 struct IndOp{OpT} <: AbstractOp
     op::OpT
     ind::Int
