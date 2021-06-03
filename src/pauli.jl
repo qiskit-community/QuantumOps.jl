@@ -1,8 +1,11 @@
 module Paulis
 
-import ..AbstractPauli
-import .._AbstractPauli
-import ..op_index
+import ..AbstractOps: op_index
+#import .AbstractPaulis
+using ..AbstractPaulis: AbstractPauli, _AbstractPauli
+#import ..AbstractPauli
+# import .._AbstractPauli
+#import ..op_index
 
 export Pauli
 

@@ -52,7 +52,7 @@ function mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T
             if isone(new_op)  # Identity is not stored in sparse representation
                 continue
             end
-            phase_data = accumulate_phase(phase_data, val1, val2)
+            phase_data = AbstractOps.accumulate_phase(phase_data, val1, val2)
             push!(inds, ind1)
             push!(vals, new_op)
         end
@@ -69,7 +69,7 @@ function mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T
             push!(vals, v2.nzval[i])
         end
     end
-    return (SparseArraysN.SparseVector(inds[end], inds, vals), compute_phase(T, phase_data))
+    return (SparseArraysN.SparseVector(inds[end], inds, vals), AbstractOps.compute_phase(T, phase_data))
 end
 
 function _show_sparse_term(io, term)

@@ -137,7 +137,7 @@ function Base.:*(t1::OpTerm{T}, t2::OpTerm{T}) where {OpT, T <: IndOp{OpT}}
             push!(ops, t2[i])
         end
     end
-    return OpTerm(ops, t1.coeff * t2.coeff * compute_phase(OpT, phase_data))
+    return OpTerm(ops, t1.coeff * t2.coeff * AbstractOps.compute_phase(OpT, phase_data))
 end
 
 function test_mult(n)

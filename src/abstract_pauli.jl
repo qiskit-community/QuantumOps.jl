@@ -1,5 +1,17 @@
 #abstract type AbstractPauli{T} <: AbstractMatrix{T} end
 
+module AbstractPaulis
+
+using ..AbstractOps
+import Random
+import SparseArraysN
+const SparseArrays = SparseArraysN
+using StaticArrays
+import LinearAlgebra
+import IsApprox
+
+export AbstractPauli
+
 abstract type AbstractPauli{T} <: AbstractOp end
 
 const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
@@ -285,13 +297,13 @@ Base.iszero(::AbstractPauli) = false
 
 ## TODO: Use the following two functions to compute phase elsewhere as well.
 
-function accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractPauli}
+function AbstractOps.accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractPauli}
     phase_info = phase(op1, op2)
     new_phase_data = (old_phase_data[1] + phase_info[1], old_phase_data[2] + phase_info[2])
     return new_phase_data
 end
 
-function compute_phase(::Type{<:AbstractPauli}, phase_data)
+function AbstractOps.compute_phase(::Type{<:AbstractPauli}, phase_data)
     (n_sign_flips, n_imag_units) = phase_data
     _sign = iseven(n_sign_flips) ? 1 : -1
     n = n_imag_units % 4
@@ -325,13 +337,6 @@ function Base.:*(p1::AbstractPauli, p2::AbstractPauli)
 end
 
 """
-    op_index(p::AbstractPauli)::Int
-
-Return the Pauli index in `[0,3]` of `p`.
-"""
-function op_index end
-
-"""
     abstract type AbstractPauli
 
 Represents single-qubit Pauli matrices and their algebra.
@@ -350,3 +355,5 @@ or the `AbstractString`s `"I", "X", "Y", "Z"` or the `AbstractChar`s `'I', 'X', 
 In general creating `AbstractPauli`s with `String`s is slower than with the other types.
 """
 function AbstractPauli end
+
+end # module AbstractPaulis

@@ -1,3 +1,6 @@
+import ..AbstractPaulis
+import ..AbstractPaulis: AbstractPauli
+
 const PauliSum = OpSum{Pauli}
 const PauliTerm = OpTerm{Pauli}
 #const APauliTerm = OpTerm{T} where {T <: AbstractPauli}
@@ -57,7 +60,7 @@ function pauli_sum_from_matrix_threaded(::Type{PauliT}, matrix::AbstractMatrix{<
 end
 
 function OpTerm{T}(index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) where T <: AbstractPauli
-    return OpTerm(pauli_vector(T, index, n_paulis), coeff)
+    return OpTerm(AbstractPaulis.pauli_vector(T, index, n_paulis), coeff)
 end
 
 ####
@@ -177,7 +180,7 @@ LinearAlgebra.ishermitian(pt::APauliTerm) = isreal(pt.coeff)
 ####
 
 function mul!(target::AbstractArray{<:AbstractPauli}, ps1::APauliTerm, ps2::APauliTerm)
-    s_new, phase = multiply_keeping_phase!(target, op_string(ps1), op_string(ps2))
+    s_new, phase = AbstractPaulis.multiply_keeping_phase!(target, op_string(ps1), op_string(ps2))
     return strip_typeof(ps1)(s_new, ps1.coeff * ps2.coeff * phase)
 end
 

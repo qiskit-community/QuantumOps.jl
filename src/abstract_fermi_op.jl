@@ -1,5 +1,7 @@
 import Random
 
+using ..AbstractOps
+
 abstract type AbstractFermiOp <: AbstractOp end
 
 function Random.rand(rng::Random.AbstractRNG,
@@ -14,5 +16,5 @@ function Base.show(io::IO, ps::AbstractArray{<:AbstractFermiOp})
 end
 
 ## We do not need to track phase for FermiOps (for the set of Fermi ops that we support)
-accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractFermiOp} = old_phase_data
-compute_phase(::Type{<:AbstractFermiOp}, _) = 1
+AbstractOps.accumulate_phase(old_phase_data, op1::T, op2::T) where {T <: AbstractFermiOp} = old_phase_data
+AbstractOps.compute_phase(::Type{<:AbstractFermiOp}, _) = 1

@@ -1,10 +1,11 @@
 module JordanWigner
 
+using ..AbstractOps
+using ..AbstractPaulis: Iop, Xop, Yop, Zop
 import ..Paulis, ..FermiTerm, ..FermiSum
 using ..FermiOps
 import ..PauliDefault
 import ..OpSum, ..sort_and_sum_duplicates!
-import ..Iop, ..Xop, ..Yop, ..Zop
 
 export jordan_wigner, jordan_wigner_fermi
 

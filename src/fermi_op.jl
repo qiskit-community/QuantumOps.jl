@@ -10,7 +10,10 @@ import LinearAlgebra
 export FermiOp, FermiDefault
 export I_op, number_op, empty_op, raise_op, lower_op, zero_op, count_raise_lower
 
-import .._AbstractOp, ..op_symbols, ..AbstractOp, ..AbstractFermiOp
+import ..AbstractOps: _AbstractOp, op_symbols, AbstractOp
+import ..AbstractFermiOp
+
+#import .._AbstractOp, ..op_symbols, ..AbstractOp, ..AbstractFermiOp
 
 struct FermiOp <: AbstractFermiOp
     ind::Int  # Int is often faster than UInt8

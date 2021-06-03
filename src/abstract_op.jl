@@ -1,8 +1,21 @@
 #import .SparseVecs
 
+module AbstractOps
+
+export AbstractOp
+export weight, op_index, op_symbols
+
+# export Iop, Xop, Yop, Zop
+
 abstract type AbstractOp end
 
+"""
+    op_index(op::AbstractOp)::Int
+
+Return the `Int` index corresponding to `op`.
+"""
 function op_index end
+
 function op_symbols end
 
 function _AbstractOp(::Type{T}, ind::V) where {T, V}
@@ -34,3 +47,15 @@ Vector{T}(opstring::AbstractString) where {T <: AbstractOp} = [T(s) for s in ops
 Count the number of Paulis in the string that are not the identity.
 """
 weight(v::AbstractArray{<:AbstractOp}) = count(op -> !isone(op), v)
+
+"""
+    docstring
+"""
+function accumulate_phase end
+
+"""
+    docstring
+"""
+function compute_phase end
+
+end # module AbstractOps

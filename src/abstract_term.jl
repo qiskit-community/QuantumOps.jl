@@ -1,3 +1,5 @@
+import ..AbstractOps: AbstractOp, weight
+
 abstract type AbstractTerm{W, CoeffT} end
 
 Base.copy(pt::AbstractTerm) = typeof(pt)(copy(op_string(pt)), copy(pt.coeff))

@@ -78,6 +78,9 @@ include("z4group0.jl")
 using .Z4Group0s
 
 include("abstract_op.jl")
+
+using .AbstractOps
+
 include("abstract_pauli.jl")
 
 include("pauli.jl")
