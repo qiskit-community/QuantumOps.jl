@@ -1,4 +1,13 @@
 ## Jordan-Wigner helper
+
+## TODO: This could take <:AbstractPauli
+"""
+    fill_pauli(pad, op_ind, fill_op, end_op)
+
+Return a `Vector{Pauli}` of length `pad` with indices `1:op_ind-1`
+filled with `fill_op` and index `op_ind` set to `end_op` and the
+remaining indices filled with `one(Pauli)`
+"""
 function fill_pauli(pad, op_ind, fill_op, end_op)
     str = Vector{Paulis.Pauli}(undef, pad)
     if pad <  op_ind
