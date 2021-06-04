@@ -10,10 +10,8 @@ import LinearAlgebra
 export FermiOp, FermiDefault
 export I_op, number_op, empty_op, raise_op, lower_op, zero_op, count_raise_lower
 
-import ..AbstractOps: _AbstractOp, op_symbols, AbstractOp
+import ..AbstractOps: _AbstractOp, op_symbols, AbstractOp, _show_op_plain
 import ..AbstractFermiOp
-
-#import .._AbstractOp, ..op_symbols, ..AbstractOp, ..AbstractFermiOp
 
 struct FermiOp <: AbstractFermiOp
     ind::Int  # Int is often faster than UInt8
@@ -51,12 +49,17 @@ op_symbols(::Type{<:AbstractFermiOp}, ::Type{Symbol}) = _fermi_symbol_chars
 
 FermiOp(s::Union{AbstractChar, AbstractString, Symbol}) = _AbstractOp(FermiOp, s)
 
-function Base.show(io::IO, op::FermiOp)
+function _show_op_plain(io::IO, op::FermiOp)
     i = op_index(op) + 1
     if i < 1 || i > 8
         i = 8  # uninitialized data is coerced to 8 which means no_op
     end
     print(io, _fermi_chars[i])
+end
+
+function Base.show(io::IO, op::FermiOp)
+    print(io, typeof(op), ": ")
+    _show_op_plain(io, op)
 end
 
 """

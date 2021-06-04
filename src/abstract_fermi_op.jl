@@ -1,8 +1,11 @@
 import Random
 
 using ..AbstractOps
+using ..AbstractOps: _show_op_plain
 
 abstract type AbstractFermiOp <: AbstractOp end
+
+#function _show_fermi_op end
 
 function Random.rand(rng::Random.AbstractRNG,
                      ::Random.SamplerType{FermiOpT}) where {FermiOpT <: AbstractFermiOp}
@@ -11,7 +14,7 @@ end
 
 function Base.show(io::IO, ps::AbstractArray{<:AbstractFermiOp})
     for p in ps
-        show(io, p)
+        _show_op_plain(io, p)
     end
 end
 

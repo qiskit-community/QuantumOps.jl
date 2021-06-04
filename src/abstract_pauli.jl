@@ -3,6 +3,7 @@
 module AbstractPaulis
 
 using ..AbstractOps
+import ..AbstractOps: _show_op_plain
 import Random
 import SparseArraysN
 const SparseArrays = SparseArraysN
@@ -106,21 +107,16 @@ op_chars(::Type{AbstractPauli}) = _pauli_chars
 ## and is not > 4, nor < 1
 ## So, we enumerate the values of valid indices.
 function Base.show(io::IO, p::AbstractPauli)
+    print(io, typeof(p), ": ")
+    _show_op_plain(io, p)
+end
+
+function _show_op_plain(io::IO, p::AbstractPauli)
     i::Int = op_index(p) + 1
-#    println("index ", i)
-#    if (i < 1 || i > 4)
     if i != 1 && i != 2 && i != 3 && i != 4
-#        println("greater ", i)
         char = '0'
     else
-        # println("index ** ", i)
-        # println("greater ? ", i > 4)
-        # println("float ", float(i))
-        # if i > 4
-        #     char = '0'
-        # else
         char = _pauli_chars[i]
-#        end
     end
     print(io, char)
 end
@@ -133,7 +129,7 @@ Base.display(p::AbstractPauli) = show(stdout, p)
 ## We may want to define `display` as well.
 function Base.show(io::IO, ps::AbstractArray{<:AbstractPauli})
     for p in ps
-        show(io, p)
+        _show_op_plain(io, p)
     end
 end
 

@@ -76,7 +76,8 @@ function _show_sparse_term(io, term)
     ops = term.ops
     xnnz = length(ops.nzind)
     for i in 1:length(ops.nzind)
-        print(io, ops.nzval[i], ops.nzind[i])
+        _show_op_plain(io, ops.nzval[i])
+        print(io, ops.nzind[i])
         if i < length(ops.nzind)
             print(io, " ")
         end

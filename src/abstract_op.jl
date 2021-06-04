@@ -58,4 +58,6 @@ function accumulate_phase end
 """
 function compute_phase end
 
+function _show_op_plain end
+
 end # module AbstractOps
