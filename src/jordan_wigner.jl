@@ -94,6 +94,16 @@ function jordan_wigner(term::FermiTerm, ::Type{PauliT}=PauliDefault) where Pauli
     return term.coeff * reduce(*, facs) # TODO: performance
 end
 
+"""
+    jordan_wigner(fsum::FermiSum, ::Type{PauliT}=PauliDefault) where PauliT
+
+Using the Jordan-Wigner transform, convert the electronic Hamiltonian `fsum` to a qubit operator
+of type `OpSum{PauliT}`.
+
+    jordan_wigner(term::FermiTerm, ::Type{PauliT}=PauliDefault) where PauliT
+
+Convert `term` to a qubit operator of type `OpSum{PauliT}`.
+"""
 function jordan_wigner(fsum::FermiSum, ::Type{PauliT}=PauliDefault) where PauliT
     psum = jordan_wigner(fsum[1], PauliT) # could use already sorted flag
     for i in 2:length(fsum)
