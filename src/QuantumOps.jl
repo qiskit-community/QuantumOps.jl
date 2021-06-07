@@ -1,3 +1,11 @@
+"""
+    QuantumOps
+
+`QuantumOps` provides types and functions that represent quantum operators.
+Currently fermionic and Pauli operators are supported. They are organized
+in three levels: single particle/mode operators; multi-particle terms with a coefficient;
+sums of multi-particle terms.
+"""
 module QuantumOps
 
 import Requires
@@ -36,8 +44,10 @@ export op_index, phase, weight, pauli_vector
 export add!, lmul!, numeric_function
 export z4group0
 export z4group
+export kron_alt
 
 export ⊗
+
 const ⊗ = kron
 
 """

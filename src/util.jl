@@ -1,27 +1,29 @@
 """
-    _kron(mats...)
+    kron_alt(mats...)
 
 Same as `kron`, but, at least for Pauli matrices, it is faster by up to a factor of
-two. Also, `kron(one_matrix)` returns `one_matrix` rather than throwing an error.
+two. Also, `kron_alt(one_matrix)` returns `one_matrix` rather than throwing an error.
 """
-function _kron(mats...)
+function kron_alt(mats...)
     if length(mats) == 1
         return only(mats)
     end
     if length(mats) < 6
         return kron(mats...)
     else
-        return mykron(mats...)
+        return _kron(mats...)
     end
 end
 
 """
-    mykron(mats...)
+    _kron(mats...)
 
 This is at most 2x faster than `kron`. It is often slower, especially for n < 5 matrices.
+`_kron` is called by `kron_alt` when the number of matrices in `mats` is greater than
+six.
 """
-function mykron(mats...)
-    isempty(mats) && error("mykron requires at least one argument")
+function _kron(mats...)
+    isempty(mats) && error("_kron requires at least one argument")
     n = length(mats)
     if n == 1
         return only(mats)
@@ -36,12 +38,13 @@ function mykron(mats...)
     if ! iseven(n)
         krons[half_n] = kron(krons[half_n], last(mats))
     end
-    return mykron(krons...)
+    return _kron(krons...)
 end
 
 """
     isapprox_zero(x::Number)
 
+Return `true` if `x` is approximately zero.
 This function exists because we define methods for special cases, such as symbolic
 libraries.
 """
@@ -54,4 +57,9 @@ end
 Base.show(m::MIME{Symbol("text/input")}, item) = show(stdout, m, item)
 Base.show(io::IO, ::MIME{Symbol("text/input")}, item) = show(io, item)
 
-pow_minus_one(n) = iseven(n) ? 1 : -1
+"""
+    pow_minus_one(n::Integer)
+
+Returns `-1` to the power `n`.
+"""
+pow_minus_one(n::Integer) = iseven(n) ? 1 : -1

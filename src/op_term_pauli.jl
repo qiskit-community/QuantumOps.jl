@@ -143,25 +143,25 @@ Base.Matrix(pt::APauliTerm) = Matrix(Float64, pt)
 
 # FIXME: Not type stable.
 function Base.Matrix(::Type{Z4Group0}, pt::APauliTerm)
-    matrix = _kron((Z4Group0.(m) for m in Matrix.(op_string(pt)))...)
+    matrix = kron_alt((Z4Group0.(m) for m in Matrix.(op_string(pt)))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
 function Base.Matrix(::Type{Float64}, pt::APauliTerm)
-    matrix = _kron(Matrix.(op_string(pt))...)
+    matrix = kron_alt(Matrix.(op_string(pt))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
 SparseArrays.sparse(pt::APauliTerm) = SparseArrays.sparse(Float64, pt)
 
 function SparseArrays.sparse(::Type{Float64}, pt::APauliTerm)
-    matrix = _kron(SparseArrays.sparse.(op_string(pt))...)
+    matrix = kron_alt(SparseArrays.sparse.(op_string(pt))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 
 # FIXME: broken, should throw inexact error earlier rather than return wrong type
 function SparseArrays.sparse(::Type{Z4Group0}, pt::APauliTerm)
-    matrix = _kron((Z4Group0.(m) for m in SparseArrays.sparse.(op_string(pt)))...)
+    matrix = kron_alt((Z4Group0.(m) for m in SparseArrays.sparse.(op_string(pt)))...)
     return _multiply_coefficient(pt.coeff, matrix)
 end
 

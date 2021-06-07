@@ -9,7 +9,10 @@ SparseArraysN.neutral(x::AbstractOp) = one(x)
 SparseArraysN.isneutral(x::AbstractOp) = isone(x)
 SparseArraysN.neutrals(T::Type{<:AbstractOp}, args...) = ones(T, args...)
 
-function Base.:*(t1::OpTerm{T, V}, t2::OpTerm{T, V}) where {T<:AbstractOp, V<:SparseArraysN.SparseVector{T}}
+const SparseOpTerm = OpTerm{T, V} where {T<:AbstractOp, V<:SparseArraysN.SparseVector{T}}
+
+#function Base.:*(t1::OpTerm{T, V}, t2::OpTerm{T, V}) where {T<:AbstractOp, V<:SparseArraysN.SparseVector{T}}
+function Base.:*(t1::SparseOpTerm, t2::SparseOpTerm)
     (t_out, phase) = mul(t1.ops, t2.ops)
     return OpTerm(t_out, phase * t1.coeff * t2.coeff)
 end
@@ -125,7 +128,7 @@ sparse_op(term::OpTerm{T, V}) where {T<:AbstractOp, V<:SparseArraysN.SparseVecto
     sparse_op(x::OpTerm)
     sparse_op(x::OpSum)
 
-Convert `x` to a sparse representation. Note that `sparse` instead may convert `x` to
+Convert `x` to a sparse representation. Note that the function `sparse` instead may convert `x` to
 a sparse matrix.
 """
 function sparse_op(term::OpTerm)
