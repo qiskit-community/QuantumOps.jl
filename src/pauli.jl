@@ -26,8 +26,6 @@ const X = Pauli(0, 1)
 const Y = Pauli(1, 0)
 const Z = Pauli(1, 1)
 
-const _PAULIS = (I, X, Y, Z)
-
 # Indexing into static Tuple seems faster
 """
     Pauli(ind::Union{Integer, Symbol, AbstractString, AbstractChar})
@@ -35,7 +33,8 @@ const _PAULIS = (I, X, Y, Z)
 Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
 """
 function Pauli(ind::Integer)::Pauli
-    return _PAULIS[ind + 1]
+    paulis = (I, X, Y, Z)
+    return paulis[ind + 1]
 end
 
 Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)

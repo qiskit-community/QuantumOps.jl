@@ -33,7 +33,7 @@ const X = PauliI(1)
 const Y = PauliI(2)
 const Z = PauliI(3)
 
-const PAULIS = (I, X, Y, Z)
+# const PAULIS = (I, X, Y, Z)
 
 # Indexing into static Tuple seems faster
 """
