@@ -5,12 +5,10 @@ using ..AbstractPaulis: AbstractPauli, _AbstractPauli
 
 export Pauli
 
-# TODO: Make this a `module` to create a namespace
-
 """
     struct Pauli <: AbstractPauli
 
-This is the only implementation of `AbstractPauli`
+An implementation of `AbstractPauli`.
 """
 struct Pauli <: AbstractPauli{Complex{Int}}
     hi::Bool
@@ -32,10 +30,7 @@ const Z = Pauli(1, 1)
 
 Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
 """
-function Pauli(ind::Integer)::Pauli
-    paulis = (I, X, Y, Z)
-    return paulis[ind + 1]
-end
+Pauli(ind::Integer)::Pauli = (I, X, Y, Z)[ind + 1]
 
 Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 

@@ -10,8 +10,6 @@ import ..AbstractPaulis: AbstractPauli, _AbstractPauli
 
 export PauliI
 
-# TODO: Make this a `module` to create a namespace
-
 """
     struct PauliI <: AbstractPauli
 
@@ -21,7 +19,7 @@ This implementation encodes the Pauli operators via the index `0-3`
 in a single byte.
 """
 struct PauliI <: AbstractPauli{Complex{Int}}
-    ind::Int8
+    ind::Int
 end
 
 ####
@@ -75,7 +73,6 @@ const pauli_i_mult_1d =
      1, 0, 3, 2,
      2, 3, 0, 1,
      3, 2, 1, 0)
-
 
 using ..Paulis
 

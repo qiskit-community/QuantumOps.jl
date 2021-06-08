@@ -160,10 +160,11 @@ const _empty_mat = [1. 0.; 0. 0.]
 const _raise_mat = [0. 1.; 0. 0.]
 const _lower_mat = [0. 0.; 1. 0.]
 
-const _fermi_mats = (_id_mat, _number_mat, _empty_mat, _raise_mat, _lower_mat, _zero_mat)
+# const _fermi_mats = (_id_mat, _number_mat, _empty_mat, _raise_mat, _lower_mat, _zero_mat)
 
 function Base.Matrix(op::FermiOp)
-    return _fermi_mats[op_index(op) + 1]
+    _fermi_mats = (_id_mat, _number_mat, _empty_mat, _raise_mat, _lower_mat, _zero_mat)
+    _fermi_mats[op_index(op) + 1]
 end
 
 end # module FermiOps

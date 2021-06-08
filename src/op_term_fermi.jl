@@ -86,7 +86,7 @@ function count_permutations(inds::NTuple{2})
     end
 end
 
-index_phase(inds::NTuple) = iseven(count_permutations(inds)) ? 1 : -1
+index_phase(inds::NTuple) = pow_of_minus_one(count_permutations(inds))
 
 function count_permutations(inds::NTuple{4})
     count = 0
@@ -149,7 +149,7 @@ const DenseFermiTerm = DenseOpTerm{<:AbstractFermiOp}
 
 function AbstractOps.compute_phase(_::AbstractOps.DummyPhaseData, s1::AbstractArray{<:FermiOp}, s2::AbstractArray{<:FermiOp})
     phase_count = fermi_phase_count(s1, s2)
-    return iseven(phase_count) ? 1 : -1
+    return pow_of_minus_one(phase_count)
 end
 
 function Base.:^(ft::AFermiTerm, n::Integer)

@@ -8,9 +8,15 @@ const SparseArrays = SparseArraysN
 using StaticArrays
 import LinearAlgebra
 import IsApprox
+import ..pow_of_minus_one
 
 export AbstractPauli
 
+# """
+#     AbstractPauli{T}
+# Represents a single-qubit Pauli operator, one
+# of `I`, `X`, `Y`, `Z`.
+# """
 abstract type AbstractPauli{T} <: AbstractOp end
 
 const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
@@ -295,7 +301,7 @@ AbstractOps.compute_phase(phase_counts::PauliPhaseCounts, _1, _2) =
 
 function AbstractOps.compute_phase(::Type{<:AbstractPauli}, phase_data)
     (n_sign_flips, n_imag_units) = phase_data
-    _sign = iseven(n_sign_flips) ? 1 : -1
+    _sign = pow_of_minus_one(n_sign_flips)
     n = n_imag_units % 4
     if n == 0
         cim = complex(1)

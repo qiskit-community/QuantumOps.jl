@@ -58,8 +58,8 @@ Base.show(m::MIME{Symbol("text/input")}, item) = show(stdout, m, item)
 Base.show(io::IO, ::MIME{Symbol("text/input")}, item) = show(io, item)
 
 """
-    pow_minus_one(n::Integer)
+    pow_of_minus_one(n::Integer)
 
 Returns `-1` to the power `n`.
 """
-pow_minus_one(n::Integer) = iseven(n) ? 1 : -1
+pow_of_minus_one(n::Integer) = iseven(n) ? 1 : -1

@@ -204,7 +204,7 @@ end
 
 function Base.transpose(pt::APauliTerm, conj_func=identity)
     num_ys = count(p -> op_index(p) == 2, op_string(pt))
-    fac = pow_minus_one(num_ys)
+    fac = pow_of_minus_one(num_ys)
     return strip_typeof(pt)(op_string(pt), conj_func(pt.coeff) * fac)
 end
 
