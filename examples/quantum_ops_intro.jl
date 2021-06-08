@@ -114,15 +114,14 @@ dense_op(sparse_op(OpTerm{Pauli}("IIIIIXIYIZ", 1.0 + 1.0im)))
 
 ## Sums of multi-qubit/mode operators -- `OpSum`
 
-
 # ## Arithemetic on operators
 
 # Multiplication is defined between simple operators, but types are not promoted to
 # types capable of representing phase, so the phase is not tracked.
 # For example
 X * Y
-# We make an alias in order to reduce visual clutter.
-const FOps = QuantumOps.FermiOps
+
+import QuantumOps.FermiOps as FOps
 FOps.NumberOp * FOps.NumberOp
 #-
 FOps.Raise * FOps.Lower

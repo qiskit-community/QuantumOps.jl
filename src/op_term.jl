@@ -11,7 +11,7 @@ op_string(t::OpTerm) = t.ops
 term_type(::Type{T}) where {T <: AbstractOp} = OpTerm{T}
 strip_typeof(::OpTerm{W, T, CoeffT}) where {W, T, CoeffT} = OpTerm{W}
 
-const DenseOpTerm = OpTerm{W, T} where {W<:AbstractOp, T<:Vector{W}}
+const DenseOpTerm = OpTerm{W, T} where {W<:AbstractOp, T<:Union{Vector{W}, StaticArrays.SVector}}
 
 OpTerm(term::AbstractVector, coeff=_DEFAULT_COEFF) = OpTerm(term, coeff)
 OpTerm{T}(term::V, coeff=_DEFAULT_COEFF) where {T, V<:AbstractVector{T}} = OpTerm(term, coeff)
