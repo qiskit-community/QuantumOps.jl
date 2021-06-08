@@ -1,6 +1,6 @@
 @testset "FermiOp" begin
-    @test FermiOp(0) === QuantumOps.FermiOps.I_op
-    @test FermiOp(1) === QuantumOps.FermiOps.number_op
+    @test FermiOp(0) === QuantumOps.FermiOps.I
+    @test FermiOp(1) === QuantumOps.FermiOps.NumberOp
 end
 
 @testset "FermiTerm" begin

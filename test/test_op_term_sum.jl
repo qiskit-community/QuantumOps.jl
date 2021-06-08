@@ -18,7 +18,7 @@ end
         @test term2 == term
     end
     @test OpTerm(Paulis.X, Paulis.Y, Paulis.Z)  == OpTerm{Pauli}("XYZ")
-    @test OpTerm(FermiOps.raise_op, FermiOps.lower_op, FermiOps.number_op) == OpTerm{FermiOp}("+-N")
+    @test OpTerm(FermiOps.Raise, FermiOps.Lower, FermiOps.NumberOp) == OpTerm{FermiOp}("+-N")
 
     pt = PauliTerm("XXIIYY")
     @test weight(pt) == 4

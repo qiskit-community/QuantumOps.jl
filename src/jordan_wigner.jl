@@ -35,19 +35,19 @@ end
 ## Jordan-Wigner
 function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT}=PauliDefault) where PauliT
 #    PauliT = PauliTT
-    if op === lower_op
+    if op === Lower
         strx = fill_pauli(pad, op_ind, PauliT(Zop), PauliT(Xop))
         stry = fill_pauli(pad, op_ind, PauliT(Zop), PauliT(Yop))
         coeffs = [-1/2, -im/2]
-    elseif op === raise_op
+    elseif op === Raise
         strx = fill_pauli(pad, op_ind, PauliT(Zop), PauliT(Xop))
         stry = fill_pauli(pad, op_ind, PauliT(Zop), PauliT(Yop))
         coeffs = [-1/2, im/2]
-    elseif op === number_op
+    elseif op === NumberOp
         strx = fill(PauliT(Iop), pad)
         stry = fill_pauli(pad, op_ind, PauliT(Iop), PauliT(Zop))
         coeffs = complex.([1/2, -1/2])
-    elseif op === empty_op
+    elseif op === Empty
         strx = fill(PauliT(Iop), pad)
         stry = fill_pauli(pad, op_ind, PauliT(Iop), PauliT(Zop))
         coeffs = complex.([1/2, 1/2])
@@ -58,19 +58,19 @@ function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT
 end
 
 function orig_jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT}=PauliDefault) where PauliT
-    if op === lower_op
+    if op === Lower
         strx = fill_pauli(pad, op_ind, Paulis.Z, Paulis.X)
         stry = fill_pauli(pad, op_ind, Paulis.Z, Paulis.Y)
         coeffs = [-1/2, -im/2]
-    elseif op === raise_op
+    elseif op === Raise
         strx = fill_pauli(pad, op_ind, Paulis.Z, Paulis.X)
         stry = fill_pauli(pad, op_ind, Paulis.Z, Paulis.Y)
         coeffs = [-1/2, im/2]
-    elseif op === number_op
+    elseif op === NumberOp
         strx = fill(Paulis.I, pad)
         stry = fill_pauli(pad, op_ind, Paulis.I, Paulis.Z)
         coeffs = complex.([1/2, -1/2])
-    elseif op === empty_op
+    elseif op === Empty
         strx = fill(Paulis.I, pad)
         stry = fill_pauli(pad, op_ind, Paulis.I, Paulis.Z)
         coeffs = complex.([1/2, 1/2])
@@ -84,11 +84,11 @@ function jordan_wigner(term::FermiTerm, ::Type{PauliT}=PauliDefault) where Pauli
     pad = length(term)
     facs = []
     for (i, op) in enumerate(term)
-        if op !== I_op #  op === raise_op || op === lower_op || op === number_op || op === empty_op
+        if op !== I #  op === Raise || op === Lower || op === NumberOp || op === Empty
             push!(facs, jordan_wigner(op, i, pad, PauliT))
         end
     end
-    if isempty(facs)  # String is all I_op
+    if isempty(facs)  # String is all I
         return(OpSum{PauliT}([fill(one(PauliT), length(term))], [complex(term.coeff)]))
     end
     return term.coeff * reduce(*, facs) # TODO: performance
@@ -128,27 +128,27 @@ function fill_fermi(pad, op_ind, fill_op, end_op)
     end
     str[op_ind] = end_op
     @inbounds for i in op_ind+1:pad
-        str[i] = FermiOps.I_op
+        str[i] = FermiOps.I
     end
     return str
 end
 
 ## Jordan-Wigner
 function jordan_wigner_fermi(op::FermiOp, op_ind::Integer, pad::Integer)
-    if op === lower_op
-        str = fill_fermi(pad, op_ind, FermiOps.Z_op, FermiOps.lower_op)
+    if op === Lower
+        str = fill_fermi(pad, op_ind, FermiOps.Z, FermiOps.Lower)
         return FermiTerm(str, complex(1.0))
-    elseif op === raise_op
-        str = fill_fermi(pad, op_ind, FermiOps.Z_op, FermiOps.raise_op)
+    elseif op === Raise
+        str = fill_fermi(pad, op_ind, FermiOps.Z, FermiOps.Raise)
         return FermiTerm(str, complex(1.0))
-    elseif op === number_op
-        str = fill_fermi(pad, op_ind, FermiOps.I_op, FermiOps.number_op)
+    elseif op === NumberOp
+        str = fill_fermi(pad, op_ind, FermiOps.I, FermiOps.NumberOp)
         return FermiTerm(str, complex(1.0))
-    elseif op === empty_op
-        str = fill_fermi(pad, op_ind, FermiOps.I_op, FermiOps.empty_op)
+    elseif op === Empty
+        str = fill_fermi(pad, op_ind, FermiOps.I, FermiOps.Empty)
         return FermiTerm(str, complex(1.0))
-    elseif op === I_op
-        str = fill(FermiOps.I_op, pad)
+    elseif op === I
+        str = fill(FermiOps.I, pad)
         return FermiTerm(str, complex(1.0))
     else
         raise(DomainError(op))
@@ -159,7 +159,7 @@ function jordan_wigner_fermi(term::FermiTerm)
     pad = length(term)
     facs = [] # FermiTerm{FermiOp, Vector{FermiOp}, ComplexF64}[]
     for (i, op) in enumerate(term)
-        if op === raise_op || op === lower_op || op === number_op
+        if op === Raise || op === Lower || op === NumberOp
             push!(facs, jordan_wigner_fermi(op, i, pad))
         end
     end

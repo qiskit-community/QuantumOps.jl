@@ -8,7 +8,7 @@ import Random
 import LinearAlgebra
 
 export FermiOp, FermiDefault
-export I_op, number_op, empty_op, raise_op, lower_op, zero_op, count_raise_lower
+export I, NumberOp, Empty, Raise, Lower, Zero, count_raise_lower
 
 import ..AbstractOps: _AbstractOp, op_symbols, AbstractOp, _show_op_plain
 import ..AbstractFermiOp
@@ -22,34 +22,24 @@ const FermiDefault = FermiOp
 
 op_index(op::FermiOp) = op.ind
 
-Base.one(op::FermiOp) = I_op
-Base.one(::Type{FermiOp}) = I_op
+Base.one(op::FermiOp) = I
+Base.one(::Type{FermiOp}) = I
 
-Base.zero(op::FermiOp) = zero_op
-Base.zero(::Type{FermiOp}) = zero_op
+Base.zero(op::FermiOp) = Zero
+Base.zero(::Type{FermiOp}) = Zero
 
+"""
+    isless(op1::FermiOp, op2::FermiOp)
+
+Canonical (lexical) order of `FermiOp` is I < N < (I - N) < Raise < Lower < Zero < (Z = N - E)
+"""
 Base.isless(op1::FermiOp, op2::FermiOp) = isless(op_index(op1), op_index(op2))
 
-const I_op = FermiOp(0)
-const number_op = FermiOp(1)
-const empty_op = FermiOp(2)
-const raise_op = FermiOp(3)
-const lower_op = FermiOp(4)
-const zero_op = FermiOp(5)
-const Z_op = FermiOp(6)
-const no_op = FermiOp(7)
+const _fermi_chars =
+     ('I',   'N',    'E',   '+',   '-',  '0', 'Z', 'X')
+#      0      1       2      3      4     5    6    7
+const (I, NumberOp, Empty, Raise, Lower, Zero, Z,  NoOp) = FermiOp.(0:7)
 
-## TODO: Use these constants rather than those above
-const I = FermiOp(0)
-const NumberOp = FermiOp(1)
-const Empty = FermiOp(2)
-const Raise = FermiOp(3)
-const Lower = FermiOp(4)
-const Zero = FermiOp(5)
-const Z = FermiOp(6)
-const NoOp = FermiOp(7)
-
-const _fermi_chars = ('I', 'N', 'E', '+', '-', '0', 'Z', 'X')
 const _fermi_string_chars = string.(_fermi_chars)
 const _fermi_symbol_chars = Symbol.(_fermi_chars)
 
@@ -62,7 +52,7 @@ FermiOp(s::Union{AbstractChar, AbstractString, Symbol}) = _AbstractOp(FermiOp, s
 function _show_op_plain(io::IO, op::FermiOp)
     i = op_index(op) + 1
     if i < 1 || i > 8
-        i = 8  # uninitialized data is coerced to 8 which means no_op
+        i = 8  # uninitialized data is coerced to 8 which means NoOp
     end
     print(io, _fermi_chars[i])
 end
@@ -80,28 +70,28 @@ keep track of phase incurred when `Z` is an operand
 """
 const ferm_op_mult =
     #   I       N          E        +         -         0       Z
-    ((I_op, number_op, empty_op, raise_op, lower_op, zero_op, Z_op),      # I
-     (number_op, number_op, zero_op, raise_op, zero_op, zero_op, Z_op),    # N
-     (empty_op, zero_op, empty_op, zero_op, lower_op, zero_op, empty_op),  # E
-     (raise_op, zero_op, raise_op, zero_op, number_op, zero_op, raise_op), # +
-     (lower_op, lower_op, zero_op, empty_op, zero_op, zero_op, lower_op),  # -
-     (zero_op, zero_op, zero_op, zero_op, zero_op, zero_op, zero_op),      # 0
-     (Z_op, number_op, empty_op, raise_op, lower_op, zero_op, I_op))      # Z
+    ((I, NumberOp, Empty, Raise, Lower, Zero, Z),      # I
+     (NumberOp, NumberOp, Zero, Raise, Zero, Zero, Z),    # N
+     (Empty, Zero, Empty, Zero, Lower, Zero, Empty),  # E
+     (Raise, Zero, Raise, Zero, NumberOp, Zero, Raise), # +
+     (Lower, Lower, Zero, Empty, Zero, Zero, Lower),  # -
+     (Zero, Zero, Zero, Zero, Zero, Zero, Zero),      # 0
+     (Z, NumberOp, Empty, Raise, Lower, Zero, I))      # Z
 
 # const ferm_op_mult =
 #     #   I       N          E        +         -         0
-#     ((I_op, number_op, empty_op, raise_op, lower_op, zero_op),   # I
-#      (number_op, number_op, zero_op, raise_op, zero_op, zero_op), # N
-#      (empty_op, zero_op, empty_op, zero_op, lower_op, zero_op),   # E
-#      (raise_op, zero_op, raise_op, zero_op, number_op, zero_op),  # +
-#      (lower_op, lower_op, zero_op, empty_op, zero_op, zero_op),   # -
-#      (zero_op, zero_op, zero_op, zero_op, zero_op, zero_op))      # 0
+#     ((I, NumberOp, Empty, Raise, Lower, Zero),   # I
+#      (NumberOp, NumberOp, Zero, Raise, Zero, Zero), # N
+#      (Empty, Zero, Empty, Zero, Lower, Zero),   # E
+#      (Raise, Zero, Raise, Zero, NumberOp, Zero),  # +
+#      (Lower, Lower, Zero, Empty, Zero, Zero),   # -
+#      (Zero, Zero, Zero, Zero, Zero, Zero))      # 0
 
 Base.:*(op1::FermiOp, op2::FermiOp) = ferm_op_mult[op_index(op1)+1][op_index(op2)+1]
 
 function Base.inv(op::FermiOp)
-    if op === I_op
-        return I_op
+    if op === I
+        return I
     else
         throw(DomainError(op, "Operator has no inverse"))
     end
@@ -109,28 +99,28 @@ end
 
 function Base.:^(op::FermiOp, n::Integer)
     n < 0 && throw(DomainError(n))
-    n == 0 && return I_op
-    if op === I_op || op === number_op || op === empty_op
+    n == 0 && return I
+    if op === I || op === NumberOp || op === Empty
         return op
     end
-    return zero_op
+    return Zero
 end
 
 function Base.adjoint(op::FermiOp)
-    if op === I_op || op === empty_op || op === number_op || op === zero_op
+    if op === I || op === Empty || op === NumberOp || op === Zero
         return op
     end
-    if op === raise_op
-        return lower_op
+    if op === Raise
+        return Lower
     end
-    if op === lower_op
-        return raise_op
+    if op === Lower
+        return Raise
     end
     throw(DomainError(op))
 end
 
 function LinearAlgebra.ishermitian(op::FermiOp)
-    if op === I_op || op === empty_op || op === number_op || op === zero_op
+    if op === I || op === Empty || op === NumberOp || op === Zero
         return true
     else
         return false
@@ -144,9 +134,9 @@ Return the sum of the numbers of raising and lowering operators in `op`.
 Number and complement of number operator each count as two.
 """
 function count_raise_lower(op::FermiOp)
-    if op === raise_op || op === lower_op
+    if op === Raise || op === Lower
         return 1
-    elseif op === number_op || op === empty_op
+    elseif op === NumberOp || op === Empty
         return 2
     else
         return 0

@@ -56,7 +56,7 @@ function multiply_keeping_phase!(target::AbstractArray{<:AbstractOp},
         AbstractOps.accumulate_phase!(_phase_data, s1[i], s2[i])
         _prod = s1[i] * s2[i]
         if iszero(_prod)  # If any factor is zero, the entire product is zero
-            fill!(target, zero_op)
+            fill!(target, Zero)
             return (target, 1)
         end
         target[i] = _prod

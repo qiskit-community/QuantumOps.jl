@@ -64,7 +64,7 @@ dump(QuantumOps.Paulis.X)
 #-
 dump(QuantumOps.PaulisI.X)
 #-
-dump(QuantumOps.FermiOps.number_op)
+dump(QuantumOps.FermiOps.NumberOp)
 
 # ## Multi-qubit/mode operators -- `OpTerm`
 # Operators on multiple qubits or degrees of freedom, together with a coefficient, are represented by `OpTerm`.

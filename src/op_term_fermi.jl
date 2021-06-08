@@ -45,36 +45,36 @@ function index_to_ops(i, j, k, l)
     #     return ()  # unstable, use a barrier or move this out
     # end
     if i == k || i == l
-        op1 = (op=number_op, ind=i)
+        op1 = (op=NumberOp, ind=i)
     else
-        op1 = (op=raise_op, ind=i)
+        op1 = (op=Raise, ind=i)
     end
     if j == k || j == l
-        op2 = (op=number_op, ind=j)
+        op2 = (op=NumberOp, ind=j)
     else
-        op2 = (op=raise_op, ind=j)
+        op2 = (op=Raise, ind=j)
     end
     if k != i && k != j
-        op3 = (op=lower_op, ind=k)
+        op3 = (op=Lower, ind=k)
     else
-        op3 = (op=FermiOps.no_op, ind=k)
+        op3 = (op=FermiOps.NoOp, ind=k)
     end
     if l != i && l != j
-        op4 = (op=lower_op, ind=l)
+        op4 = (op=Lower, ind=l)
     else
-        op4 = (op=FermiOps.no_op, ind=k)
+        op4 = (op=FermiOps.NoOp, ind=k)
     end
     return (op1, op2, op3, op4)
 end
 
 function index_to_ops(i, j)
     if i == j
-        return ((op=number_op, ind=i), )
+        return ((op=NumberOp, ind=i), )
     end
     if i < j
-        return ((op=raise_op, ind=i), (op=lower_op, ind=j))
+        return ((op=Raise, ind=i), (op=Lower, ind=j))
     else
-        return ((op=lower_op, ind=i), (op=raise_op, ind=j))
+        return ((op=Lower, ind=i), (op=Raise, ind=j))
     end
 end
 
@@ -113,9 +113,9 @@ index_to_ops_phase(inds) = (ops=index_to_ops(inds), phase=index_phase(inds))
 
 ## Embed `ops` in a string of width `n_modes`
 function _fermi_term(ops::NTuple, phase::Integer, coeff, n_modes::Integer)
-    factors = fill(I_op, n_modes)
+    factors = fill(I, n_modes)
     for (op, ind) in ops
-        if op == FermiOps.no_op
+        if op == FermiOps.NoOp
             continue
         end
         factors[ind] = op
@@ -157,7 +157,7 @@ function Base.:^(ft::AFermiTerm, n::Integer)
     n == 0 && return one(ft)
     n == 1 && return ft
     ## Any +,-,0 sends the entire string to zero
-    if any(x -> x === raise_op || x === lower_op || x === zero_op, op_string(ft))
+    if any(x -> x === Raise || x === Lower || x === Zero, op_string(ft))
         return zero(ft)
     end
     ## E, N, I, are idempotent
