@@ -8,7 +8,7 @@ import Random
 import LinearAlgebra
 
 export FermiOp, FermiDefault
-export I, NumberOp, Empty, Raise, Lower, Zero, count_raise_lower
+export I, NumberOp, Empty, Raise, Lower, Zero, count_raise_lower, is_raise_lower
 
 import ..AbstractOps: _AbstractOp, op_symbols, AbstractOp, _show_op_plain
 import ..AbstractFermiOp
@@ -119,13 +119,18 @@ function Base.adjoint(op::FermiOp)
     throw(DomainError(op))
 end
 
-function LinearAlgebra.ishermitian(op::FermiOp)
-    if op === I || op === Empty || op === NumberOp || op === Zero
-        return true
-    else
-        return false
-    end
-end
+is_raise_lower(x) = x == FermiOps.Raise || x == FermiOps.Lower
+
+LinearAlgebra.ishermitian(op::FermiOp) = !is_raise_lower(op)
+
+# This should be the same
+# function LinearAlgebra.ishermitian(op::FermiOp)
+#     if op === I || op === Empty || op === NumberOp || op === Zero
+#         return true
+#     else
+#         return false
+#     end
+# end
 
 """
     count_raise_lower(op::FermiOp)

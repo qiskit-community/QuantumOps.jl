@@ -27,4 +27,8 @@ end
     t1 = FermiTerm("+E++")
     t2 = FermiTerm("-E--")
     @test t1 * t2 == FermiTerm("NENN", -1)
+
+    @test (! LinearAlgebra.ishermitian(FermiTerm("--++")))
+    @test LinearAlgebra.ishermitian(FermiTerm("IEINN"))
+    @test (! LinearAlgebra.ishermitian(FermiTerm("IEINN", 1 + 1.0im)))
 end

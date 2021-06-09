@@ -127,9 +127,19 @@ end
 #### Algebra / mathematical operations
 ####
 
-is_raise_lower(x) = x == FermiOps.Raise || x == FermiOps.Lower
+function LinearAlgebra.ishermitian(ft::AFermiTerm)
+    for x in op_string(ft)
+        if FermiOps.is_raise_lower(x)
+            return false
+        end
+    end
+    if LinearAlgebra.ishermitian(ft.coeff)
+        return true
+    end
+    return false
+end
 
-count_ladder_ops(v::AbstractVector) = count(is_raise_lower, v)
+count_ladder_ops(v::AbstractVector) = count(FermiOps.is_raise_lower, v)
 
 function fermi_phase_count(v1::AbstractVector, v2::AbstractVector)
     _count = count_ladder_ops(v1)
