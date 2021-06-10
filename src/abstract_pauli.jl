@@ -222,6 +222,14 @@ Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? one(p) : p
 
 Base.inv(p::AbstractPauli) = p
 
+function IsApprox.commutes(p1::AbstractPauli, p2::AbstractPauli)
+    if isone(p1) || isone(p2) || p1 === p2
+        return true
+    else
+        return false
+    end
+end
+
 """
     phase(p1::AbstractPauli, p2::AbstractPauli)
 

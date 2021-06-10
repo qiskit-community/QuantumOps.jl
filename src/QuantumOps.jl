@@ -40,6 +40,7 @@ export sparse_op, dense_op
 
 export isunitary
 export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum, rand_fermi_term, rand_op_term, rand_op_sum
+export @pauli_str, @fermi_str
 export op_index, phase, weight, pauli_vector
 export add!, lmul!, numeric_function
 export z4group0

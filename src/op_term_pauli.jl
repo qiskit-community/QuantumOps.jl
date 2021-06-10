@@ -1,5 +1,8 @@
 import ..AbstractPaulis
 import ..AbstractPaulis: AbstractPauli
+import .._op_term_macro_helper
+
+import IsApprox: commutes
 
 const PauliSum = OpSum{Pauli}
 const PauliTerm = OpTerm{Pauli}
@@ -7,8 +10,7 @@ const PauliTerm = OpTerm{Pauli}
 # There is a printing bug in Julia that makes this a bad option
 #const PauliTerm = APauliTerm{Pauli}
 
-#const DensePauliTerm = OpTerm{<:AbstractPauli, <:Vector}
-const DensePauliTerm = DenseOpTerm{<:AbstractPauli} # {<:AbstractPauli, <:Vector}
+const DensePauliTerm = DenseOpTerm{<:AbstractPauli}
 
 ## This ruins printing PauliTerm as an alias if `APauliTerm` is in the export list
 """
@@ -31,6 +33,33 @@ function OpSum{PauliT}(matrix::AbstractMatrix{<:Number}; threads=true) where Pau
         return pauli_sum_from_matrix_one_thread(PauliT, matrix)
     end
 end
+
+"""
+    @pauli_str(str::String) -> PauliTerm
+
+Construct a `PauliTerm` from `str`.
+
+# Examples
+```jldoctest
+julia> pauli"XXY"
+3-factor PauliTerm{Vector{Pauli}, Complex{Int64}}:
+XXY * (1 + 0im)
+
+julia> pauli"3 * XXY"
+3-factor PauliTerm{Vector{Pauli}, ComplexF64}:
+XXY * (3.0 + 0.0im)
+
+julia> pauli"3.1 + 2.0im * XXY"
+3-factor PauliTerm{Vector{Pauli}, ComplexF64}:
+XXY * (3.1 + 2.0im)
+```
+"""
+macro pauli_str(str)
+    return _op_term_macro_helper(PauliTerm, str)
+end
+
+# macro pauli(expr)
+# end
 
 function pauli_sum_from_matrix_one_thread(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
     nside = LinearAlgebra.checksquare(matrix)
@@ -211,6 +240,9 @@ end
 function Base.adjoint(pt::APauliTerm)
     return strip_typeof(pt)(op_string(pt), conj(pt.coeff))
 end
+
+commutes(p1::APauliTerm, p2::APauliTerm) =
+    iseven(count(x -> commutes(x...), zip(op_string.((p1, p2))...)))
 
 function LinearAlgebra.eigvals(pt::APauliTerm)
     if all(isone, op_string(pt)) # pt is propto identity

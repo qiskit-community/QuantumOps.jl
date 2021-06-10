@@ -36,6 +36,18 @@ function OpTerm{OpT}(s::Symbol, coeff=_DEFAULT_COEFF) where OpT
     return OpTerm{OpT}(Vector{OpT}(String(s)), coeff)
 end
 
+function _op_term_macro_helper(::Type{T}, str) where T
+    v = split(str, "*")
+    if length(v) == 1
+        return :($T($str))
+    end
+    if length(v) == 2
+        num = parse(ComplexF64, v[1])
+        return :($T($(strip(v[2])), $num))
+    end
+    throw(ErrorException("bad"))
+end
+
 """
     rand_op_term(::Type{OpT}, n::Integer; coeff=_DEFAULT_COEFF) where {OpT <: AbstractOp}
 

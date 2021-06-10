@@ -26,6 +26,10 @@ function OpSum{OpT}(tensor::AbstractArray{<:Number}, tensors::AbstractArray{<:Nu
     return fsum
 end
 
+macro fermi_str(str)
+    return _op_term_macro_helper(FermiTerm, str)
+end
+
 """
     FermiSumA(iop::ElectronicStructure.InteractionOperator)
 
@@ -139,6 +143,11 @@ function LinearAlgebra.ishermitian(ft::AFermiTerm)
     return false
 end
 
+"""
+    count_ladder_ops(v::AbstractVector)
+
+Return the number of raising and lowering operators in `v`.
+"""
 count_ladder_ops(v::AbstractVector) = count(FermiOps.is_raise_lower, v)
 
 function fermi_phase_count(v1::AbstractVector, v2::AbstractVector)
