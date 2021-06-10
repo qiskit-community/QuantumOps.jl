@@ -1,14 +1,15 @@
 import ..AbstractPaulis
 import ..AbstractPaulis: AbstractPauli
 import .._op_term_macro_helper
-
+import LightGraphs
 import IsApprox: commutes
+
+####
+#### Constructors
+####
 
 const PauliSum = OpSum{Pauli}
 const PauliTerm = OpTerm{Pauli}
-
-# There is a printing bug in Julia that makes this a bad option
-#const PauliTerm = APauliTerm{Pauli}
 
 const DensePauliTerm = DenseOpTerm{<:AbstractPauli}
 
@@ -21,19 +22,14 @@ A `UnionAll` type representing a term of any type `<:AbstractPauli`.
 const APauliTerm = OpTerm{T} where {T <:AbstractPauli}
 
 """
-    PauliSumA(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true)
+    APauliSum
 
-Construct a Pauli decomposition of `matrix`, that is, a `PauliSumA` representing `matrix`.
-If `thread` is `true`, use a multi-threaded algorithm for increased performance.
+A `UnionAll` type representing a sum of terms of factors of any type `<:AbstractPauli`.
 """
-function OpSum{PauliT}(matrix::AbstractMatrix{<:Number}; threads=true) where PauliT <: AbstractPauli
-    if threads
-        return pauli_sum_from_matrix_threaded(PauliT, matrix)
-    else
-        return pauli_sum_from_matrix_one_thread(PauliT, matrix)
-    end
-end
+const APauliSum = OpSum{T} where {T <:AbstractPauli}
 
+# There is a printing bug in Julia that makes this a bad option
+#const PauliTerm = APauliTerm{Pauli}
 """
     @pauli_str(str::String) -> PauliTerm
 
@@ -58,8 +54,19 @@ macro pauli_str(str)
     return _op_term_macro_helper(PauliTerm, str)
 end
 
-# macro pauli(expr)
-# end
+"""
+    PauliSumA(::Type{PauliT}, matrix::AbstractMatrix{<:Number}; threads=true)
+
+Construct a Pauli decomposition of `matrix`, that is, a `PauliSumA` representing `matrix`.
+If `thread` is `true`, use a multi-threaded algorithm for increased performance.
+"""
+function OpSum{PauliT}(matrix::AbstractMatrix{<:Number}; threads=true) where PauliT <: AbstractPauli
+    if threads
+        return pauli_sum_from_matrix_threaded(PauliT, matrix)
+    else
+        return pauli_sum_from_matrix_one_thread(PauliT, matrix)
+    end
+end
 
 function pauli_sum_from_matrix_one_thread(::Type{PauliT}, matrix::AbstractMatrix{<:Number}) where PauliT
     nside = LinearAlgebra.checksquare(matrix)
@@ -212,20 +219,15 @@ Return `true` if `pt` is a Hermitian operator.
 """
 LinearAlgebra.ishermitian(pt::APauliTerm) = isreal(pt.coeff)
 
+commutes(p1::APauliTerm, p2::APauliTerm) = commutes(op_string(p1), op_string(p2))
+
+## Each non-commuting factor introduces a phase factor of -1.
+commutes(v1::AbstractArray{<:AbstractPauli}, v2::AbstractArray{<:AbstractPauli}) =
+    iseven(count(x -> !commutes(x[1], x[2]), zip(v1, v2)))
+
 ####
 #### Algebra
 ####
-
-Base.inv(p::APauliTerm) = strip_typeof(p)(op_string(p), inv(p.coeff))
-
-function Base.:^(p::APauliTerm, n::Integer)
-    new_coeff = p.coeff^n
-    if iseven(n)
-        return strip_typeof(p)(fill(Pauli(:I), length(p)), new_coeff)
-    else
-        return strip_typeof(p)(op_string(p), new_coeff)
-    end
-end
 
 function Base.conj(pt::APauliTerm)
     return Base.transpose(pt, conj)
@@ -241,25 +243,15 @@ function Base.adjoint(pt::APauliTerm)
     return strip_typeof(pt)(op_string(pt), conj(pt.coeff))
 end
 
-commutes(p1::APauliTerm, p2::APauliTerm) =
-    iseven(count(x -> commutes(x...), zip(op_string.((p1, p2))...)))
+Base.inv(p::APauliTerm) = strip_typeof(p)(op_string(p), inv(p.coeff))
 
-function LinearAlgebra.eigvals(pt::APauliTerm)
-    if all(isone, op_string(pt)) # pt is propto identity
-        return fill(float(pt.coeff), 2^length(pt)) # All eigenvalues are one
+function Base.:^(p::APauliTerm, n::Integer)
+    new_coeff = p.coeff^n
+    if iseven(n)
+        return strip_typeof(p)(fill(Pauli(:I), length(p)), new_coeff)
+    else
+        return strip_typeof(p)(op_string(p), new_coeff)
     end
-    vals = Vector{promote_type(Float64, typeof(pt.coeff))}(undef, 2^length(pt))
-    pos_eigval = pt.coeff
-    neg_eigval = -pos_eigval
-    if real(neg_eigval) > real(pos_eigval)
-        (pos_eigval, neg_eigval) = (neg_eigval, pos_eigval)
-    end
-    half_length = 2^(length(pt)-1)
-    @inbounds for i in 1:half_length
-        vals[i] = neg_eigval  # follow the usual order
-        vals[i+half_length] = pos_eigval
-    end
-    return vals
 end
 
 Base.kron(ps1::APauliTerm, ps2::APauliTerm) = strip_typeof(ps1)(vcat(op_string(ps1), op_string(ps2)), ps1.coeff * ps2.coeff)
@@ -290,6 +282,24 @@ function Base.kron(ps::Union{APauliTerm, AbstractPauli}...)
     end
 end
 
+function LinearAlgebra.eigvals(pt::APauliTerm)
+    if all(isone, op_string(pt)) # pt is propto identity
+        return fill(float(pt.coeff), 2^length(pt)) # All eigenvalues are one
+    end
+    vals = Vector{promote_type(Float64, typeof(pt.coeff))}(undef, 2^length(pt))
+    pos_eigval = pt.coeff
+    neg_eigval = -pos_eigval
+    if real(neg_eigval) > real(pos_eigval)
+        (pos_eigval, neg_eigval) = (neg_eigval, pos_eigval)
+    end
+    half_length = 2^(length(pt)-1)
+    @inbounds for i in 1:half_length
+        vals[i] = neg_eigval  # follow the usual order
+        vals[i+half_length] = pos_eigval
+    end
+    return vals
+end
+
 ####
 #### Other ?
 ####
@@ -304,3 +314,63 @@ function pauli_basis(::Type{PauliT}, n_qubits; coeff=_DEFAULT_COEFF) where Pauli
 end
 
 pauli_basis(n_qubits; coeff=_DEFAULT_COEFF) = pauli_basis(PauliDefault, n_qubits; coeff=coeff)
+
+"""
+    group_paulis(ps::APauliSum)
+    group_paulis(strings::AbstractVector{T}) where {T<:AbstractVector{<:AbstractPauli}}
+
+Return a partition of `ps` or `strings` into groups of mutually commuting strings or terms.
+The return type is `Vector{typeof(ps)}` or `Vector{typeof(strings)}`.
+
+# Examples
+```julia
+julia> ps = rand_op_sum(Pauli, 5, 5; coeff_func=randn)
+5x5 PauliSum{Vector{Vector{Pauli}}, Vector{Float64}}:
+IXXZZ * 0.7287656446540858
+IXZIZ * 0.6497331352636981
+YIZZX * -0.7581101586820902
+YZIXI * -1.9067637258086527
+ZYIII * 1.3523639501623812
+
+julia> group_paulis(ps)
+4-element Vector{PauliSum{Vector{Vector{Pauli}}, Vector{Float64}}}:
+ 2x5 PauliSum{Vector{Vector{Pauli}}, Vector{Float64}}:
+IXXZZ * 0.7287656446540858
+YZIXI * -1.9067637258086527
+ 1x5 PauliSum{Vector{Vector{Pauli}}, Vector{Float64}}:
+IXZIZ * 0.6497331352636981
+ 1x5 PauliSum{Vector{Vector{Pauli}}, Vector{Float64}}:
+YIZZX * -0.7581101586820902
+ 1x5 PauliSum{Vector{Vector{Pauli}}, Vector{Float64}}:
+ZYIII * 1.3523639501623812
+
+julia> group_paulis(ps.strings)
+4-element Vector{Vector{Vector{Pauli}}}:
+ [IXXZZ, YZIXI]
+ [IXZIZ]
+ [ZYIII]
+ [YIZZX]
+```
+"""
+group_paulis(ps::APauliSum) = _group_paulis(ps, ps.strings)
+
+group_paulis(strings::AbstractVector{T}) where {T<:AbstractVector{<:AbstractPauli}} =
+    _group_paulis(strings, strings)
+
+"""
+    _group_paulis(_sum, strings)
+
+Partition indices of `strings` into groups corresponding to mutually commuting terms
+in `strings`. Return a partition of `_sum`, which must have the same indices as `strings`
+according to partitioned indices. Note that `group_paulis(strings, strings)` simply
+partitions `strings`.
+"""
+function _group_paulis(_sum, strings)
+    graph = property_graph(strings, !commutes) # edges for non-commuting pairs
+    coloring = LightGraphs.greedy_color(graph)
+    groups = [empty(_sum) for i in 1:coloring.num_colors]
+    for (i, c) in enumerate(coloring.colors)
+        push!(groups[c], _sum[i])
+    end
+    return groups
+end

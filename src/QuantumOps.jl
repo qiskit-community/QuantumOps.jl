@@ -43,6 +43,7 @@ export pauli_basis, mul!, rand_pauli_term, rand_pauli_sum, rand_fermi_term, rand
 export @pauli_str, @fermi_str
 export op_index, phase, weight, pauli_vector
 export add!, lmul!, numeric_function
+export group_paulis, property_graph
 export z4group0
 export z4group
 export kron_alt

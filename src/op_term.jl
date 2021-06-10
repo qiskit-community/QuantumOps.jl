@@ -124,6 +124,8 @@ function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
     return OpSum(strings, coeffs; already_sorted=already_sorted)
 end
 
+Base.empty(s::OpSum) = strip_typeof(s)(empty(s.strings), empty(s.coeffs))
+
 """
     OpSum(v::AbstractMatrix{<:AbstractOp}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
 
