@@ -8,15 +8,91 @@ struct OpTerm{W<:AbstractOp, T<:AbstractVector{W}, CoeffT} <: AbstractTerm{W, Co
 end
 
 op_string(t::OpTerm) = t.ops
+
+"""
+    term_type(::Type{T}) where T <: AbstractOp
+
+Return the concrete type `OpTerm{T}` associated with `T`.
+This is used in generic code to construct an `OpTerm` when `T` is known.
+"""
 term_type(::Type{T}) where {T <: AbstractOp} = OpTerm{T}
+
+"""
+    strip_typeof
+
+Hmm, how to explain this...
+"""
 strip_typeof(::OpTerm{W, T, CoeffT}) where {W, T, CoeffT} = OpTerm{W}
 
 const DenseOpTerm = OpTerm{W, T} where {W<:AbstractOp, T<:Union{Vector{W}, StaticArrays.SVector}}
 
-OpTerm(term::AbstractVector, coeff=_DEFAULT_COEFF) = OpTerm(term, coeff)
+## TODO: Commented out and tests pass. Is this necessary?
+# OpTerm(term::AbstractVector, coeff=_DEFAULT_COEFF) = OpTerm(term, coeff)
+
+"""
+    OpTerm{T}(term::V, coeff=_DEFAULT_COEFF) where {T, V<:AbstractVector{T}}
+
+Construct an `OpTerm{T}` from a vector of `T`.
+
+# Examples
+```jldoctest
+julia> OpTerm{Pauli}([X, Y, Z])
+3-factor PauliTerm{Vector{Pauli}, Complex{Int64}}:
+XYZ * (1 + 0im)
+```
+"""
 OpTerm{T}(term::V, coeff=_DEFAULT_COEFF) where {T, V<:AbstractVector{T}} = OpTerm(term, coeff)
+
+"""
+    OpTerm{T}(s::AbstractString, coeff=_DEFAULT_COEFF)
+
+Construct `OpTerm{T}` from a string representation.
+
+# Examples
+```jldoctest
+julia> OpTerm{Pauli}("XYZI")
+4-factor PauliTerm{Vector{Pauli}, Complex{Int64}}:
+XYZI * (1 + 0im)
+
+julia> OpTerm{FermiOp}("++--")
+4-factor FermiTerm{Vector{FermiOp}, Complex{Int64}}:
+++-- * (1 + 0im)
+```
+
+Recall that `FermiTerm` is an alias for `OpTerm{FermiOp}`.
+
+```jldoctest
+julia> FermiTerm("++--", 2.0)
+4-factor FermiTerm{Vector{FermiOp}, Complex{Int64}}:
+++-- * 2.0
+```
+"""
 OpTerm{T}(s::AbstractString, coeff=_DEFAULT_COEFF) where T = OpTerm(Vector{T}(s), coeff)
 
+"""
+    OpTerm{OpT}(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) where OpT <: AbstractOp
+
+Construct an `OpTerm{OpT}` from an array of integer indices (codes) for `OpT`.
+
+# Examples
+```jldoctest
+julia> PauliTerm([0,1,2,3])
+4-factor PauliTerm{Vector{Pauli}, Complex{Int64}}:
+IXYZ * (1 + 0im)
+
+julia> FermiTerm([0,1,2,3,4,5])
+6-factor FermiTerm{Vector{FermiOp}, Complex{Int64}}:
+INE+-0 * (1 + 0im)
+
+julia> OpTerm{PauliI}([3, 2, 1, 0])
+4-factor OpTerm{PauliI, Vector{PauliI}, Complex{Int64}}:
+ZYXI * (1 + 0im)
+
+julia> PauliTerm(0:3)
+4-factor PauliTerm{Vector{Pauli}, Complex{Int64}}:
+IXYZ * (1 + 0im)
+```
+"""
 function OpTerm{OpT}(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) where OpT <: AbstractOp
     return OpTerm(OpT.(inds), coeff)
 end
@@ -105,9 +181,20 @@ end
 
 strip_typeof(::OpSum{W, T, CoeffT}) where {W, T, CoeffT} = OpSum{W}
 
-#term_type(::Type{T}) where {V, T <: OpSum{V}} = OpTerm{V}
+"""
+    term_type(::Type{<:OpSum{T}})
+
+Return the the concrete `OpTerm` type associated with `OpSum{T}`.
+This is used in generic code to construct terms given the type of a sum.
+"""
 term_type(::Type{<:OpSum{T}}) where T = OpTerm{T}
 
+"""
+    sum_type(::Type{<:OpTerm{T}})
+
+Return the the concrete `OpSum` type associated with `OpTerm{T}`.
+This is used in generic code to construct sums given the type of a term.
+"""
 sum_type(::Type{<:OpTerm{T}}) where T = OpSum{T}
 
 #OpSum{T}(strings, coeffs; already_sorted=false) where T = OpSum(strings, coeffs; already_sorted=already_sorted)

@@ -69,9 +69,9 @@ pow_of_minus_one(n::Integer) = iseven(n) ? 1 : -1
 """
     property_graph(vector, property_func)
 
-Return a `LightGraphs.SimpleGraph` with `length(vector)` vertices, and edges between exactly
-those indices of `vector` for which `property_func(vector[i], vector[j])` is `true`.  No
-self-edges are included.
+Return a `LightGraphs.SimpleGraph` with `length(vector)` integer-valued vertices, and edges
+between exactly those indices of `vector` for which `property_func(vector[i], vector[j])` is
+`true`. No self-edges are included.
 """
 function property_graph(vector, property_func)
     n_verts = length(vector)
@@ -83,50 +83,3 @@ function property_graph(vector, property_func)
     end
     return graph
 end
-
-# function slowish_non_commute_graph(ops)
-#     n = length(ops)
-#     m = zeros(Bool, n, n)
-#     @inbounds for i in 1:n, j in i+1:n
-#         if !commutes(ops[i], ops[j])
-#             m[i, j] = true
-#             m[j, i] = true
-#         end
-#     end
-#     return LightGraphs.SimpleGraph(m)
-# end
-
-# function slow_non_commute_graph(ops)
-#     n = length(ops)
-#     edges = LightGraphs.Edge[]
-#     for i in 1:n, j in i+1:n
-#         if !commutes(ops[i], ops[j])
-#             push!(edges, LightGraphs.Edge(i, j))
-#         end
-#     end
-#     g = LightGraphs.SimpleGraphFromIterator(edges)
-#     return g
-# end
-
-# ## For testing
-# function scommutes(v1, v2)
-#     p1 = PauliTerm(v1)
-#     p2 = PauliTerm(v2)
-#     return p1 * p2 == p2 * p1
-# end
-
-# function pcommutes(p1, p2)
-#     return p1 * p2 == p2 * p1
-# end
-
-# function test_commute(n, m=10)
-#     _count = 0
-#     for i in 1:n
-#         t1 = rand_op_term(Pauli, m)
-#         t2 = rand_op_term(Pauli, m)
-#         if commutes(t1, t2) != pcommutes(t1, t2)
-#             _count += 1
-#         end
-#     end
-#     return _count
-# end

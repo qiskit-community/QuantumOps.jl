@@ -40,6 +40,7 @@ Initialize a `Vector{T}` by converting each character to type `T`.
 """
 Vector{T}(opstring::AbstractString) where {T <: AbstractOp} = [T(s) for s in opstring]
 
+## TODO: If we trust rand_ind_range, we could use unsafe_pauli (or a generic version)
 """
     docstring
 """

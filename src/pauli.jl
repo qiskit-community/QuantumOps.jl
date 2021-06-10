@@ -32,6 +32,9 @@ Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
 """
 Pauli(ind::Integer)::Pauli = (I, X, Y, Z)[ind + 1]
 
+# TODO: This is ok, we don't currently have a convenient way to use it.
+# unsafe_pauli(ind::Integer)::Pauli @inbounds (I, X, Y, Z)[ind + 1]
+
 Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 
 Base.copy(p::Pauli) = p
@@ -42,7 +45,7 @@ op_index(p::Pauli) = 2 * p.hi + p.lo
 #### Compare / predicates
 ####
 
-Base.:(==)(p1::Pauli, p2::Pauli) = p1.hi == p2.hi  && p1.lo == p2.lo
+Base.:(==)(p1::Pauli, p2::Pauli) = p1.hi == p2.hi && p1.lo == p2.lo
 
 ## This is maybe not really necessary, but this is stricter than the fallback method.
 ## Also, this would have prevented a perf regression bug.

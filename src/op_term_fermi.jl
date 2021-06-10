@@ -4,9 +4,10 @@
 
 const FermiTerm = OpTerm{FermiOp}
 const FermiSum = OpSum{FermiOp}
-
 const AFermiTerm = OpTerm{<:AbstractFermiOp}
-const FermiSums = OpSum{<:AbstractFermiOp}
+const DenseFermiTerm = DenseOpTerm{<:AbstractFermiOp}
+#const FermiSums = OpSum{<:AbstractFermiOp}
+const AFermiSum = OpSum{<:AbstractFermiOp}
 
 ## TODO: We renamed and moved this. Hope nothing untested uses it.
 ## TODO: This is too specialized to be a constructor method. Better to call it
@@ -164,8 +165,6 @@ function fermi_phase_count(v1::AbstractVector, v2::AbstractVector)
     return phase_count
 end
 
-const DenseFermiTerm = DenseOpTerm{<:AbstractFermiOp}
-
 function AbstractOps.compute_phase(_::AbstractOps.DummyPhaseData, s1::AbstractArray{<:FermiOp}, s2::AbstractArray{<:FermiOp})
     phase_count = fermi_phase_count(s1, s2)
     return pow_of_minus_one(phase_count)
@@ -216,7 +215,7 @@ function tensor_to_fermi_sum!(fsum::OpSum{T}, tensor) where T
     return fsum
 end
 
-function Base.adjoint(ft::FermiSums)
+function Base.adjoint(ft::AFermiSum)
     _op_strings = [adjoint.(x) for x in ft.strings]
     coeffs = adjoint.(ft.coeffs)
     return strip_typeof(ft)(_op_strings, coeffs)

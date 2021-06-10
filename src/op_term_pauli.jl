@@ -8,10 +8,9 @@ import IsApprox: commutes
 #### Constructors
 ####
 
-const PauliSum = OpSum{Pauli}
 const PauliTerm = OpTerm{Pauli}
-
 const DensePauliTerm = DenseOpTerm{<:AbstractPauli}
+const PauliSum = OpSum{Pauli}
 
 ## This ruins printing PauliTerm as an alias if `APauliTerm` is in the export list
 """
