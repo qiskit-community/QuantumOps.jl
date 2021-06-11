@@ -2,7 +2,7 @@ module AbstractOps
 
 import Random
 export AbstractOp
-export weight, op_index, op_symbols
+export weight, op_index, op_symbols, unsafe_op
 
 abstract type AbstractOp end
 
@@ -12,6 +12,10 @@ abstract type AbstractOp end
 Return the `Int` index corresponding to `op`.
 """
 function op_index end
+
+function unsafe_op(::Type{T}, ind::Integer) where T
+    return T(ind)
+end
 
 """
     docstring
@@ -46,7 +50,9 @@ Vector{T}(opstring::AbstractString) where {T <: AbstractOp} = [T(s) for s in ops
 """
 function rand_ind_range end
 
+# Using unsafe_op does not seem to be faster
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{OpT}) where {OpT <: AbstractOp}
+#    return unsafe_op(OpT, rand(rng, rand_ind_range(OpT)))
     return OpT(rand(rng, rand_ind_range(OpT)))
 end
 

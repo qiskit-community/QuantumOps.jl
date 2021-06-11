@@ -1,9 +1,10 @@
 module Paulis
 
-import ..AbstractOps: op_index
+import ..AbstractOps
+import ..AbstractOps: op_index, unsafe_op
 using ..AbstractPaulis: AbstractPauli, _AbstractPauli
 
-export Pauli
+export Pauli, unsafe_op
 
 """
     struct Pauli <: AbstractPauli
@@ -32,8 +33,13 @@ Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
 """
 Pauli(ind::Integer)::Pauli = (I, X, Y, Z)[ind + 1]
 
-# TODO: This is ok, we don't currently have a convenient way to use it.
-# unsafe_pauli(ind::Integer)::Pauli @inbounds (I, X, Y, Z)[ind + 1]
+## The unsafe_op, unsafe_pauli thing does not seem to be more efficient.
+
+@inline AbstractOps.unsafe_op(::Type{Pauli}, ind::Integer) = unsafe_pauli(ind)
+
+@inline function unsafe_pauli(ind::Integer)::Pauli
+    return  @inbounds (I, X, Y, Z)[ind + 1]
+end
 
 Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 

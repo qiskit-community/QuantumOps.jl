@@ -29,7 +29,7 @@ import ElectronicStructure
 
 export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum,
     OpTerm, OpSum # , FermiTermA  #, PauliTermA  , PauliSumA
-export IndOp
+export unsafe_op
 #export APauliTerm
 export op_string, op_strings
 export count_bodies, jordan_wigner, jordan_wigner_fermi
@@ -116,6 +116,7 @@ PauliDefault
 include("abstract_term.jl")
 include("abstract_sum.jl")
 include("op_term.jl")
+include("op_sum.jl")
 include("abstract_fermi_op.jl")
 include("fermi_op.jl")
 

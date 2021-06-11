@@ -10,7 +10,7 @@ import LinearAlgebra
 export FermiOp, FermiDefault
 export I, NumberOp, Empty, Raise, Lower, Zero, count_raise_lower, is_raise_lower
 
-import ..AbstractOps: _AbstractOp, op_symbols, AbstractOp, _show_op_plain
+import ..AbstractOps: _AbstractOp, op_symbols, AbstractOp, _show_op_plain, op_index
 import ..AbstractFermiOp
 
 struct FermiOp <: AbstractFermiOp

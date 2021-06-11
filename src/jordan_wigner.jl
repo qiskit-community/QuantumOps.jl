@@ -11,23 +11,22 @@ export jordan_wigner, jordan_wigner_fermi
 
 ## Jordan-Wigner helper
 """
-    fill_pauli(pad, op_ind, fill_op, end_op)
+    fill_pauli(pad, op_ind, fill_op::PauliT, end_op) where PauliT
 
-Return a `Vector{Pauli}` of length `pad` with indices `1:op_ind-1`
-filled with `fill_op` and index `op_ind` set to `end_op` and the
-remaining indices filled with `one(Pauli)`
+Return a `Vector{PauliT}` of length `pad` with indices `1:op_ind-1` filled with `fill_op`
+and index `op_ind` set to `end_op` and the remaining indices filled with `one(Pauli)`
 """
-function fill_pauli(pad, op_ind, fill_op::T, end_op) where T
-    str = Vector{T}(undef, pad)
+function fill_pauli(pad, op_ind, fill_op::PauliT, end_op) where PauliT
+    str = Vector{PauliT}(undef, pad)
     if pad <  op_ind
         throw(DimensionMismatch("pad is less than op_ind."))
     end
-    @inbounds for i in 1:op_ind-1
-        str[i] = fill_op
+    for i in 1:op_ind-1
+       @inbounds str[i] = fill_op
     end
     str[op_ind] = end_op
-    @inbounds for i in op_ind+1:pad
-        str[i] = T(Iop)# Paulis.I
+    for i in op_ind+1:pad
+        @inbounds str[i] = PauliT(Iop)# Paulis.I
     end
     return str
 end
