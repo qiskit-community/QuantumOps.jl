@@ -339,9 +339,11 @@ function Base.:-(psum::AbstractSum)
     strip_typeof(psum)(psum.strings, -one(eltype(psum.coeffs)) .* psum.coeffs; already_sorted=true)
 end
 
-function Base.:*(n::Number, psum::AbstractSum)
-    strip_typeof(psum)(psum.strings, n .* psum.coeffs; already_sorted=true)
+function Base.:*(n::Number, asum::AbstractSum)
+    strip_typeof(asum)(asum.strings, n .* asum.coeffs; already_sorted=true)
 end
+
+Base.:*(asum::AbstractSum, n::Number) = n * asum
 
 function Base.:/(psum::AbstractSum, n)
     strip_typeof(psum)(psum.strings, psum.coeffs ./ n; already_sorted=true)

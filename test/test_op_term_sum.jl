@@ -7,6 +7,10 @@
     for _type = (Pauli, PauliI, FermiOp)
         @test length(OpSum{_type}()) == 0
     end
+    for _type in (Pauli, FermiOp)
+        _sum = rand_op_sum(_type, 5, 5)
+        @test 3 * _sum == _sum * 3
+    end
 end
 
 @testset "OpTerm" begin

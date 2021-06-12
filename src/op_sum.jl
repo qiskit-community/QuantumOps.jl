@@ -83,7 +83,7 @@ EE- * -0.11901005957119838
 """
 function rand_op_sum(::Type{OpT}, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {OpT <: AbstractOp}
     paulis = [rand(OpT, n_factors) for i in 1:n_terms]
-    if coeff_func == nothing
+    if coeff_func === nothing
         coeffs = fill(_DEFAULT_COEFF, n_terms)
     else
         coeffs = coeff_func(n_terms)
@@ -96,23 +96,23 @@ end
 #####
 
 """
-    Matrix(ps::PauliSumA)
+    Matrix(ps::OpSum)
 
 Convert `ps` to a dense `Matrix`.
 
 # Examples
 
-We convert a matrix to a `PauliSumA` and then back to a matrix.
+We convert a matrix to a `OpSum` and then back to a matrix.
 ```jldoctest
 julia> m = [0.1 0.2; 0.3 0.4];
 
-julia> PauliSumA(m)
+julia> PauliSum(m)
 (0.25 + 0.0im) * I
 (0.25 + 0.0im) * X
 (0.0 - 0.04999999999999999im) * Y
 (-0.15000000000000002 + 0.0im) * Z
 
-julia> Matrix(PauliSumA(m)) ≈ m
+julia> Matrix(PauliSum(m)) ≈ m
 true
 ```
 """
@@ -120,7 +120,7 @@ Base.Matrix(ps::OpSum) = Matrix(SparseArrays.sparse(ps))
 
 ## ThreadsX helps enormously for large sums. 22x faster for 4^8 terms
 """
-    sparse(ps::PauliSum)
+    sparse(ps::OpSum)
 
 Convert `ps` to a sparse matrix.
 """
@@ -132,7 +132,7 @@ SparseArrays.sparse(ps::OpSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i i
 
 # We use lmul! because that's how LinearAlgebra offers "scaling" of a Matrix (or rmul!)
 """
-    lmul!(psum::PauliSum, n)
+    lmul!(psum::OpSum, n)
 
 Left multiplies the coefficient of `psum` by `n` in place.
 """

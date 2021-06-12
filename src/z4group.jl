@@ -29,8 +29,6 @@ const Z4GROUP_minus_one = Z4Group(0, 1)
 const Z4GROUP_minus_i = Z4Group(1, 1)
 const Z4GROUP_one = Z4Group(0, 0)
 
-const Z4GROUP_ELEMENTS = (Z4GROUP_i, Z4GROUP_minus_one, Z4GROUP_minus_i, Z4GROUP_one)
-
 #####
 ##### Constructors
 #####
@@ -38,10 +36,9 @@ const Z4GROUP_ELEMENTS = (Z4GROUP_i, Z4GROUP_minus_one, Z4GROUP_minus_i, Z4GROUP
 """
     z4group(n::Integer)::Z4Group
 
-One based ??
-Perform zero-based index `n` into `(i, -1, -i, 1)`.
+Perform one-based index `n` into `(i, -1, -i, 1)`.
 """
-z4group(n::Integer) = Z4GROUP_ELEMENTS[n]
+z4group(n::Integer) = (Z4GROUP_i, Z4GROUP_minus_one, Z4GROUP_minus_i, Z4GROUP_one)[n]
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Z4Group})
     return z4group(rand(rng, 1:4))

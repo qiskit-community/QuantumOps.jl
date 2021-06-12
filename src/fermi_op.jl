@@ -119,7 +119,7 @@ function Base.adjoint(op::FermiOp)
     throw(DomainError(op))
 end
 
-is_raise_lower(x) = x == FermiOps.Raise || x == FermiOps.Lower
+is_raise_lower(x) = x === FermiOps.Raise || x === FermiOps.Lower
 
 LinearAlgebra.ishermitian(op::FermiOp) = !is_raise_lower(op)
 

@@ -33,50 +33,27 @@ end
 
 ## Jordan-Wigner
 function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT}=PauliDefault) where PauliT
-#    PauliT = PauliTT
+    _fill_pauli(fill_op_ind, end_op_ind) = fill_pauli(pad, op_ind, PauliT(fill_op_ind), PauliT(end_op_ind))
     if op === Lower
-        strx = fill_pauli(pad, op_ind, PauliT(Zop), PauliT(Xop))
-        stry = fill_pauli(pad, op_ind, PauliT(Zop), PauliT(Yop))
+        strx = _fill_pauli(Zop, Xop)
+        stry = _fill_pauli(Zop, Yop)
         coeffs = [-1/2, -im/2]
     elseif op === Raise
-        strx = fill_pauli(pad, op_ind, PauliT(Zop), PauliT(Xop))
-        stry = fill_pauli(pad, op_ind, PauliT(Zop), PauliT(Yop))
+        strx = _fill_pauli(Zop, Xop)
+        stry = _fill_pauli(Zop, Yop)
         coeffs = [-1/2, im/2]
     elseif op === NumberOp
         strx = fill(PauliT(Iop), pad)
-        stry = fill_pauli(pad, op_ind, PauliT(Iop), PauliT(Zop))
-        coeffs = complex.([1/2, -1/2])
+        stry = _fill_pauli(Iop, Zop)
+        coeffs = [1/2, -1/2]
     elseif op === Empty
         strx = fill(PauliT(Iop), pad)
-        stry = fill_pauli(pad, op_ind, PauliT(Iop), PauliT(Zop))
-        coeffs = complex.([1/2, 1/2])
+        stry = _fill_pauli(Iop, Zop)
+        coeffs = [1/2, 1/2]
     else
         raise(DomainError(op))
     end
-    return OpSum{PauliT}([strx, stry], coeffs; already_sorted=true)
-end
-
-function orig_jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT}=PauliDefault) where PauliT
-    if op === Lower
-        strx = fill_pauli(pad, op_ind, Paulis.Z, Paulis.X)
-        stry = fill_pauli(pad, op_ind, Paulis.Z, Paulis.Y)
-        coeffs = [-1/2, -im/2]
-    elseif op === Raise
-        strx = fill_pauli(pad, op_ind, Paulis.Z, Paulis.X)
-        stry = fill_pauli(pad, op_ind, Paulis.Z, Paulis.Y)
-        coeffs = [-1/2, im/2]
-    elseif op === NumberOp
-        strx = fill(Paulis.I, pad)
-        stry = fill_pauli(pad, op_ind, Paulis.I, Paulis.Z)
-        coeffs = complex.([1/2, -1/2])
-    elseif op === Empty
-        strx = fill(Paulis.I, pad)
-        stry = fill_pauli(pad, op_ind, Paulis.I, Paulis.Z)
-        coeffs = complex.([1/2, 1/2])
-    else
-        raise(DomainError(op))
-    end
-    return OpSum{Pauli}([strx, stry], coeffs; already_sorted=true)
+    return OpSum{PauliT}([strx, stry], complex.(coeffs); already_sorted=true)
 end
 
 function jordan_wigner(term::FermiTerm, ::Type{PauliT}=PauliDefault) where PauliT
