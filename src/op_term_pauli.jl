@@ -218,6 +218,8 @@ Return `true` if `pt` is a Hermitian operator.
 """
 LinearAlgebra.ishermitian(pt::APauliTerm) = isreal(pt.coeff)
 
+## TODO: anticommutes. for FermiOp as well
+
 commutes(p1::APauliTerm, p2::APauliTerm) = commutes(op_string(p1), op_string(p2))
 
 ## Each non-commuting factor introduces a phase factor of -1.

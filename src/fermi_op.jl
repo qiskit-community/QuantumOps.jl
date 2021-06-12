@@ -119,18 +119,14 @@ function Base.adjoint(op::FermiOp)
     throw(DomainError(op))
 end
 
+"""
+    is_raise_lower(x)
+
+Return `true` if `x` is a raising or lowering operator.
+"""
 is_raise_lower(x) = x === FermiOps.Raise || x === FermiOps.Lower
 
 LinearAlgebra.ishermitian(op::FermiOp) = !is_raise_lower(op)
-
-# This should be the same
-# function LinearAlgebra.ishermitian(op::FermiOp)
-#     if op === I || op === Empty || op === NumberOp || op === Zero
-#         return true
-#     else
-#         return false
-#     end
-# end
 
 """
     count_raise_lower(op::FermiOp)
@@ -139,7 +135,7 @@ Return the sum of the numbers of raising and lowering operators in `op`.
 Number and complement of number operator each count as two.
 """
 function count_raise_lower(op::FermiOp)
-    if op === Raise || op === Lower
+    if is_raise_lower(op)
         return 1
     elseif op === NumberOp || op === Empty
         return 2

@@ -131,4 +131,7 @@ using .JordanWigner
 
 include("sparse.jl")
 
+include("abstract_stabilizers.jl")
+include("stabilizers.jl")
+
 end # module

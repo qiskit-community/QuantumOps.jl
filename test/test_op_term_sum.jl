@@ -30,4 +30,6 @@ end
     ft = FermiTerm("++II--")
     @test weight(ft) == 4
     @test length(ft) == 6
+
+    @test OpTerm{Pauli}([Paulis.X, Paulis.Y]) == OpTerm([Paulis.X, Paulis.Y])
 end

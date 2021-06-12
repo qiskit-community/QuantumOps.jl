@@ -90,6 +90,8 @@ XYZ * (1 + 0im)
 """
 OpTerm{T}(term::V, coeff=_DEFAULT_COEFF) where {T, V<:AbstractVector{T}} = OpTerm(term, coeff)
 
+OpTerm(term::V, coeff=_DEFAULT_COEFF) where {T, V<:AbstractVector{T}} = OpTerm(term, coeff)
+
 """
     OpTerm{T}(s::AbstractString, coeff=_DEFAULT_COEFF)
 
