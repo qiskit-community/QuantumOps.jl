@@ -21,6 +21,7 @@ import ILog2
 import SparseArraysN
 import SparseArraysN: neutral, isneutral, neutrals
 export neutral, isneutral
+export commutes, anticommutes
 
 #import SparseArrays
 const SparseArrays = SparseArraysN

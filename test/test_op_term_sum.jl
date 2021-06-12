@@ -32,4 +32,6 @@ end
     @test length(ft) == 6
 
     @test OpTerm{Pauli}([Paulis.X, Paulis.Y]) == OpTerm([Paulis.X, Paulis.Y])
+    (X, Y, Z) = (Paulis.X, Paulis.Y, Paulis.Z)
+    @test PauliTerm(@SVector [X, Y, Z, Y ,Z]) ==  PauliTerm([X, Y, Z, Y ,Z])
 end

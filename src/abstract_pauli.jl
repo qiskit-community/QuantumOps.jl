@@ -230,6 +230,8 @@ function IsApprox.commutes(p1::AbstractPauli, p2::AbstractPauli)
     end
 end
 
+IsApprox.anticommutes(p1::AbstractPauli, p2::AbstractPauli) = ! IsApprox.commutes(p1, p2)
+
 """
     phase(p1::AbstractPauli, p2::AbstractPauli)
 

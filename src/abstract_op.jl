@@ -99,4 +99,6 @@ phase_data(::Type{<:AbstractOp}) = DummyPhaseData()
 
 function _show_op_plain end
 
+function anticommutes end
+
 end # module AbstractOps

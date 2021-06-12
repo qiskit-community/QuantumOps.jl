@@ -1,5 +1,6 @@
 using QuantumOps
 using Test
+using StaticArrays
 import SparseArraysN
 import LinearAlgebra
 const SparseArrays = SparseArraysN
