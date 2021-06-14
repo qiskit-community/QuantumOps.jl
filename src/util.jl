@@ -83,3 +83,10 @@ function property_graph(vector, property_func)
     end
     return graph
 end
+
+"""
+    n_cliffords(n)
+
+Returns the number of elements in the Clifford group on `n` qubits.
+"""
+n_cliffords(n) = 8 * prod(i -> 2*(4^i - 1) * 4^i, big(1):n)
