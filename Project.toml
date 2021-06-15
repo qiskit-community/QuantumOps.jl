@@ -20,6 +20,7 @@ ThreadsX = "ac1d9e8a-700a-412c-b207-f0111f4b6c0d"
 [compat]
 ILog2 = "0.2.2"
 IsApprox = "0.1"
+LightGraphs = "1"
 Literate = "2"
 Requires = "1"
 StaticArrays = "1"
