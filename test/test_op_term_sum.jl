@@ -11,11 +11,27 @@
         _sum = rand_op_sum(_type, 5, 5)
         @test 3 * _sum == _sum * 3
     end
+end
 
-    ps = PauliSum(["XXZ", "YYX"])
-    @test length(ps - ps) == 0
-    @test iszero(ps - ps)
-    @test zero(ps) == (ps - ps)
+@testset "plus, minus, zero, one" begin
+    for op in (PauliSum(["XXZ", "YYX"]), FermiSum(["NNE", "++-"]))
+        @test length(op - op) == 0
+        @test iszero(op - op)
+        @test zero(op) == (op - op)
+        @test iszero(0 * op)
+        @test isone(one(op))
+        @test !isone(op)
+        @test !iszero(op)
+    end
+
+    for term in (PauliTerm("XXX"), FermiTerm("---"))
+        @test iszero(0 * term)
+        @test iszero(zero(term))
+        @test isone(one(term))
+        @test !isone(term)
+        @test !iszero(term)
+        # TODO test that isone is not the expensive fallback method
+    end
 end
 
 @testset "OpTerm" begin

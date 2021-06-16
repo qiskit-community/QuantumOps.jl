@@ -195,6 +195,10 @@ function Base.one(asum::AbstractSum)
     strip_typeof(asum)([op_string(t)], [t.coeff]; already_sorted=true)
 end
 
+function Base.isone(asum::AbstractSum)
+    return length(asum) == 1 && isone(first(asum))
+end
+
 function Base.:(==)(asum1::AbstractSum, asum2::AbstractSum)
     if length(asum1) != length(asum2)
         return false

@@ -154,7 +154,7 @@ SparseArrays.sparse(ps::OpSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i i
 
 ## TODO: improve this. Check for coefficients, etc.
 function Base.iszero(opsum::OpSum)
-    return iszero(length(opsum))
+    return iszero(length(opsum)) || all(iszero, opsum.coeffs)
 end
 
 Base.zero(opsum::OpSum) = empty(opsum)

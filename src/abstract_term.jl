@@ -47,6 +47,10 @@ end
 
 Base.one(term::AbstractTerm{W}) where {W} = typeof(term)(fill(one(W), length(term)), one(term.coeff))
 
+function Base.isone(term::AbstractTerm)
+    return all(isone, op_string(term)) && isone(term.coeff)
+end
+
 Base.:(==)(op1::AbstractTerm, op2::AbstractTerm) = op1.coeff == op2.coeff && op_string(op1) == op_string(op2)
 
 _isless(x, y) = isless(x, y)

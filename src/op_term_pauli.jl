@@ -107,6 +107,17 @@ function OpTerm{T}(index::Integer, n_paulis::Integer, coeff=_DEFAULT_COEFF) wher
 end
 
 ####
+####
+####
+
+function Base.zero(pterm::OpTerm{T}) where T <: AbstractPauli
+    new_string = similar(op_string(pterm))
+    fill!(new_string, one(T))
+    return strip_typeof(pterm)(new_string, zero(pterm.coeff))
+end
+
+
+####
 #### Math
 ####
 
