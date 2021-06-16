@@ -370,13 +370,9 @@ Multiply `as1` and `as2` returning another `AbstractSum`
 
 # Examples
 ```jldoctest
-julia> a = rand_pauli_sum(5, 3);
+julia> a = rand_op_sum(Pauli, 5, 3); ma = Matrix(a);
 
-julia> b = rand_pauli_sum(5, 3);
-
-julia> a = rand_pauli_sum(5, 3); ma = Matrix(a);
-
-julia> b = rand_pauli_sum(5, 3); mb = Matrix(b);
+julia> b = rand_op_sum(Pauli, 5, 3); mb = Matrix(b);
 
 julia> Matrix(a * b * a) == ma * mb * ma
 true
