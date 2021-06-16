@@ -15,6 +15,7 @@
     ps = PauliSum(["XXZ", "YYX"])
     @test length(ps - ps) == 0
     @test iszero(ps - ps)
+    @test zero(ps) == (ps - ps)
 end
 
 @testset "OpTerm" begin

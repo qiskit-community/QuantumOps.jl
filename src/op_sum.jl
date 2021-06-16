@@ -157,6 +157,8 @@ function Base.iszero(opsum::OpSum)
     return iszero(length(opsum))
 end
 
+Base.zero(opsum::OpSum) = empty(opsum)
+
 ####
 #### Algebra / mathematical operations
 ####
