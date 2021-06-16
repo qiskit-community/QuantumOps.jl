@@ -7,7 +7,19 @@ struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSum{OpT, StringT, Coef
     coeffs::CoeffT
 
     function OpSum(strings, coeffs; already_sorted=false)
-        _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
+        if length(strings) != length(coeffs)
+            throw(DimensionMismatch("bad dims"))
+        end
+        if ! isempty(strings)
+            if ! already_sorted  # Slightly dangerous to only do length check if not sorted
+                n = length(first(strings))
+                if ! all(x -> length(x) == n, strings)
+                    throw(DimensionMismatch("Fermi strings are of differing lengths."))
+                end
+                sort_and_sum_duplicates!(strings, coeffs)
+            end
+        end
+#        _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
         return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
