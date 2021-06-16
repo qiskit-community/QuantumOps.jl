@@ -56,6 +56,11 @@ function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
     return OpSum(strings, coeffs; already_sorted=already_sorted)
 end
 
+"""
+    empty(s::OpSum)
+
+Create an empty `OpSum`, that is with no terms, similar to `s`.
+"""
 Base.empty(s::OpSum) = strip_typeof(s)(empty(s.strings), empty(s.coeffs))
 
 """

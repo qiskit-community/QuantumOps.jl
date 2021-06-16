@@ -331,6 +331,11 @@ function Base.:+(ps0::AbstractSum, pss::AbstractSum...)
 end
 
 ## TODO: Do something more efficient here.
+function Base.:-(ps1::T, ps2::T) where T <: AbstractSum
+    return ps1 + -ps2
+end
+
+## TODO: Do something more efficient here.
 function Base.:-(pt1::T, pt2::T) where T <: AbstractTerm
     return sum_type(T)([pt1, -one(pt2.coeff) * pt2])
 end

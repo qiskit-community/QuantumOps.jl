@@ -22,10 +22,10 @@ geoms = (
 )
 
 ## Choose one of the geometries
-geom = geoms[2]
+geom = geoms[1]
 
-basis = "sto-3g"
-#basis = "631g"
+#basis = "sto-3g"
+basis = "631g"
 
 ## Construct specification of electronic structure problem
 mol_spec = MolecularSpec(geometry=geom, basis=basis)
@@ -41,7 +41,7 @@ zchop!(mol_pyscf.two_body_integrals)
 ## into space-and-spin orbitals.
 ## This is the same as the operator by the same name in OpenFermion.
 ## !!! NOTE Qiskit order is: index_order=:physicist, block_spin=true
-iop = InteractionOperator(mol_pyscf; index_order=:default, block_spin=true)
+iop = InteractionOperator(mol_pyscf) # ; index_order=:default, block_spin=true)
 
 fop = FermiSum(iop)
 
