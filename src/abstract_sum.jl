@@ -237,6 +237,8 @@ simplification performed.
 """
 add!(asum::AbstractSum, term::AbstractTerm) = add!(asum, op_string(term), term.coeff)
 
+
+## TODO: pass higher order function to allow + and - instead of hard coded +=
 function add!(asum::AbstractSum, op_string, coeff)
     inds = searchsorted(asum.strings, op_string)
     if length(inds) == 0 # op_string not found, add a new term

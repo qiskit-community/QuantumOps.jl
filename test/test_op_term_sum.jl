@@ -11,6 +11,10 @@
         _sum = rand_op_sum(_type, 5, 5)
         @test 3 * _sum == _sum * 3
     end
+
+    ps = PauliSum(["XXZ", "YYX"])
+    @test length(ps - ps) == 0
+    @test iszero(ps - ps)
 end
 
 @testset "OpTerm" begin

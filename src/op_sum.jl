@@ -14,7 +14,7 @@ struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSum{OpT, StringT, Coef
             if ! already_sorted  # Slightly dangerous to only do length check if not sorted
                 n = length(first(strings))
                 if ! all(x -> length(x) == n, strings)
-                    throw(DimensionMismatch("Fermi strings are of differing lengths."))
+                    throw(DimensionMismatch("Operator strings are of differing lengths."))
                 end
                 sort_and_sum_duplicates!(strings, coeffs)
             end
@@ -48,6 +48,11 @@ OpSum{T}(args...; kwargs...) where T = OpSum(args...; kwargs...)
 
 function OpSum{T}(strings::AbstractVector{<:AbstractString}, coeffs) where T
     return OpSum(Vector{T}.(strings), coeffs)
+end
+
+function OpSum{T}(strings::AbstractVector{<:AbstractString}) where T
+    coeffs = fill(_DEFAULT_COEFF, length(strings))
+    return OpSum{T}(strings, coeffs)
 end
 
 function OpSum(v::AbstractVector{<:OpTerm}; already_sorted=false)
@@ -142,6 +147,15 @@ Base.Matrix(ps::OpSum) = Matrix(SparseArrays.sparse(ps))
 Convert `ps` to a sparse matrix.
 """
 SparseArrays.sparse(ps::OpSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
+
+####
+#### Compare / predicates
+####
+
+## TODO: improve this. Check for coefficients, etc.
+function Base.iszero(opsum::OpSum)
+    return iszero(length(opsum))
+end
 
 ####
 #### Algebra / mathematical operations
