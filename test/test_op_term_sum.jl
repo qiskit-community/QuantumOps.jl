@@ -23,15 +23,19 @@ end
         @test !isone(op)
         @test !iszero(op)
     end
-
     for term in (PauliTerm("XXX"), FermiTerm("---"))
         @test iszero(0 * term)
+        @test iszero(term - term)
         @test iszero(zero(term))
         @test isone(one(term))
         @test !isone(term)
         @test !iszero(term)
         # TODO test that isone is not the expensive fallback method
     end
+    ft = FermiTerm("---")
+    @test iszero(ft * ft)
+    pt = PauliTerm("XYZ")
+    @test isone(pt * pt)
 end
 
 @testset "OpTerm" begin
