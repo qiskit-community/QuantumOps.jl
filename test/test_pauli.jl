@@ -82,6 +82,10 @@ end
     sa = SparseArrays.sparse(a)
     sb = SparseArrays.sparse(b)
     @test SparseArrays.sparse(a * b * a) == sa * sb * sa
+
+
+    @test all(commutes, group_paulis(rand_op_sum(Pauli, 10, 100)))
+
 end
 
 @testset "Z4Group0" begin

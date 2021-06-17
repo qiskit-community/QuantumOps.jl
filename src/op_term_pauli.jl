@@ -237,6 +237,27 @@ commutes(p1::APauliTerm, p2::APauliTerm) = commutes(op_string(p1), op_string(p2)
 commutes(v1::AbstractArray{<:AbstractPauli}, v2::AbstractArray{<:AbstractPauli}) =
     iseven(count(x -> !commutes(x[1], x[2]), zip(v1, v2)))
 
+"""
+    commutes(pauli_sum::APauliSum)
+
+Return `true` if the terms in `pauli_sum` are mutually commuting.
+"""
+commutes(ps::APauliSum) = commutes(op_strings(ps))
+
+"""
+    commutes(pauli_strings::AbstractVector{<:AbstractVector{<:AbstractPauli}})
+
+Return `true` if the strings in `pauli_strings` are mutually commuting.
+"""
+function commutes(a::AbstractVector{<:AbstractVector{<:AbstractPauli}})
+    for i in eachindex(a)
+        for j in i+1:lastindex(a)
+            commutes(a[i], a[j]) || return false
+        end
+    end
+    return true
+end
+
 ####
 #### Algebra
 ####
@@ -355,6 +376,9 @@ IXZIZ * 0.6497331352636981
 YIZZX * -0.7581101586820902
  1x5 PauliSum{Vector{Vector{Pauli}}, Vector{Float64}}:
 ZYIII * 1.3523639501623812
+
+julia> all(commutes, group_paulis(ps))
+true
 
 julia> group_paulis(ps.strings)
 4-element Vector{Vector{Vector{Pauli}}}:
