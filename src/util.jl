@@ -1,3 +1,5 @@
+module Utils
+
 import LightGraphs
 
 """
@@ -90,3 +92,25 @@ end
 Returns the number of elements in the Clifford group on `n` qubits.
 """
 n_cliffords(n) = 8 * prod(i -> 2*(4^i - 1) * 4^i, big(1):n)
+
+"""
+    triprod(iter)
+
+Iterate over only the upper triangular part of the Cartesian product of `iter` with `iter`,
+returning `Tuple`s of elements
+
+# Examples
+```jldocstring
+julia> collect(triprod('a':'d'))
+6-element Vector{Tuple{Char, Char}}:
+ ('a', 'b')
+ ('a', 'c')
+ ('a', 'd')
+ ('b', 'c')
+ ('b', 'd')
+ ('c', 'd')
+```
+"""
+triprod(iter) = ((a, b) for (n, a) in enumerate(iter) for b in Iterators.drop(iter, n))
+
+end # module Utils

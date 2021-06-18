@@ -1,3 +1,5 @@
+import .Utils
+
 abstract type AbstractSum{OpT, StringT, CoeffT} end
 
 ####
@@ -109,9 +111,9 @@ function remove_zeros!(terms, coeffs)
     # Appears to be this: iszero.(array) is taking almost all the time.
     # The following is what Base does, but writing it out is faster. A bug?
     # if length(coeffs) > 10^10
-    #     inds = ThreadsX.findall(isapprox_zero.(coeffs))
+    #     inds = ThreadsX.findall(Utils.isapprox_zero.(coeffs))
     # else
-    inds = findall(isapprox_zero.(coeffs))
+    inds = findall(Utils.isapprox_zero.(coeffs))
     #    end
     if ! isempty(inds)
         deleteat!(coeffs, inds)
@@ -169,9 +171,7 @@ end
 
 for func in (:length, :eachindex, :lastindex, :firstindex)
     @eval begin
-        function Base.$func(as::AbstractSum, args...)
-            return $func(as.coeffs, args...)
-        end
+        Base.$func(as::AbstractSum, args...) = return $func(as.coeffs, args...)
     end
 end
 
@@ -179,9 +179,16 @@ Base.getindex(asum::AbstractSum, j::Integer) =
     term_type(typeof(asum))(asum.strings[j], asum.coeffs[j])
 
 Base.getindex(asum::AbstractSum, j::Integer, k::Integer) = asum.strings[j][k]
-# TODO: Use already_sorted flag ?
+Base.getindex(asum::AbstractSum, i1::Integer, inds2) = asum.strings[i1][inds2]
 
-Base.getindex(asum::AbstractSum, inds) = strip_typeof(asum)(asum.strings[inds], asum.coeffs[inds])
+## TODO: Use already_sorted flag ?
+## I think no, because asum[5:-1:1] should sort the reversed result.
+## Unless, someone wants to use indexing to get something other than canonical order.
+Base.getindex(asum::AbstractSum, inds) = strip_typeof(asum)(asum.strings[inds], asum.coeffs[inds]) # already_sorted=true)
+
+## Should this return a sum or an array of arrays ?
+## Currently it returns a sum. Note that selected substrings may be identical, and coeffs combined
+Base.getindex(asum::AbstractSum, inds1, inds2) = strip_typeof(asum)([x[inds2] for x in asum.strings[inds1]], asum.coeffs[inds1])
 
 ####
 #### Compare / predicates
@@ -250,7 +257,7 @@ function add!(asum::AbstractSum, op_string, coeff)
     elseif length(inds) == 1 # one element equal to op_string
         i = first(inds) # get the (single) index
         @inbounds asum.coeffs[i] += coeff # add p to existing term
-        @inbounds if isapprox_zero(asum.coeffs[i])
+        @inbounds if Utils.isapprox_zero(asum.coeffs[i])
             @inbounds deleteat!(asum, [i])
         end
     else

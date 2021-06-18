@@ -3,6 +3,7 @@ import ..AbstractPaulis: AbstractPauli
 import .._op_term_macro_helper
 import LightGraphs
 import IsApprox: commutes
+import ..Utils: property_graph, kron_alt, isapprox_zero, triprod, pow_of_minus_one
 
 ####
 #### Constructors
@@ -244,16 +245,21 @@ Return `true` if the terms in `pauli_sum` are mutually commuting.
 """
 commutes(ps::APauliSum) = commutes(op_strings(ps))
 
+
+## The following is simpler, but slightly less performant than `commutes` below
+## triprod could be more efficient
+function acommutes(a::AbstractVector{<:AbstractVector{<:AbstractPauli}})
+   return all(x -> commutes(x...), triprod(a))
+end
+
 """
     commutes(pauli_strings::AbstractVector{<:AbstractVector{<:AbstractPauli}})
 
 Return `true` if the strings in `pauli_strings` are mutually commuting.
 """
 function commutes(a::AbstractVector{<:AbstractVector{<:AbstractPauli}})
-    for i in eachindex(a)
-        for j in i+1:lastindex(a)
-            commutes(a[i], a[j]) || return false
-        end
+    for i in eachindex(a), j in i+1:lastindex(a)
+        @inbounds commutes(a[i], a[j]) || return false
     end
     return true
 end

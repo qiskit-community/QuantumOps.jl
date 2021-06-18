@@ -1,3 +1,5 @@
+import ..Utils: pow_of_minus_one
+
 ####
 #### OpTerm{AbstractFermiOp}
 ####
@@ -96,13 +98,13 @@ index_phase(inds::NTuple) = pow_of_minus_one(count_permutations(inds))
 function count_permutations(inds::NTuple{4})
     count = 0
     @inbounds i = inds[1]
-    @inbounds for j in (2,3,4)
+    @inbounds for j in (2, 3, 4)
         if i > inds[j]
             count += 1
         end
     end
     @inbounds i = inds[2]
-    @inbounds for j in (3,4)
+    @inbounds for j in (3, 4)
         if i > inds[j]
             count += 1
         end
@@ -152,9 +154,10 @@ Return the number of raising and lowering operators in `v`.
 count_ladder_ops(v::AbstractVector) = count(FermiOps.is_raise_lower, v)
 
 function fermi_phase_count(v1::AbstractVector, v2::AbstractVector)
+    length(v1) == length(v2) || throw(DimensionMismatch("v1 an v2 differ in length"))
     _count = count_ladder_ops(v1)
     phase_count = 0
-    for i in eachindex(v1)
+    @inbounds for i in eachindex(v1)
         if is_raise_lower(v1[i])
             _count -= 1
         end
@@ -206,7 +209,7 @@ end
 
 function tensor_to_fermi_sum!(fsum::OpSum{T}, tensor) where T
     n_modes = first(size(tensor))
-    for ind in CartesianIndices(tensor)
+    @inbounds for ind in CartesianIndices(tensor)
         if _skip_inds((ind.I)...) || iszero(tensor[ind])
             continue
         end

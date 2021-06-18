@@ -38,6 +38,14 @@ end
     @test isone(pt * pt)
 end
 
+@testset "indexing" begin
+    for _sum = (rand_op_sum(Pauli, 10, 10), rand_op_sum(FermiOp, 10, 10))
+        @test _sum[2][3:6] == _sum[2, 3:6]
+        @test _sum[2, 3:6] isa Vector
+        @test length(_sum[2:5]) == 4
+    end
+end
+
 @testset "OpTerm" begin
     for term in (PauliTerm("XYZ"), FermiTerm("--++"))
         @test reverse(term) != term

@@ -8,7 +8,7 @@ const SparseArrays = SparseArraysN
 using StaticArrays
 import LinearAlgebra
 import IsApprox
-import ..pow_of_minus_one
+import ..Utils: pow_of_minus_one
 
 export AbstractPauli
 
