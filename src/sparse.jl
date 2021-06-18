@@ -46,11 +46,12 @@ function mul(v1::SparseArraysN.SparseVector{T}, v2::SparseArraysN.SparseVector{T
             push!(inds, ind2)
             push!(vals, val2)
             i2 += 1
-        else  # tt1.op and tt2.op operate on the same index (DOF)
-            ## Only here do we multiply non-trivial factors
+        else  # tt1.op and tt2.op operate on the same index (degree of freedom)
+            ## Only here do we multiply non-trivial factors.
             new_op = val1 * val2  # product up to a phase
             if iszero(new_op)  # if any factor vanishes, the term vanishes.
-                return (SparseArraysN.SparseVector(0, empty!(inds), empty!(vals)), 0)
+                _phase = 0
+                return (SparseArraysN.SparseVector(0, empty!(inds), empty!(vals)), _phase)
             end
             i1 += 1
             i2 += 1
