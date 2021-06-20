@@ -5,6 +5,7 @@ import ..AbstractOps: op_index, unsafe_op
 using ..AbstractPaulis: AbstractPauli, _AbstractPauli
 
 export Pauli, unsafe_op
+import IsApprox
 
 """
     struct Pauli <: AbstractPauli
@@ -31,7 +32,7 @@ const Z = Pauli(1, 1)
 
 Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
 """
-Pauli(ind::Integer)::Pauli = (I, X, Y, Z)[ind + 1]
+ Pauli(ind::Integer)::Pauli = (I, X, Y, Z)[ind + 1]
 
 ## The unsafe_op, unsafe_pauli thing does not seem to be more efficient.
 

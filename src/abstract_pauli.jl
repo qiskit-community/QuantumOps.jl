@@ -21,6 +21,8 @@ abstract type AbstractPauli{T} <: AbstractOp end
 
 const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
 
+@inline is_pauli_y(p::AbstractPauli) = op_index(p) == Yop
+
 ####
 #### Constructors
 ####
@@ -33,13 +35,13 @@ const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
 
 function _AbstractPauli(::Type{PauliT}, s::Symbol) where PauliT
     if s == :I
-        return PauliT(0)
+        return PauliT(Iop)
     elseif s == :X
-        return PauliT(1)
+        return PauliT(Xop)
     elseif s == :Y
-        return PauliT(2)
+        return PauliT(Yop)
     elseif s == :Z
-        return PauliT(3)
+        return PauliT(Zop)
     else
         throw(ArgumentError("Invalid Pauli symbol $s"))
     end
@@ -47,13 +49,13 @@ end
 
 function _AbstractPauli(::Type{PauliT}, s::AbstractString) where PauliT
     if s == "I"
-        return PauliT(0)
+        return PauliT(Iop)
     elseif s == "X"
-        return PauliT(1)
+        return PauliT(Xop)
     elseif s == "Y"
-        return PauliT(2)
+        return PauliT(Yop)
     elseif s == "Z"
-        return PauliT(3)
+        return PauliT(Zop)
     else
         throw(ArgumentError("Invalid Pauli symbol \"$s\""))
     end
@@ -61,13 +63,13 @@ end
 
 function _AbstractPauli(::Type{PauliT}, s::AbstractChar) where PauliT
     if s == 'I'
-        return PauliT(0)
+        return PauliT(Iop)
     elseif s == 'X'
-        return PauliT(1)
+        return PauliT(Xop)
     elseif s == 'Y'
-        return PauliT(2)
+        return PauliT(Yop)
     elseif s == 'Z'
-        return PauliT(3)
+        return PauliT(Zop)
     else
         throw(ArgumentError("Invalid Pauli Char '$s'"))
     end
@@ -222,13 +224,7 @@ Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? one(p) : p
 
 Base.inv(p::AbstractPauli) = p
 
-function IsApprox.commutes(p1::AbstractPauli, p2::AbstractPauli)
-    if isone(p1) || isone(p2) || p1 === p2
-        return true
-    else
-        return false
-    end
-end
+IsApprox.commutes(p1::AbstractPauli, p2::AbstractPauli) = isone(p1) || isone(p2) || p1 === p2
 
 IsApprox.anticommutes(p1::AbstractPauli, p2::AbstractPauli) = ! IsApprox.commutes(p1, p2)
 
@@ -248,7 +244,7 @@ function phase(p1::AbstractPauli, p2::AbstractPauli)
         if d == 0
             has_imag_unit = false
             has_sign_flip = false
-        elseif d == 1 || d == -2
+        elseif d == 1 || d == -2  # Depends on stadard ordering of Paulis
             has_imag_unit = true
             has_sign_flip = true
         else

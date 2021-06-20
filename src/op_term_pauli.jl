@@ -1,5 +1,5 @@
 import ..AbstractPaulis
-import ..AbstractPaulis: AbstractPauli
+import ..AbstractPaulis: AbstractPauli, is_pauli_y
 import .._op_term_macro_helper
 import LightGraphs
 import IsApprox: commutes
@@ -232,11 +232,21 @@ LinearAlgebra.ishermitian(pt::APauliTerm) = isreal(pt.coeff)
 
 ## TODO: anticommutes. for FermiOp as well
 
-commutes(p1::APauliTerm, p2::APauliTerm) = commutes(op_string(p1), op_string(p2))
+@inline commutes(p1::APauliTerm, p2::APauliTerm) = commutes(op_string(p1), op_string(p2))
 
+#using LoopVectorization
 ## Each non-commuting factor introduces a phase factor of -1.
-commutes(v1::AbstractArray{<:AbstractPauli}, v2::AbstractArray{<:AbstractPauli}) =
-    iseven(count(x -> !commutes(x[1], x[2]), zip(v1, v2)))
+#  THis is slower   iseven(count(x -> !commutes(x[1], x[2]), zip(v1, v2)))
+@inline function commutes(v1::AbstractArray{<:AbstractPauli}, v2::AbstractArray{<:AbstractPauli})
+    length(v1) == length(v2) || throw(DimensionMismatch("v1 and v2 of differing lengths"))
+    c = 0
+    @inbounds for i in eachindex(v1)
+        if !commutes(v1[i], v2[i])
+            c += 1
+        end
+    end
+    return iseven(c)
+end
 
 """
     commutes(pauli_sum::APauliSum)
@@ -273,7 +283,7 @@ function Base.conj(pt::APauliTerm)
 end
 
 function Base.transpose(pt::APauliTerm, conj_func=identity)
-    num_ys = count(p -> op_index(p) == 2, op_string(pt))
+    num_ys = count(is_pauli_y, op_string(pt))
     fac = pow_of_minus_one(num_ys)
     return strip_typeof(pt)(op_string(pt), conj_func(pt.coeff) * fac)
 end
