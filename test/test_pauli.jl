@@ -106,6 +106,7 @@ end
     @test_broken typeof(t1.coeff) == typeof(t2.coeff)
 end
 
+import LinearAlgebra
 using LinearAlgebra: eigvals
 
 @testset "eigvals" begin
@@ -113,4 +114,11 @@ using LinearAlgebra: eigvals
     for t in (PauliTerm("XYZX"), PauliTerm("XYI"))
         @test eigvals(t) ≈ eigvals(Matrix(t))
     end
+end
+
+@testset "properties" begin
+    @test LinearAlgebra.tr(Paulis.I) == 2
+    @test LinearAlgebra.tr(Paulis.X) == 0
+    @test LinearAlgebra.tr(Paulis.Y) == 0
+    @test LinearAlgebra.tr(Paulis.Z) == 0
 end

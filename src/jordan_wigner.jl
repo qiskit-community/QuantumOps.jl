@@ -150,7 +150,7 @@ function jordan_wigner_fermi(fsum::FermiSum)
     for i in eachindex(fsum) # 1:length(fsum)
         push!(terms, jordan_wigner_fermi(fsum[i]))
     end
-    nterms = [x for x in terms]
+    nterms = [x for x in terms]  # what is this?
     return FermiSum(terms)
 end
 

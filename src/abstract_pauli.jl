@@ -22,6 +22,7 @@ abstract type AbstractPauli{T} <: AbstractOp end
 const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
 
 @inline is_pauli_y(p::AbstractPauli) = op_index(p) == Yop
+@inline is_pauli_I(p::AbstractPauli) = op_index(p) == Iop
 
 ####
 #### Constructors
@@ -98,10 +99,6 @@ function pauli_vector(::Type{PauliT}, op_index::Integer, n_qubits::Integer,
 end
 
 AbstractOps.rand_ind_range(::Type{<:AbstractPauli}) = 0:3
-
-# function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{PauliT}) where {PauliT <: AbstractPauli}
-#     return PauliT(rand(rng, 0:3))
-# end
 
 ####
 #### IO
@@ -257,7 +254,7 @@ end
 
 ### Linear algebra
 
-LinearAlgebra.tr(::AbstractPauli) = 0
+LinearAlgebra.tr(p::AbstractPauli) = is_pauli_I(p) ? 2 : 0
 
 ## This would otherwise be computed by LinearAlgebra calling getindex
 LinearAlgebra.eigvals(p::AbstractPauli) = isone(p) ? [1.0, 1.0] : [-1.0, 1.0]
