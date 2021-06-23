@@ -80,10 +80,19 @@ function count_bodies(v::Vector)
     return n ÷ 2
 end
 
-Base.adjoint(ft::AFermiTerm) = strip_typeof(ft)(adjoint.(op_string(ft)), conj(ft.coeff))
+# This may account correctly for phase
+# Looks like each excitation gives a sign flip. That is, each
+# -,+ pair gives a sign flip. So odd number of excitations gives sign flip
+# No flip: number op, double excitation, coulomb interact.
+# a flip: excitation op, number-excitation
+function Base.adjoint(ft::AFermiTerm)
+    n_excitations = count_ladder_ops(op_string(ft)) ÷ 2
+    new_coeff = pow_of_minus_one(n_excitations) * conj(ft.coeff)
+    return strip_typeof(ft)(adjoint.(op_string(ft)), new_coeff)
+end
 
+## TODO: improve efficiency
 function Base.adjoint(ft::AFermiSum)
-    _op_strings = [adjoint.(x) for x in ft.strings]
-    coeffs = adjoint.(ft.coeffs)
-    return strip_typeof(ft)(_op_strings, coeffs)
+    terms = [adjoint(x) for x in ft]
+    return strip_typeof(ft)(terms)
 end

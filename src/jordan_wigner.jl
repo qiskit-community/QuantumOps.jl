@@ -1,5 +1,7 @@
 module JordanWigner
 
+# using DocStringExtensions
+
 using ..AbstractOps
 using ..AbstractPaulis: Iop, Xop, Yop, Zop
 import ..Paulis, ..FermiTerm, ..FermiSum

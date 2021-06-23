@@ -14,6 +14,7 @@ import IsApprox: isunitary
 import Random
 import LinearAlgebra, Random
 using StaticArrays
+using DocStringExtensions
 import ThreadsX
 #import FLoops
 import ILog2

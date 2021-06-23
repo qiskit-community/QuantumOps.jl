@@ -92,6 +92,7 @@ function sort_sums!(strings, coeffs; alg=MergeSort)
     return nothing
 end
 
+# TODO: may want to make this a method of zchop
 """
     remove_zeros!(asum::AbstractSum)
     remove_zeros!(terms, coeffs)

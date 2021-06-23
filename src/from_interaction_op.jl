@@ -5,9 +5,6 @@ import ..Utils: pow_of_minus_one
 import ..AbstractFermiOp, ..OpSum, ..OpTerm, ..FermiOps
 import ..FermiOps: NumberOp, Raise, Lower
 import ..add!
-# import ..OpSum
-# import ..OpTerm
-# import ..FermiOps
 
 """
     FermiSumA(iop::ElectronicStructure.InteractionOperator)
@@ -20,7 +17,6 @@ function OpSum{OpT}(iop::ElectronicStructure.InteractionOperator) where {OpT<:Ab
     return fsum
 end
 
-## TODO: again, this function should be named something more specific.
 function OpSum{OpT}(tensor::AbstractArray{<:Number}, tensors::AbstractArray{<:Number}...) where {OpT<:AbstractFermiOp}
     fsum = OpSum(Vector{OpT}[], eltype(tensor)[])
     for tensor in (tensor, tensors...)
@@ -28,8 +24,6 @@ function OpSum{OpT}(tensor::AbstractArray{<:Number}, tensors::AbstractArray{<:Nu
     end
     return fsum
 end
-
-index_to_ops(inds) = index_to_ops(inds...)
 
 function index_to_ops(i, j, k, l)
     ## We filter this elsewhere, but it's dangerous to remove this
@@ -70,6 +64,8 @@ function index_to_ops(i, j)
     end
 end
 
+index_to_ops(inds) = index_to_ops(inds...)
+
 function count_permutations(inds::NTuple{2})
     if inds[2] < inds[1]
         return 1
@@ -78,6 +74,12 @@ function count_permutations(inds::NTuple{2})
     end
 end
 
+"""
+    count_permutations(inds::NTuple{4})
+
+Return the permuation signature of `inds`, that is the number of
+pair permutations required to order `inds`.
+"""
 function count_permutations(inds::NTuple{4})
     count = 0
     @inbounds i = inds[1]
@@ -107,6 +109,15 @@ _skip_inds(i, j, k, l) = (i == j || k == l) # skip if two raising or two lowerin
 _skip_inds(i, j) = false # always one raising and one lowering, so never skip
 
 ## Embed `ops` in a string of width `n_modes`
+
+"""
+    _fermi_term(ops::NTuple, phase::Integer, coeff, n_modes::Integer)
+
+Convert the sparse representation of a string of ops, `ops` to a dense representation.
+Each element of `ops` is a two-element `Tuple` giving an operator and index. The returned
+`Vector` contains each operator at the corresponding index, with unspecified indices
+set to the identity.
+"""
 function _fermi_term(ops::NTuple, phase::Integer, coeff, n_modes::Integer)
     factors = fill(FermiOps.I, n_modes)
     for (op, ind) in ops
