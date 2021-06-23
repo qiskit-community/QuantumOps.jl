@@ -159,6 +159,9 @@ end
 
 Base.zero(opsum::OpSum) = empty(opsum)
 
+# function ZChop.zchop!(opsum::OpSum)
+# end
+
 ####
 #### Algebra / mathematical operations
 ####

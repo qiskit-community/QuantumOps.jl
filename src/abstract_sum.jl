@@ -100,12 +100,12 @@ Remove terms from `asum` with coefficient (approximately) equal to zero.
 If `terms` and `coeffs` are supplied, then elements are deleted from both `terms`
 and `coeffs` at indices corresponding to vanishing elements of `coeff`.
 """
-function remove_zeros!(asum::AbstractSum)
-    remove_zeros!(asum.strings, asum.coeffs)
+function remove_zeros!(asum::AbstractSum, atol=1e-16)
+    remove_zeros!(asum.strings, asum.coeffs, atol)
     return asum
 end
 
-function remove_zeros!(terms, coeffs)
+function remove_zeros!(terms::Vector, coeffs::Vector, atol=1e-16)
     # ThreadsX is very slow for small arrays
     # The findall(iszero, coeffs) is 500ns for two non-zero floats. What is wrong?
     # Appears to be this: iszero.(array) is taking almost all the time.
@@ -113,11 +113,11 @@ function remove_zeros!(terms, coeffs)
     # if length(coeffs) > 10^10
     #     inds = ThreadsX.findall(Utils.isapprox_zero.(coeffs))
     # else
-    inds = findall(Utils.isapprox_zero.(coeffs))
+    inds::Vector{Int} = findall(Utils.isapprox_zero.(coeffs, atol))
     #    end
     if ! isempty(inds)
-        deleteat!(coeffs, inds)
-        deleteat!(terms, inds)
+        deleteat!(coeffs::Vector, inds)
+        deleteat!(terms::Vector, inds)
     end
     return nothing
 end

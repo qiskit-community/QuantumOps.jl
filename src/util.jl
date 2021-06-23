@@ -52,8 +52,8 @@ Return `true` if `x` is approximately zero.
 This function exists because we define methods for special cases, such as symbolic
 libraries.
 """
-function isapprox_zero(x::Number)
-    return isapprox(x, zero(x), atol=1e-16)
+function isapprox_zero(x::Number, atol=1e-16)
+    return isapprox(x, zero(x), atol=atol)
 end
 
 ## MIME{Symbol("text/input")} is meant to print objects in input

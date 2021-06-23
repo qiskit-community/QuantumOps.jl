@@ -17,6 +17,7 @@ using StaticArrays
 import ThreadsX
 #import FLoops
 import ILog2
+import ZChop
 
 import SparseArraysN
 import SparseArraysN: neutral, isneutral, neutrals
@@ -126,13 +127,16 @@ using .FermiOps
 include("op_term_fermi.jl")
 include("op_term_pauli.jl")
 
+include("sparse.jl")
+
 include("jordan_wigner.jl")
 
 using .JordanWigner
 
-include("sparse.jl")
+include("from_interaction_op.jl")
 
-include("abstract_stabilizers.jl")
-include("stabilizers.jl")
+# We are abandoning this
+# include("abstract_stabilizers.jl")
+# include("stabilizers.jl")
 
 end # module

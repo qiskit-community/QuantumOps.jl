@@ -365,11 +365,12 @@ end
 pauli_basis(n_qubits; coeff=_DEFAULT_COEFF) = pauli_basis(PauliDefault, n_qubits; coeff=coeff)
 
 """
-    group_paulis(ps::APauliSum)
-    group_paulis(strings::AbstractVector{T}) where {T<:AbstractVector{<:AbstractPauli}}
+    group_paulis(ps::APauliSum; sort_degree=false, reps=1)
+    group_paulis(strings::AbstractVector{T}; sort_degree=false, reps=1) where {T<:AbstractVector{<:AbstractPauli}}
 
 Return a partition of `ps` or `strings` into groups of mutually commuting strings or terms.
 The return type is `Vector{typeof(ps)}` or `Vector{typeof(strings)}`.
+`sort_degree` and `reps` are passed to `LightGraphs.greedy_color`.
 
 # Examples
 ```julia
@@ -404,10 +405,10 @@ julia> group_paulis(ps.strings)
  [YIZZX]
 ```
 """
-group_paulis(ps::APauliSum) = _group_paulis(ps, ps.strings)
+group_paulis(ps::APauliSum; sort_degree=false, reps=1) = _group_paulis(ps, ps.strings, sort_degree, reps)
 
-group_paulis(strings::AbstractVector{T}) where {T<:AbstractVector{<:AbstractPauli}} =
-    _group_paulis(strings, strings)
+group_paulis(strings::AbstractVector{T}; sort_degree=false, reps=1) where {T<:AbstractVector{<:AbstractPauli}} =
+    _group_paulis(strings, strings, sort_degree, reps)
 
 """
     _group_paulis(_sum, strings)
@@ -417,9 +418,9 @@ in `strings`. Return a partition of `_sum`, which must have the same indices as 
 according to partitioned indices. Note that `group_paulis(strings, strings)` simply
 partitions `strings`.
 """
-function _group_paulis(_sum, strings)
+function _group_paulis(_sum, strings, sort_degree, reps)
     graph = property_graph(strings, !commutes) # edges for non-commuting pairs
-    coloring = LightGraphs.greedy_color(graph)
+    coloring = LightGraphs.greedy_color(graph; sort_degree=sort_degree, reps=reps)
     groups = [empty(_sum) for i in 1:coloring.num_colors]
     for (i, c) in enumerate(coloring.colors)
         push!(groups[c], _sum[i])
