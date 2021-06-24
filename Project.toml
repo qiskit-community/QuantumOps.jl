@@ -21,6 +21,7 @@ ThreadsX = "ac1d9e8a-700a-412c-b207-f0111f4b6c0d"
 ZChop = "8603256b-76ad-53fe-b511-38a38e6437cd"
 
 [compat]
+DocStringExtensions = "0.8"
 ILog2 = "0.2.2"
 IsApprox = "0.1"
 Literate = "2"
