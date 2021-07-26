@@ -23,6 +23,7 @@ ZChop = "8603256b-76ad-53fe-b511-38a38e6437cd"
 [compat]
 ILog2 = "0.2.2"
 IsApprox = "0.1"
+LightGraphs = "1"
 Literate = "2"
 Requires = "1"
 StaticArrays = "1"
