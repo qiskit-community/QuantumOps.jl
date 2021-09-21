@@ -10,7 +10,9 @@ two. Also, `kron_alt(one_matrix)` returns `one_matrix` rather than throwing an e
 """
 function kron_alt(mats...)
     if length(mats) == 1
-        return only(mats)
+        # copy input. Fixes bug #51. This masks root cause of the bug, which has also been fixed.
+        # But, this is the correct behavior in any case.
+        return copy(only(mats))
     end
     if length(mats) < 6
         return kron(mats...)

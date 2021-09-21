@@ -141,12 +141,19 @@ true
 Base.Matrix(ps::OpSum) = Matrix(SparseArrays.sparse(ps))
 
 ## ThreadsX helps enormously for large sums. 22x faster for 4^8 terms
+## But, ThreadsX is five times slower for 1-q sum
 """
     sparse(ps::OpSum)
 
 Convert `ps` to a sparse matrix.
 """
-SparseArrays.sparse(ps::OpSum) = ThreadsX.sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
+function SparseArrays.sparse(ps::OpSum)
+    if length(ps) >= 64
+        return ThreadsX.sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
+    else
+        return sum(SparseArrays.sparse(ps[i]) for i in eachindex(ps))
+    end
+end
 
 ####
 #### Compare / predicates

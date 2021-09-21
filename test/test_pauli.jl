@@ -67,9 +67,14 @@ end
     add!(ps, PauliTerm("XXX", -3))
     @test length(ps) == 2
 
-    m = rand(8, 8)
-    s = PauliSum(m)
-    @test m ≈ Matrix(s)
+    # n=2 tests #51
+    for n in (2, 4, 8, 16, 32)
+        for i in 1:10
+            m = rand(n, n)
+            s = PauliSum(m)
+            @test m ≈ Matrix(s)
+        end
+    end
 
     term = PauliTerm("XYZ")
     tan_term = tan(term)

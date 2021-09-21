@@ -60,7 +60,7 @@ end
 Construct a Pauli decomposition of `matrix`, that is, a `PauliSumA` representing `matrix`.
 If `thread` is `true`, use a multi-threaded algorithm for increased performance.
 """
-function OpSum{PauliT}(matrix::AbstractMatrix{<:Number}; threads=true) where PauliT <: AbstractPauli
+function OpSum{PauliT}(matrix::AbstractMatrix{<:Number}; threads::Bool=true) where PauliT <: AbstractPauli
     if threads
         return pauli_sum_from_matrix_threaded(PauliT, matrix)
     else
@@ -180,7 +180,7 @@ function _multiply_coefficient(coeff, matrix)
         return matrix
     end
     if coeff isa eltype(matrix)
-        return LinearAlgebra.lmul!(coeff, matrix)
+        return LinearAlgebra.lmul!(coeff, copy(matrix))
     end
     coeff1 = convert(promote_type(typeof(coeff), eltype(matrix)), coeff)
     return coeff1 .* matrix
@@ -236,7 +236,7 @@ LinearAlgebra.ishermitian(pt::APauliTerm) = isreal(pt.coeff)
 
 #using LoopVectorization
 ## Each non-commuting factor introduces a phase factor of -1.
-#  THis is slower   iseven(count(x -> !commutes(x[1], x[2]), zip(v1, v2)))
+#  This is slower   iseven(count(x -> !commutes(x[1], x[2]), zip(v1, v2)))
 @inline function commutes(v1::AbstractArray{<:AbstractPauli}, v2::AbstractArray{<:AbstractPauli})
     length(v1) == length(v2) || throw(DimensionMismatch("v1 and v2 of differing lengths"))
     c = 0
