@@ -56,7 +56,8 @@ julia> QuantumOps.strip_typeof(OpTerm{PauliI}("XX"))
 OpTerm{PauliI, T} where T<:AbstractVector{PauliI}
 ```
 
-The following will throw an exception because the requested method does not exist
+The following attempt to construct an operator will throw an exception because the requested
+method does not exist.
 ```julia
 julia> typeof(OpTerm{PauliI}("XX"))("YY")
 ERROR: MethodError: no method matching OpTerm{PauliI, Vector{PauliI}, Complex{Int64}}(::String)
@@ -71,6 +72,11 @@ YY * (1 + 0im)
 """
 strip_typeof(::OpTerm{W, T, CoeffT}) where {W, T, CoeffT} = OpTerm{W}
 
+"""
+    DenseOpTerm
+
+An alias for `OpTerm` with dense storage.
+"""
 const DenseOpTerm = OpTerm{W, T} where {W<:AbstractOp, T<:Union{Vector{W}, StaticArrays.SVector}}
 
 ## TODO: Commented out and tests pass. Is this necessary?
