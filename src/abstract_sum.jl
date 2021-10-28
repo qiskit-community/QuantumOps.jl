@@ -259,7 +259,7 @@ function add!(asum::AbstractSum, op_string, coeff)
         i = first(inds) # get the (single) index
         @inbounds asum.coeffs[i] += coeff # add p to existing term
         @inbounds if Utils.isapprox_zero(asum.coeffs[i])
-            @inbounds deleteat!(asum, [i])
+            @inbounds deleteat!(asum, i)
         end
     else
         throw(ErrorException("Duplicate terms found in operator sum."))
@@ -302,6 +302,12 @@ function Base.deleteat!(ps::AbstractSum, args...)
     return ps
 end
 
+function Base.deleteat!(ps::AbstractSum, ind)
+    deleteat!(ps.coeffs, ind)
+    deleteat!(ps.strings, ind)
+    return ps
+end
+
 """
     push!(psum::AbstractSum, ps::AbstractTerm...)
 
@@ -340,6 +346,15 @@ function Base.:+(ps0::AbstractSum, pss::AbstractSum...)
     ps_out = copy(ps0)
     for ps in pss
         add!(ps_out, ps)
+    end
+    return ps_out
+end
+
+function Base.sum(v::Vector{<:AbstractSum})
+    v0, vrest = Iterators.peel(v)
+    ps_out = copy(v0)
+    for vi in vrest
+        add!(ps_out, vi)
     end
     return ps_out
 end

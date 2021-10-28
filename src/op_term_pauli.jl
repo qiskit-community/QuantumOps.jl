@@ -179,11 +179,13 @@ function _multiply_coefficient(coeff, matrix)
     if isbool_and_equal(coeff, one(eltype(matrix)))
         return matrix
     end
-    if coeff isa eltype(matrix)
-        return LinearAlgebra.lmul!(coeff, copy(matrix))
-    end
-    coeff1 = convert(promote_type(typeof(coeff), eltype(matrix)), coeff)
-    return coeff1 .* matrix
+    # Tests pass with the stuff below commented out. It does not seem useful.
+    # if coeff isa eltype(matrix)
+    #     return LinearAlgebra.lmul!(coeff, copy(matrix))
+    # end
+    # coeff1 = convert(promote_type(typeof(coeff), eltype(matrix)), coeff)
+    # return coeff1 .* matrix
+    return coeff .* matrix
 end
 
 Base.Matrix(pt::APauliTerm) = Matrix(Float64, pt)

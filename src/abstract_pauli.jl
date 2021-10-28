@@ -76,13 +76,15 @@ function _AbstractPauli(::Type{PauliT}, s::AbstractChar) where PauliT
     end
 end
 
-"""
-    Vector{<:AbstractPauli}(ps::AbstractString)
 
-Construct a `Vector{<:AbstractPauli}` by parsing `ps` containing
-characters I, X, Y, Z.
-"""
-Vector{T}(ps::AbstractString) where {T <: AbstractPauli} = [T(s) for s in ps]
+# TODO: Test and remove this. The generic method is the same
+# """
+#     Vector{<:AbstractPauli}(ps::AbstractString)
+
+# Construct a `Vector{<:AbstractPauli}` by parsing `ps` containing
+# characters I, X, Y, Z.
+#"""
+#Vector{T}(ps::AbstractString) where {T <: AbstractPauli} = [T(s) for s in ps]
 
 """
     pauli_vector(op_index, n_qubits, indices=Vector{Int}(undef, n_qubits))

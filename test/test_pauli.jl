@@ -68,11 +68,13 @@ end
     @test length(ps) == 2
 
     # n=2 tests #51
-    for n in (2, 4, 8, 16, 32)
-        for i in 1:10
-            m = rand(n, n)
-            s = PauliSum(m)
-            @test m ≈ Matrix(s)
+    for T in (Float64, ComplexF64)
+        for n in (2, 4, 8, 16, 32)
+            for i in 1:10
+                m = rand(T, n, n)
+                s = PauliSum(m)
+                @test m ≈ Matrix(s)
+            end
         end
     end
 
