@@ -19,7 +19,6 @@ struct OpSum{OpT<:AbstractOp, StringT, CoeffT} <: AbstractSum{OpT, StringT, Coef
                 sort_and_sum_duplicates!(strings, coeffs)
             end
         end
-#        _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=already_sorted)
         return new{eltype(eltype(strings)), typeof(strings), typeof(coeffs)}(strings, coeffs)
     end
 end
@@ -104,13 +103,13 @@ EE- * -0.11901005957119838
 ```
 """
 function rand_op_sum(::Type{OpT}, n_factors::Integer, n_terms::Integer; coeff_func=nothing) where {OpT <: AbstractOp}
-    paulis = [rand(OpT, n_factors) for i in 1:n_terms]
+    term_string = [rand(OpT, n_factors) for i in 1:n_terms]
     if coeff_func === nothing
         coeffs = fill(_DEFAULT_COEFF, n_terms)
     else
         coeffs = coeff_func(n_terms)
     end
-    return OpSum{OpT}(paulis, coeffs)
+    return OpSum{OpT}(term_string, coeffs)
 end
 
 #####

@@ -9,22 +9,6 @@ abstract type AbstractSum{OpT, StringT, CoeffT} end
 ## Should we use this ?
 op_strings(as::AbstractSum) = as.strings
 
-# function _abstract_sum_inner_constructor_helper!(strings, coeffs; already_sorted=false)
-#     if length(strings) != length(coeffs)
-#         throw(DimensionMismatch("bad dims"))
-#     end
-#     if ! isempty(strings)
-#         if ! already_sorted  # Slightly dangerous to only do length check if not sorted
-#             n = length(first(strings))
-#             if ! all(x -> length(x) == n, strings)
-#                 throw(DimensionMismatch("Fermi strings are of differing lengths."))
-#             end
-#             sort_and_sum_duplicates!(strings, coeffs)
-#         end
-#     end
-#     return nothing
-# end
-
 function Base.similar(ps::AbstractSum{OpT, T, V}, n=0) where {OpT, W, C, V <:Vector{C}, T <: Vector{Vector{W}}}
     m = size(ps, 2)
     strings = [Vector{W}(undef, m) for i in 1:n]

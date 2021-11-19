@@ -101,4 +101,7 @@ function _show_op_plain end
 
 function anticommutes end
 
+# Return x and z bits as Tuple{Bool,Bool}
+function symplectic end
+
 end # module AbstractOps

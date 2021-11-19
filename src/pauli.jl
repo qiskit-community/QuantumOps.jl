@@ -1,7 +1,7 @@
 module Paulis
 
 import ..AbstractOps
-import ..AbstractOps: op_index, unsafe_op
+import ..AbstractOps: op_index, unsafe_op, symplectic
 using ..AbstractPaulis: AbstractPauli, _AbstractPauli
 
 export Pauli, unsafe_op
@@ -47,6 +47,22 @@ Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
 Base.copy(p::Pauli) = p
 
 op_index(p::Pauli) = 2 * p.hi + p.lo
+
+function symplectic(p::Pauli)
+    if p.hi == 1
+        if p.lo == 1
+            return (false, true)
+        else
+            return (true, true)
+        end
+    else
+        if p.lo == 1
+            return (true, false)
+        else
+            return (false, false)
+        end
+    end
+end
 
 ####
 #### Compare / predicates
