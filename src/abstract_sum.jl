@@ -2,6 +2,8 @@ import .Utils
 
 abstract type AbstractSum{OpT, StringT, CoeffT} end
 
+const ZERO_ATOL = 1e-12
+
 ####
 #### Constructors
 ####
@@ -85,12 +87,12 @@ Remove terms from `asum` with coefficient (approximately) equal to zero.
 If `terms` and `coeffs` are supplied, then elements are deleted from both `terms`
 and `coeffs` at indices corresponding to vanishing elements of `coeff`.
 """
-function remove_zeros!(asum::AbstractSum, atol=1e-16)
+function remove_zeros!(asum::AbstractSum, atol=ZERO_ATOL)
     remove_zeros!(asum.strings, asum.coeffs, atol)
     return asum
 end
 
-function remove_zeros!(terms::Vector, coeffs::Vector, atol=1e-16)
+function remove_zeros!(terms::Vector, coeffs::Vector, atol=ZERO_ATOL)
     # ThreadsX is very slow for small arrays
     # The findall(iszero, coeffs) is 500ns for two non-zero floats. What is wrong?
     # Appears to be this: iszero.(array) is taking almost all the time.
