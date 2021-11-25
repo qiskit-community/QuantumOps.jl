@@ -142,7 +142,7 @@ end
 ## Fails for empty psum
 function Base.size(asum::AbstractSum)
     n = isempty(asum) ? 0 : length(first(asum))
-    (length(asum), n)
+    return (length(asum), n)
 end
 Base.size(asum::AbstractSum, i::Integer) = size(asum)[i]
 

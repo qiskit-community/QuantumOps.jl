@@ -122,7 +122,45 @@ julia> FermiTerm("++--", 2.0)
 ++-- * 2.0
 ```
 """
-OpTerm{T}(s::AbstractString, coeff=_DEFAULT_COEFF) where T = OpTerm(Vector{T}(s), coeff)
+OpTerm{T}(s::AbstractString, coeff) where T = OpTerm(Vector{T}(s), coeff)
+
+## TODO: Splitting is expensive because the entire string is scanned if there is no space.
+## instead we may split on the space before the first operator character.
+## But, FermiOp uses characters that may also be in numbers... Hmm...
+## I'm not sure I want to support this. Parsing the string is tricky and I don't know
+## what the use case is.
+## It would not be hard t do this efficiently for Pauli, which has op chars very different
+## from the numbers.
+function OpTerm{T}(s::AbstractString) where T
+    return OpTerm{T}(s, _DEFAULT_COEFF)
+    # strs = split(s, ' '; limit=2)
+    # if length(strs) == 1
+    #     return OpTerm{T}(s, _DEFAULT_COEFF)
+    # elseif length(strs) == 2
+    # end
+end
+
+# This works. But OpSum{Pauli} will fail because it will not
+# call this method.
+# function OpTerm{T}(s::AbstractString) where T <: AbstractPauli
+#     j = 0
+#     for c in s
+#         if c in "IXYZ"
+#             break
+#         end
+#         j += 1
+#     end
+#     if j == 0
+#         return OpTerm{T}(s, _DEFAULT_COEFF)
+#     end
+#     strs = split(s, ' '; limit=2)
+#     if length(strs) == 2
+#         return OpTerm{T}(strs[2], parse(ComplexF64, strs[1]))
+#     else
+#         throw(ArgumentError("Unable to parse string for PauliTerm"))
+#     end
+# end
+
 
 ## TODO: document and give examples for all signatures below
 """
