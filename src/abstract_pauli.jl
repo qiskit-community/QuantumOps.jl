@@ -223,6 +223,8 @@ Base.:^(p::AbstractPauli, n::Integer) = iseven(n) ? one(p) : p
 
 Base.inv(p::AbstractPauli) = p
 
+Base.adjoint(p::AbstractPauli) = p
+
 IsApprox.commutes(p1::AbstractPauli, p2::AbstractPauli) = isone(p1) || isone(p2) || p1 === p2
 
 IsApprox.anticommutes(p1::AbstractPauli, p2::AbstractPauli) = ! IsApprox.commutes(p1, p2)
