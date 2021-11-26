@@ -1,7 +1,7 @@
 name = "QuantumOps"
 uuid = "d0cc4389-ef80-471f-8a8c-dd305d114ada"
 authors = ["John Lapeyre <jlapeyre@users.noreply.github.com> and contributors"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
