@@ -2,6 +2,7 @@ module JordanWigner
 
 # using DocStringExtensions
 
+import LinearAlgebra
 using ..AbstractOps
 using ..AbstractPaulis: Iop, Xop, Yop, Zop
 import ..Paulis, ..FermiTerm, ..FermiSum
@@ -33,6 +34,7 @@ function fill_pauli(pad, op_ind, fill_op::PauliT, end_op) where PauliT
     return str
 end
 
+# Future compiler improvements may make this optimization worthless.
 const _c1 = [complex(-1/2), complex(-im/2)]
 const _c2 = [complex(-1/2), complex(im/2)]
 const _c3 = [complex(1/2), complex(-1/2)]
@@ -74,7 +76,10 @@ function jordan_wigner(term::FermiTerm, ::Type{PauliT}=PauliDefault) where Pauli
     if isempty(facs)  # String is all I
         return(OpSum{PauliT}([fill(one(PauliT), length(term))], [complex(term.coeff)]))
     end
-    return term.coeff * reduce(*, facs) # TODO: performance
+#    return term.coeff * reduce(*, facs)
+    psum = length(facs) == 1 ? only(facs) : reduce(*, facs) # TODO: better performance
+    LinearAlgebra.lmul!(psum, term.coeff) # inplace mult does not appear to be faster
+    return psum
 end
 
 """

@@ -6,6 +6,7 @@ version = "0.1.1"
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 ElectronicStructure = "f7ec468b-4310-4c77-90aa-f73697106762"
+FastBroadcast = "7034ab61-46d4-4ed7-9d0f-46aef9175898"
 ILog2 = "2cd5bd5f-40a1-5050-9e10-fc8cdb6109f5"
 IsApprox = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
 LightGraphs = "093fc24a-ae57-5d10-9952-331d41423f4d"
@@ -21,13 +22,13 @@ ThreadsX = "ac1d9e8a-700a-412c-b207-f0111f4b6c0d"
 ZChop = "8603256b-76ad-53fe-b511-38a38e6437cd"
 
 [compat]
-ILog2 = "0.2.2"
-IsApprox = "0.1"
-Literate = "2"
-Requires = "1"
-StaticArrays = "1"
-StatsBase = "0.33"
-ThreadsX = "0.1"
+ILog2 = ">= 0.2.2"
+IsApprox = ">= 0.1"
+Literate = ">= 2"
+Requires = ">= 1"
+StaticArrays = ">= 1"
+StatsBase = ">= 0.33"
+ThreadsX = ">= 0.1"
 julia = "1"
 
 [extras]

@@ -19,6 +19,7 @@ import ThreadsX
 #import FLoops
 import ILog2
 import ZChop
+import FastBroadcast
 
 import SparseArraysN
 import SparseArraysN: neutral, isneutral, neutrals
@@ -27,8 +28,6 @@ export commutes, anticommutes
 
 #import SparseArrays
 const SparseArrays = SparseArraysN
-
-import ElectronicStructure
 
 export FermiOp, FermiTerm, FermiSum, AbstractPauli, Pauli, PauliI, PauliTerm, PauliSum,
     OpTerm, OpSum # , FermiTermA  #, PauliTermA  , PauliSumA
