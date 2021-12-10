@@ -22,8 +22,8 @@ abstract type AbstractPauli{T} <: AbstractOp end
 
 const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
 
-@inline is_pauli_y(p::AbstractPauli) = op_index(p) == Yop
-@inline is_pauli_I(p::AbstractPauli) = op_index(p) == Iop
+@inline is_pauli_y(p::AbstractPauli) = op_index(p) === Yop
+@inline is_pauli_I(p::AbstractPauli) = op_index(p) === Iop
 
 ####
 #### Constructors

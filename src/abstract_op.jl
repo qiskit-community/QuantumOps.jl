@@ -38,7 +38,7 @@ function _AbstractOp(::Type{T}, ind::V) where {T, V}
     syms = op_symbols(T, V)
     j = 0
     @inbounds for i in eachindex(syms) # 1:length(syms)
-        if ind == syms[i]
+        if ind === syms[i]
             j = i
             break
         end

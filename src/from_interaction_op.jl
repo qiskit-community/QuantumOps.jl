@@ -121,7 +121,7 @@ set to the identity.
 function _fermi_term(ops::NTuple, phase::Integer, coeff, n_modes::Integer)
     factors = fill(FermiOps.I, n_modes)
     for (op, ind) in ops
-        if op == FermiOps.NoOp
+        if op === FermiOps.NoOp
             continue
         end
         factors[ind] = op
