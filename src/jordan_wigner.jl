@@ -33,25 +33,30 @@ function fill_pauli(pad, op_ind, fill_op::PauliT, end_op) where PauliT
     return str
 end
 
+const _c1 = [complex(-1/2), complex(-im/2)]
+const _c2 = [complex(-1/2), complex(im/2)]
+const _c3 = [complex(1/2), complex(-1/2)]
+const _c4 = [complex(1/2), complex(1/2)]
+
 ## Jordan-Wigner
 function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT}=PauliDefault) where PauliT
     _fill_pauli(fill_op_ind, end_op_ind) = fill_pauli(pad, op_ind, PauliT(fill_op_ind), PauliT(end_op_ind))
     if op === Lower
         strx = _fill_pauli(Zop, Xop)
         stry = _fill_pauli(Zop, Yop)
-        coeffs = [complex(-1/2), complex(-im/2)]
+        coeffs = _c1
     elseif op === Raise
         strx = _fill_pauli(Zop, Xop)
         stry = _fill_pauli(Zop, Yop)
-        coeffs = [complex(-1/2), complex(im/2)]
+        coeffs = _c2
     elseif op === NumberOp
         strx = fill(PauliT(Iop), pad)
         stry = _fill_pauli(Iop, Zop)
-        coeffs = [complex(1/2), complex(-1/2)]
+        coeffs = _c3
     elseif op === Empty
         strx = fill(PauliT(Iop), pad)
         stry = _fill_pauli(Iop, Zop)
-        coeffs = [complex(1/2), complex(1/2)]
+        coeffs = _c4
     else
         raise(DomainError(op))
     end
