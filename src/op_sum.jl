@@ -165,8 +165,34 @@ end
 
 Base.zero(opsum::OpSum) = empty(opsum)
 
-# function ZChop.zchop!(opsum::OpSum)
-# end
+
+function ZChop.zchop(opsum::OpSum, zeps::Real=ZChop.zeps)
+    newopsum = empty(opsum)
+    newstrings = newopsum.strings
+    newcoeffs = newopsum.coeffs
+    for i in eachindex(opsum.coeffs)
+        c = opsum.coeffs[i]
+        if ! iszero(ZChop.zchop(c, zeps))
+            push!(newstrings, opsum.strings[i])
+            push!(newcoeffs, c)
+        end
+    end
+    return newopsum
+end
+
+
+function ZChop.zchop!(opsum::OpSum, zeps::Real=ZChop.zeps)
+    inds = Int[]
+    for i in eachindex(opsum.coeffs)
+        if iszero(ZChop.zchop(opsum.coeffs[i], zeps))
+            push!(inds, i)
+        end
+    end
+    deleteat!(opsum.coeffs, inds)
+    deleteat!(opsum.strings, inds)
+    return opsum
+end
+
 
 ####
 #### Algebra / mathematical operations
