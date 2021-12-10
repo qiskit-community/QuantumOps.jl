@@ -28,7 +28,7 @@ function fill_pauli(pad, op_ind, fill_op::PauliT, end_op) where PauliT
     end
     str[op_ind] = end_op
     for i in op_ind+1:pad
-        @inbounds str[i] = PauliT(Iop)# Paulis.I
+        @inbounds str[i] = PauliT(Iop)
     end
     return str
 end
@@ -39,23 +39,23 @@ function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT
     if op === Lower
         strx = _fill_pauli(Zop, Xop)
         stry = _fill_pauli(Zop, Yop)
-        coeffs = [-1/2, -im/2]
+        coeffs = [complex(-1/2), complex(-im/2)]
     elseif op === Raise
         strx = _fill_pauli(Zop, Xop)
         stry = _fill_pauli(Zop, Yop)
-        coeffs = [-1/2, im/2]
+        coeffs = [complex(-1/2), complex(im/2)]
     elseif op === NumberOp
         strx = fill(PauliT(Iop), pad)
         stry = _fill_pauli(Iop, Zop)
-        coeffs = [1/2, -1/2]
+        coeffs = [complex(1/2), complex(-1/2)]
     elseif op === Empty
         strx = fill(PauliT(Iop), pad)
         stry = _fill_pauli(Iop, Zop)
-        coeffs = [1/2, 1/2]
+        coeffs = [complex(1/2), complex(1/2)]
     else
         raise(DomainError(op))
     end
-    return OpSum{PauliT}([strx, stry], complex.(coeffs); already_sorted=true)
+    return OpSum{PauliT}([strx, stry], coeffs; already_sorted=true)
 end
 
 function jordan_wigner(term::FermiTerm, ::Type{PauliT}=PauliDefault) where PauliT
@@ -84,7 +84,7 @@ Convert `term` to a qubit operator of type `OpSum{PauliT}`.
 """
 function jordan_wigner(fsum::FermiSum, ::Type{PauliT}=PauliDefault) where PauliT
     psum = jordan_wigner(fsum[1], PauliT) # could use already sorted flag
-    for i in 2:length(fsum)
+    @inbounds for i in 2:length(fsum)
         append!(psum, jordan_wigner(fsum[i], PauliT))
     end
     return sort_and_sum_duplicates!(psum)
@@ -152,7 +152,7 @@ function jordan_wigner_fermi(fsum::FermiSum)
     for i in eachindex(fsum) # 1:length(fsum)
         push!(terms, jordan_wigner_fermi(fsum[i]))
     end
-    nterms = [x for x in terms]  # what is this?
+    nterms = [x for x in terms]  # nterms is never used
     return FermiSum(terms)
 end
 
