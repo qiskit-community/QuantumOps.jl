@@ -5,8 +5,8 @@ This module contains `PauliI <: AbstractPauli` and supporting code.
 """
 module PaulisI
 
-import ..AbstractOps: op_index
-import ..AbstractPaulis: AbstractPauli, _AbstractPauli
+import ..AbstractOps: op_index, _AbstractOp
+import ..AbstractPaulis: AbstractPauli
 
 export PauliI
 
@@ -39,7 +39,7 @@ const Z = PauliI(3)
 
 Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
 """
-PauliI(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(PauliI, s)
+PauliI(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractOp(PauliI, s)
 
 Base.copy(p::PauliI) = p
 

@@ -165,7 +165,6 @@ end
 
 Base.zero(opsum::OpSum) = empty(opsum)
 
-
 function ZChop.zchop(opsum::OpSum, zeps::Real=ZChop.zeps)
     newopsum = empty(opsum)
     newstrings = newopsum.strings

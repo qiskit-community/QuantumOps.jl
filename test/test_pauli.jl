@@ -11,7 +11,7 @@ end
         @test Pauli(n) == Pauli(s)
         st = string(s)
         @test Pauli(n) == Pauli(st)
-        @test Pauli(n) == Pauli(first(st))
+        @test Pauli(n) == Pauli(only(st)) # character
     end
 
     for (a, b, c) in ((:I, :I, :I), (:I, :X, :X), (:I, :Y, :Y), (:I, :Z, :Z),

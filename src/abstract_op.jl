@@ -18,14 +18,26 @@ function unsafe_op(::Type{T}, ind::Integer) where T
 end
 
 """
-    docstring
+    op_symbols(::Type{OpT}, ::Type{SymT})
+
+Return a list of objects of type `SymT` that represent operators of type `OpT`.
+The list should be in a canonical order.
+# Examples
+```julia
+op_symbols(::Type{<:AbstractPauli}, ::Type{Symbol}) = (:I, :X, :Y, :Z)
+```
 """
 function op_symbols end
 
+"""
+    _AbstractOp(::Type{T}, ind::V)
+
+Create an operator of type `T` from value `ind`.
+"""
 function _AbstractOp(::Type{T}, ind::V) where {T, V}
     syms = op_symbols(T, V)
     j = 0
-    for i in eachindex(syms) # 1:length(syms)
+    @inbounds for i in eachindex(syms) # 1:length(syms)
         if ind == syms[i]
             j = i
             break
@@ -34,7 +46,7 @@ function _AbstractOp(::Type{T}, ind::V) where {T, V}
     if j == 0
         throw(ArgumentError("Unrecognized operator symbol"))
     end
-    return T(j - 1)  # TODO: abstract this
+    return T(j - 1)  # TODO: abstract this index shift
 end
 
 """

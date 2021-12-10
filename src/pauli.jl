@@ -1,8 +1,8 @@
 module Paulis
 
 import ..AbstractOps
-import ..AbstractOps: op_index, unsafe_op, symplectic
-using ..AbstractPaulis: AbstractPauli, _AbstractPauli
+import ..AbstractOps: op_index, unsafe_op, symplectic, _AbstractOp
+using ..AbstractPaulis: AbstractPauli
 
 export Pauli, unsafe_op
 import IsApprox
@@ -32,7 +32,7 @@ const Z = Pauli(1, 1)
 
 Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
 """
- Pauli(ind::Integer)::Pauli = (I, X, Y, Z)[ind + 1]
+Pauli(ind::Integer)::Pauli = (I, X, Y, Z)[ind + 1]
 
 ## The unsafe_op, unsafe_pauli thing does not seem to be more efficient.
 
@@ -42,7 +42,7 @@ Return a `Pauli` indexed by `[0, 3]` or a representation of `[I, X, Y, Z]`.
     return  @inbounds (I, X, Y, Z)[ind + 1]
 end
 
-Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
+Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractOp(Pauli, s)
 
 Base.copy(p::Pauli) = p
 

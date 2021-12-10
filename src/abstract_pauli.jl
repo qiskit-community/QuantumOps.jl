@@ -9,6 +9,7 @@ using StaticArrays
 import LinearAlgebra
 import IsApprox
 import ..Utils: pow_of_minus_one
+import ..AbstractOps: op_symbols
 
 export AbstractPauli
 
@@ -28,54 +29,13 @@ const (Iop, Xop, Yop, Zop) = (0, 1, 2, 3)
 #### Constructors
 ####
 
-## These are not really constructors, since they don't exist for abstract types.
-## But, they are the closest we can get, and are called by the concrete subtypes.
+const _pauli_chars = ('I', 'X', 'Y', 'Z')
+const _pauli_string_chars = string.(_pauli_chars)
+const _pauli_symbol_chars = Symbol.(_pauli_chars)
 
-## The following methods are called by concrete subtypes like this:
-## Pauli(s::Union{Symbol, AbstractString, AbstractChar}) = _AbstractPauli(Pauli, s)
-
-function _AbstractPauli(::Type{PauliT}, s::Symbol) where PauliT
-    if s == :I
-        return PauliT(Iop)
-    elseif s == :X
-        return PauliT(Xop)
-    elseif s == :Y
-        return PauliT(Yop)
-    elseif s == :Z
-        return PauliT(Zop)
-    else
-        throw(ArgumentError("Invalid Pauli symbol $s"))
-    end
-end
-
-function _AbstractPauli(::Type{PauliT}, s::AbstractString) where PauliT
-    if s == "I"
-        return PauliT(Iop)
-    elseif s == "X"
-        return PauliT(Xop)
-    elseif s == "Y"
-        return PauliT(Yop)
-    elseif s == "Z"
-        return PauliT(Zop)
-    else
-        throw(ArgumentError("Invalid Pauli symbol \"$s\""))
-    end
-end
-
-function _AbstractPauli(::Type{PauliT}, s::AbstractChar) where PauliT
-    if s == 'I'
-        return PauliT(Iop)
-    elseif s == 'X'
-        return PauliT(Xop)
-    elseif s == 'Y'
-        return PauliT(Yop)
-    elseif s == 'Z'
-        return PauliT(Zop)
-    else
-        throw(ArgumentError("Invalid Pauli Char '$s'"))
-    end
-end
-
+op_symbols(::Type{<:AbstractPauli}, ::Type{<:AbstractChar}) = _pauli_chars
+op_symbols(::Type{<:AbstractPauli}, ::Type{<:AbstractString}) = _pauli_string_chars
+op_symbols(::Type{<:AbstractPauli}, ::Type{Symbol}) = _pauli_symbol_chars
 
 # TODO: Test and remove this. The generic method is the same
 # """
