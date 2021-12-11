@@ -204,6 +204,11 @@ end
 Left multiplies the coefficient of `psum` by `n` in place.
 """
 function LinearAlgebra.lmul!(opsum::OpSum, n)
-    FastBroadcast.@.. opsum.coeffs = n * opsum.coeffs
+    coeffs = opsum.coeffs
+    # FastBroadcast.@.. opsum.coeffs = n * opsum.coeffs
+    # @. opsum.coeffs = n * opsum.coeffs
+    @inbounds for i in eachindex(coeffs)
+        coeffs[i] = coeffs[i] * n
+    end
     return opsum
 end

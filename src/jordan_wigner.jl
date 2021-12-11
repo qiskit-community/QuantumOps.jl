@@ -34,13 +34,14 @@ function fill_pauli(pad, op_ind, fill_op::PauliT, end_op) where PauliT
     return str
 end
 
-# Future compiler improvements may make this optimization worthless.
+# 1. Future compiler improvements may make this optimization worthless.
+# 2. Keno's proposal for immutable Arrays would be very useful here.
 const _c1 = [complex(-1/2), complex(-im/2)]
 const _c2 = [complex(-1/2), complex(im/2)]
 const _c3 = [complex(1/2), complex(-1/2)]
 const _c4 = [complex(1/2), complex(1/2)]
 
-## Jordan-Wigner
+## Be careful to copy these when combining. Otherwise _c1, etc. will be mutated
 function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT}=PauliDefault) where PauliT
     _fill_pauli(fill_op_ind, end_op_ind) = fill_pauli(pad, op_ind, PauliT(fill_op_ind), PauliT(end_op_ind))
     if op === Lower
@@ -76,10 +77,8 @@ function jordan_wigner(term::FermiTerm, ::Type{PauliT}=PauliDefault) where Pauli
     if isempty(facs)  # String is all I
         return(OpSum{PauliT}([fill(one(PauliT), length(term))], [complex(term.coeff)]))
     end
-#    return term.coeff * reduce(*, facs)
     psum = length(facs) == 1 ? only(facs) : reduce(*, facs) # TODO: better performance
-    LinearAlgebra.lmul!(psum, term.coeff) # inplace mult does not appear to be faster
-    return psum
+    return term.coeff * psum # NOTE: This performs a copy, which is essential.
 end
 
 """
