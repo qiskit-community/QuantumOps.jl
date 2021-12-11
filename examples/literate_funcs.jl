@@ -17,6 +17,9 @@ Create notebooks from `input_file`, applying needed filters and write output to
 the root folder of our typical Jupyter session.
 """
 function notebook(input_file)
-    Literate.notebook(input_file, "/home/lapeyre/code/github/Qiskit/oneenv/"; preprocess=notebook_filter)
+    output_dir = "."
+    Literate.notebook(input_file, output_dir; preprocess=notebook_filter)
 end
+
+nothing;
 

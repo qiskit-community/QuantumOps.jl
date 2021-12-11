@@ -1,6 +1,6 @@
 # Activate the package from its development location
-import Pkg
-Pkg.activate("/home/lapeyre/.julia/gjl-quantum/QuantumOps")
+# import Pkg
+# Pkg.activate("/home/lapeyre/.julia/gjl-quantum/QuantumOps")
 
 # First, import some identifiers for types
 import QuantumOps ## Import the identifier `QuantumOps` for using fully qualified identifiers
@@ -75,7 +75,7 @@ OpTerm{Pauli}
 #-
 OpTerm{FermiOp}
 #-
-PauliTerm == OpTerm{Pauli}
+PauliTerm === OpTerm{Pauli}
 # `Pauli` is the default encoding, as there is no alias for `OpTerm{PauliI}`
 OpTerm{PauliI}
 
@@ -140,3 +140,6 @@ sparse_op(t1) * sparse_op(t2)
 
 # You can create a generator of the ``n``-qubit Pauli basis operators like this
 collect(QuantumOps.pauli_basis(2))
+
+
+nothing;
