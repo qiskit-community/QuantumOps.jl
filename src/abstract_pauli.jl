@@ -290,6 +290,7 @@ end
 
 ## The function `*` must return only the bare Pauli. That is, the phase +-im must be discarded.
 
+# TODO: Is this MethodError worth anything? Won't a missing method throw a MethodError in any case?
 """
     p1::AbstractPauli * p2::AbstractPauli
 
