@@ -2,7 +2,6 @@ import ..AbstractPaulis
 import ..AbstractPaulis: AbstractPauli, is_pauli_y
 import .._op_term_macro_helper
 import LightGraphs
-import IsApprox: commutes
 import ..Utils: property_graph, kron_alt, isapprox_zero, triprod, pow_of_minus_one
 
 ####
