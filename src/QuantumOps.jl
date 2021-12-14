@@ -11,6 +11,7 @@ module QuantumOps
 import Requires
 import IsApprox
 import IsApprox: isunitary
+using IsApprox: AbstractApprox, Equal
 import Random
 import LinearAlgebra, Random
 using StaticArrays

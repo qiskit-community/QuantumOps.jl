@@ -223,14 +223,15 @@ end
 
 Return `true` if `pt` is a unitary operator.
 """
-IsApprox.isunitary(pt::APauliTerm) = IsApprox.isunitary(pt.coeff)
+IsApprox.isunitary(pt::APauliTerm, approx_test::AbstractApprox=Equal()) = IsApprox.isunitary(pt.coeff, approx_test)
 
 """
-    ishermitian(pt::PauliTermA)
+    IsApprox.ishermitian(pt::PauliTermA)
 
 Return `true` if `pt` is a Hermitian operator.
 """
-LinearAlgebra.ishermitian(pt::APauliTerm) = isreal(pt.coeff)
+IsApprox.ishermitian(pt::APauliTerm, approx_test::AbstractApprox=Equal()) =
+    IsApprox.isreal(pt.coeff, approx_test)
 
 ## TODO: anticommutes. for FermiOp as well
 
@@ -436,4 +437,5 @@ end
 
 Return `true` if `ps` is a Hermitian operator.
 """
-LinearAlgebra.ishermitian(ps::APauliSum) = all(isreal, ps.coeffs)
+IsApprox.ishermitian(ps::APauliSum, approx_test::AbstractApprox=Equal()) =
+    all(x -> IsApprox.isreal(x, approx_test), ps.coeffs)

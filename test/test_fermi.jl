@@ -1,3 +1,5 @@
+import IsApprox
+
 @testset "FermiOp" begin
     @test FermiOp(0) === QuantumOps.FermiOps.I
     @test FermiOp(1) === QuantumOps.FermiOps.NumberOp
@@ -28,7 +30,7 @@ end
     t2 = FermiTerm("-E--")
     @test t1 * t2 == FermiTerm("NENN", -1)
 
-    @test (! LinearAlgebra.ishermitian(FermiTerm("--++")))
-    @test LinearAlgebra.ishermitian(FermiTerm("IEINN"))
-    @test (! LinearAlgebra.ishermitian(FermiTerm("IEINN", 1 + 1.0im)))
+    @test (! IsApprox.ishermitian(FermiTerm("--++")))
+    @test IsApprox.ishermitian(FermiTerm("IEINN"))
+    @test (! IsApprox.ishermitian(FermiTerm("IEINN", 1 + 1.0im)))
 end

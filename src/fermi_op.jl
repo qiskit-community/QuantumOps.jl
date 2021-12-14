@@ -5,7 +5,7 @@
 module FermiOps
 
 import Random
-import LinearAlgebra
+import IsApprox
 
 export FermiOp, FermiDefault
 export I, NumberOp, Empty, Raise, Lower, Zero, count_raise_lower, is_raise_lower
@@ -126,7 +126,7 @@ Return `true` if `x` is a raising or lowering operator.
 """
 is_raise_lower(x) = x === FermiOps.Raise || x === FermiOps.Lower
 
-LinearAlgebra.ishermitian(op::FermiOp) = !is_raise_lower(op)
+IsApprox.ishermitian(op::FermiOp) = !is_raise_lower(op)
 
 """
     count_raise_lower(op::FermiOp)

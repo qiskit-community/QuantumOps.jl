@@ -161,13 +161,13 @@ Canonical (lexical) order of `AbstractPauli` is I < X < Y < Z.
 """
 Base.isless(p1::AbstractPauli, p2::AbstractPauli) = op_index(p1) < op_index(p2)
 
-LinearAlgebra.ishermitian(::AbstractPauli) = true
+IsApprox.ishermitian(::AbstractPauli) = true
 
-LinearAlgebra.isposdef(::PauliT) where PauliT <: AbstractPauli = p === PauliT(:I)
+IsApprox.isposdef(::PauliT) where PauliT <: AbstractPauli = p === PauliT(:I)
 
-LinearAlgebra.isdiag(p::PauliT) where PauliT <: AbstractPauli = (p === PauliT(:I) || p === PauliT(:Z))
+IsApprox.isdiag(p::PauliT) where PauliT <: AbstractPauli = (p === PauliT(:I) || p === PauliT(:Z))
 
-LinearAlgebra.issymmetric(p::PauliT) where PauliT <: AbstractPauli = p != PauliT(:Y)
+IsApprox.issymmetric(p::PauliT) where PauliT <: AbstractPauli = p != PauliT(:Y)
 
 IsApprox.isunitary(::AbstractPauli) = true
 

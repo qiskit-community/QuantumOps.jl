@@ -18,13 +18,13 @@ end
 #### Predicates
 ####
 
-function LinearAlgebra.ishermitian(ft::AFermiTerm)
+function IsApprox.ishermitian(ft::AFermiTerm, approx_test::AbstractApprox=Equal())
     for x in op_string(ft)
         if FermiOps.is_raise_lower(x)
             return false
         end
     end
-    return LinearAlgebra.ishermitian(ft.coeff)
+    return IsApprox.ishermitian(ft.coeff, approx_test)
 end
 
 ####
