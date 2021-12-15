@@ -1,7 +1,7 @@
 module FromInteractionOp
 
 import ElectronicStructure
-import ..Utils: pow_of_minus_one
+using ..Utils: pow_of_minus_one
 import ..AbstractFermiOp, ..OpSum, ..OpTerm, ..FermiOps
 import ..FermiOps: NumberOp, Raise, Lower
 import ..add!

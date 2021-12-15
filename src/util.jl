@@ -1,6 +1,6 @@
 module Utils
 
-import LightGraphs
+using LightGraphs: LightGraphs
 
 """
     kron_alt(mats...)

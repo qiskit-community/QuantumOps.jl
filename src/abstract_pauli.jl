@@ -47,9 +47,9 @@ op_symbols(::Type{<:AbstractPauli}, ::Type{Symbol}) = _pauli_symbol_chars
 #Vector{T}(ps::AbstractString) where {T <: AbstractPauli} = [T(s) for s in ps]
 
 """
-    pauli_vector(op_index, n_qubits, indices=Vector{Int}(undef, n_qubits))
+    pauli_vector(::Type{PauliT}, op_index, n_qubits, indices=Vector{Int}(undef, n_qubits))
 
-Return a `Vector` of Pauli's representing a multi-qubit Pauli indexed by the base-4
+Return a `Vector` of `PauliT` representing a multi-qubit Pauli indexed by the base-4
 representation of `op_index`. A temporary array `indices` may be passed to avoid
 allocation.
 """

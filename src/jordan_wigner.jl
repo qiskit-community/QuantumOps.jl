@@ -1,8 +1,5 @@
 module JordanWigner
 
-# using DocStringExtensions
-
-import LinearAlgebra
 using ..AbstractOps
 using ..AbstractPaulis: Iop, Xop, Yop, Zop
 import ..Paulis, ..FermiTerm, ..FermiSum

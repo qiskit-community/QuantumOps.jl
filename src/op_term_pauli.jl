@@ -234,12 +234,12 @@ IsApprox.ishermitian(pt::APauliTerm, approx_test::AbstractApprox=Equal()) =
 
 ## TODO: anticommutes. for FermiOp as well
 
-@inline commutes(p1::APauliTerm, p2::APauliTerm) = commutes(op_string(p1), op_string(p2))
+@inline IsApprox.commutes(p1::APauliTerm, p2::APauliTerm) = commutes(op_string(p1), op_string(p2))
 
 #using LoopVectorization
 ## Each non-commuting factor introduces a phase factor of -1.
 #  This is slower   iseven(count(x -> !commutes(x[1], x[2]), zip(v1, v2)))
-@inline function commutes(v1::AbstractArray{<:AbstractPauli}, v2::AbstractArray{<:AbstractPauli})
+@inline function IsApprox.commutes(v1::AbstractArray{<:AbstractPauli}, v2::AbstractArray{<:AbstractPauli})
     length(v1) == length(v2) || throw(DimensionMismatch("v1 and v2 of differing lengths"))
     c = 0
     @inbounds for i in eachindex(v1)
@@ -255,7 +255,7 @@ end
 
 Return `true` if the terms in `pauli_sum` are mutually commuting.
 """
-commutes(ps::APauliSum) = commutes(op_strings(ps))
+IsApprox.commutes(ps::APauliSum) = commutes(op_strings(ps))
 
 
 ## The following is simpler, but slightly less performant than `commutes` below
@@ -269,7 +269,7 @@ end
 
 Return `true` if the strings in `pauli_strings` are mutually commuting.
 """
-function commutes(a::AbstractVector{<:AbstractVector{<:AbstractPauli}})
+function IsApprox.commutes(a::AbstractVector{<:AbstractVector{<:AbstractPauli}})
     for i in eachindex(a), j in i+1:lastindex(a)
         @inbounds commutes(a[i], a[j]) || return false
     end
