@@ -31,7 +31,7 @@ import JLD2
                                FermiTerm("+--+", 0.181288808211496),FermiTerm("-++-", 0.181288808211496),
                                FermiTerm("--++", -0.181288808211496)])
 
-    data = JLD2.load("iop_h2.jld2")
+    data = JLD2.load(joinpath(@__DIR__, "iop_h2.jld2"))
     iop = data["iop"]
     @test OpSum{FermiOp}(iop) == h2_hamiltonian
 

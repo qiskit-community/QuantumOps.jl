@@ -12,18 +12,13 @@ import Requires
 import IsApprox
 using IsApprox: isunitary, ishermitian, commutes,
     isposdef, isdiag, issymmetric, isunitary
-# import IsApprox: isunitary, ishermitian, commutes,
-#     isposdef, isdiag, issymmetric, isunitary
 using IsApprox: AbstractApprox, Equal, Approx
 import Random
 import LinearAlgebra, Random
 using StaticArrays
-using DocStringExtensions
 import ThreadsX
-#import FLoops
 import ILog2
 import ZChop
-import FastBroadcast
 
 import SparseArraysN
 import SparseArraysN: neutral, isneutral, neutrals
