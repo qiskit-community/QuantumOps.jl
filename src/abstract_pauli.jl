@@ -66,7 +66,6 @@ AbstractOps.rand_ind_range(::Type{<:AbstractPauli}) = 0:3
 #### IO
 ####
 
-const _pauli_chars = ('I', 'X', 'Y', 'Z')
 op_chars(::Type{AbstractPauli}) = _pauli_chars
 
 ## I think all of this was due to a bug elsewhere. Perhaps it can be reverted.
