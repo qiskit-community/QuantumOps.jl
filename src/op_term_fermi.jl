@@ -1,4 +1,4 @@
-import ..Utils: pow_of_minus_one
+import .Utils: pow_of_minus_one
 
 ####
 #### OpTerm{AbstractFermiOp}

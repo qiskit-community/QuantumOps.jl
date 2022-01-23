@@ -1,6 +1,6 @@
 module Z4Group0s
 
-export Z4Group0
+export Z4Group0, z4group0
 import Random
 
 using ..Z4Groups

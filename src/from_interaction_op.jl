@@ -11,14 +11,14 @@ import ..add!
 
 Convert `iop` to a `FermiSum`.
 """
-function OpSum{OpT}(iop::ElectronicStructure.InteractionOperator) where {OpT<:AbstractFermiOp}
-    fsum = OpSum{OpT}(iop.one_body_tensor, iop.two_body_tensor)
+function OpSum{FermiOpT}(iop::ElectronicStructure.InteractionOperator) where {FermiOpT<:AbstractFermiOp}
+    fsum = OpSum{FermiOpT}(iop.one_body_tensor, iop.two_body_tensor)
     add!(fsum, iop.nuclear_repulsion * one(fsum[1]))
     return fsum
 end
 
-function OpSum{OpT}(tensor::AbstractArray{<:Number}, tensors::AbstractArray{<:Number}...) where {OpT<:AbstractFermiOp}
-    fsum = OpSum(Vector{OpT}[], eltype(tensor)[])
+function OpSum{FermiOpT}(tensor::AbstractArray{<:Number}, tensors::AbstractArray{<:Number}...) where {FermiOpT<:AbstractFermiOp}
+    fsum = OpSum(Vector{FermiOpT}[], eltype(tensor)[])
     for tensor in (tensor, tensors...)
         tensor_to_fermi_sum!(fsum, tensor)
     end

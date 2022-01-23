@@ -23,7 +23,9 @@ import ZChop
 import SparseArraysN
 import SparseArraysN: neutral, isneutral, neutrals
 export neutral, isneutral
-export commutes, anticommutes
+export commutes
+# TODO: find if and how to export following
+# export anticommutes
 
 #import SparseArrays
 const SparseArrays = SparseArraysN
@@ -42,8 +44,10 @@ export sparse_op, dense_op
 export isunitary
 export pauli_basis, mul!, rand_op_term, rand_op_sum
 export @pauli_str, @fermi_str
-export op_index, phase, weight, pauli_vector
-export add!, lmul!, numeric_function
+export op_index, weight, pauli_vector
+export add!, numeric_function
+# TODO: export following ?
+# export lmul!
 export group_paulis, property_graph
 export z4group0
 export z4group
@@ -93,8 +97,10 @@ using .Z4Group0s
 include("abstract_op.jl")
 
 using .AbstractOps
+using .AbstractOps: AbstractOps # trying to satisfy JET
 
 include("abstract_pauli.jl")
+using .AbstractPaulis
 
 include("pauli.jl")
 using .Paulis
@@ -133,6 +139,31 @@ include("jordan_wigner.jl")
 using .JordanWigner
 
 include("from_interaction_op.jl")
+
+# The following does *not* make QuantumOps load faster.
+# In fact in makes the following twice as slow on the first call:
+# PauliSum(Matrix(rand_op_sum(Pauli, 3, 4)))
+# let
+#     while true
+#         group_paulis(rand_op_sum(Pauli, 10, 20))
+#         rand_op_sum(FermiOp, 10, 20)
+#         rand_op_term(Pauli, 10)
+#         rand_op_term(FermiOp, 10)
+
+#         h2_hamiltonian = FermiSum([FermiTerm("IIII", 0.7137539936876182),FermiTerm("IIIN", -0.47594871522096355),
+#                                    FermiTerm("IINI", -0.47594871522096355),FermiTerm("IINN", 0.6973937674230275),
+#                                    FermiTerm("INII", -1.2524635735648981),FermiTerm("ININ", 0.482179288212072),
+#                                    FermiTerm("INNI", 0.663468096423568),FermiTerm("NIII", -1.2524635735648981),
+#                                    FermiTerm("NIIN", 0.663468096423568),FermiTerm("NINI", 0.482179288212072),
+#                                    FermiTerm("NNII", 0.6744887663568375),FermiTerm("++--", -0.181288808211496),
+#                                    FermiTerm("+--+", 0.181288808211496),FermiTerm("-++-", 0.181288808211496),
+#                                    FermiTerm("--++", -0.181288808211496)])
+#         jordan_wigner(h2_hamiltonian)
+#         PauliSum(Matrix(rand_op_sum(Pauli, 3, 4)))
+#         println("Done chores")
+#         break
+#     end
+# end
 
 # We are abandoning this
 # include("abstract_stabilizers.jl")

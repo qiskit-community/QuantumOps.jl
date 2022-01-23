@@ -58,7 +58,7 @@ function jordan_wigner(op::FermiOp, op_ind::Integer, pad::Integer, ::Type{PauliT
         stry = _fill_pauli(Iop, Zop)
         coeffs = _c4
     else
-        raise(DomainError(op))
+        throw(DomainError(op))
     end
     return OpSum{PauliT}([strx, stry], coeffs; already_sorted=true)
 end
@@ -135,7 +135,7 @@ function jordan_wigner_fermi(op::FermiOp, op_ind::Integer, pad::Integer)
         str = fill(FermiOps.I, pad)
         return FermiTerm(str, complex(1.0))
     else
-        raise(DomainError(op))
+        throw(DomainError(op))
     end
 end
 

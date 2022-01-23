@@ -6,7 +6,7 @@ module Z4Groups
 
 import Random
 
-export Z4Group, z4group, ConvertableNumber
+export Z4Group, z4group, ConvertableNumber, AbstractZ4Group
 
 abstract type AbstractZ4Group end
 

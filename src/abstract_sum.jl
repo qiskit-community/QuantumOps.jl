@@ -30,7 +30,7 @@ end
 function Base.show(io::IO, asum::AbstractSum)
     (m, n) = size(asum)
     print(io, m, "x", n, " ", typeof(asum), ":\n")
-    for i in eachindex(asum)
+    for i::Integer in eachindex(asum)
         _show_abstract_term(io, asum[i])
         if i != lastindex(asum)
             print(io, "\n")
@@ -58,7 +58,7 @@ function sort_and_sum_duplicates!(asum::AbstractSum)
     return asum
 end
 
-sum_duplicates!(asum::AbstractSum) = sum_duplicates!(fsum.strings, fsum.coeffs)
+sum_duplicates!(asum::AbstractSum) = sum_duplicates!(asum.strings, asum.coeffs)
 
 function sort_and_sum_duplicates!(terms, coeffs)
     sort_sums!(terms, coeffs)
@@ -139,7 +139,7 @@ end
 #### Container interface
 ####
 
-## Fails for empty psum
+## Fails for empty asum
 function Base.size(asum::AbstractSum)
     n = isempty(asum) ? 0 : length(first(asum))
     return (length(asum), n)
@@ -326,7 +326,7 @@ end
 #### Algebra / mathematical operations
 ####
 
-Base.:+(terms::T...) where {T <: AbstractTerm} = sum_type(T)([terms...])
+Base.:+(term::T, terms::T...) where {T <: AbstractTerm} = sum_type(T)([term, terms...])
 
 function Base.:+(ps0::AbstractSum, pss::AbstractSum...)
     ps_out = copy(ps0)
@@ -337,6 +337,7 @@ function Base.:+(ps0::AbstractSum, pss::AbstractSum...)
 end
 
 function Base.sum(v::Vector{<:AbstractSum})
+    isempty(v) && throw(ArgumentError("Can't sum empty vector of `AbstractSum`."))
     v0, vrest = Iterators.peel(v)
     ps_out = copy(v0)
     for vi in vrest
@@ -365,7 +366,7 @@ end
 
 Base.:*(asum::AbstractSum, n::Number) = n * asum
 
-function Base.:/(psum::AbstractSum, n)
+function Base.:/(psum::AbstractSum, n::Number)
     strip_typeof(psum)(psum.strings, psum.coeffs ./ n; already_sorted=true)
 end
 

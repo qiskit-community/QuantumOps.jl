@@ -193,7 +193,8 @@ IXYZ * (1 + 0im)
 ```
 """
 function OpTerm{OpT}(inds::AbstractVector{<:Integer}, coeff=_DEFAULT_COEFF) where OpT <: AbstractOp
-    return OpTerm(OpT.(inds), coeff)
+#    return OpTerm(OpT.(inds), coeff)
+    return OpTerm([OpT(i) for i in inds], coeff)
 end
 
 ## Documented elsewhere (above, when this comment was written)

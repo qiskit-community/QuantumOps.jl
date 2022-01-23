@@ -1,7 +1,7 @@
 import Random
 
-using ..AbstractOps
-using ..AbstractOps: _show_op_plain
+using .AbstractOps
+using .AbstractOps: _show_op_plain
 
 abstract type AbstractFermiOp <: AbstractOp end
 

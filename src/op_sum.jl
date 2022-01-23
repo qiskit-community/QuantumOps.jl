@@ -67,6 +67,8 @@ Create an empty `OpSum`, that is with no terms, similar to `s`.
 """
 Base.empty(s::OpSum) = strip_typeof(s)(empty(s.strings), empty(s.coeffs))
 
+Base.isempty(s::OpSum) = isempty(s.strings) && isempty(s.coeffs)  # Do we need both. Should we check ?
+
 """
     OpSum(v::AbstractMatrix{<:AbstractOp}, coeffs=fill(_DEFAULT_COEFF, size(v, 1)))
 
@@ -165,7 +167,7 @@ end
 
 Base.zero(opsum::OpSum) = empty(opsum)
 
-function ZChop.zchop(opsum::OpSum, zeps::Real=ZChop.zeps)
+function ZChop.zchop(opsum::OpSum, zeps::Real=ZChop.ZEPS)
     newopsum = empty(opsum)
     newstrings = newopsum.strings
     newcoeffs = newopsum.coeffs
@@ -180,7 +182,7 @@ function ZChop.zchop(opsum::OpSum, zeps::Real=ZChop.zeps)
 end
 
 
-function ZChop.zchop!(opsum::OpSum, zeps::Real=ZChop.zeps)
+function ZChop.zchop!(opsum::OpSum, zeps::Real=ZChop.ZEPS)
     inds = Int[]
     for i in eachindex(opsum.coeffs)
         if iszero(ZChop.zchop(opsum.coeffs[i], zeps))

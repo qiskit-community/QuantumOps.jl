@@ -1,8 +1,7 @@
-import ..AbstractPaulis
-import ..AbstractPaulis: AbstractPauli, is_pauli_y
-import .._op_term_macro_helper
+import .AbstractPaulis: AbstractPaulis, AbstractPauli, is_pauli_y
+import ._op_term_macro_helper
 import LightGraphs
-import ..Utils: property_graph, kron_alt, isapprox_zero, triprod, pow_of_minus_one
+import .Utils: property_graph, kron_alt, isapprox_zero, triprod, pow_of_minus_one
 
 ####
 #### Constructors
@@ -328,6 +327,8 @@ function Base.kron(ps::Union{APauliTerm, AbstractPauli}...)
     end
     if isempty(coeffs)
         return PauliTerm(v)
+    elseif length(coeffs) == 1
+        return PauliTerm(v, only(coeffs))
     else
         return PauliTerm(v, reduce(*, coeffs))
     end

@@ -11,7 +11,7 @@ import IsApprox
 import ..Utils: pow_of_minus_one
 import ..AbstractOps: op_symbols
 
-export AbstractPauli
+export AbstractPauli, pauli_vector
 
 # """
 #     AbstractPauli{T}
@@ -162,7 +162,7 @@ Base.isless(p1::AbstractPauli, p2::AbstractPauli) = op_index(p1) < op_index(p2)
 
 IsApprox.ishermitian(::AbstractPauli) = true
 
-IsApprox.isposdef(::PauliT) where PauliT <: AbstractPauli = p === PauliT(:I)
+IsApprox.isposdef(p::PauliT) where PauliT <: AbstractPauli = p === PauliT(:I)
 
 IsApprox.isdiag(p::PauliT) where PauliT <: AbstractPauli = (p === PauliT(:I) || p === PauliT(:Z))
 

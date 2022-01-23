@@ -1,4 +1,4 @@
-import ..AbstractOps: AbstractOp, weight
+import .AbstractOps: AbstractOp, weight
 
 abstract type AbstractTerm{W, CoeffT} end
 
@@ -74,6 +74,10 @@ for func in (:length, :size, :eltype, :eachindex, :axes, :splice!, :getindex,
         Base.$func(ps::AbstractTerm, args...) = $func(op_string(ps), args...)
     end
 end
+
+# Remove ambiguity found by Aqua
+Base.last(ps::AbstractTerm, n::Integer) = last(op_string(ps), n)
+Base.first(ps::AbstractTerm, n::Integer) = first(op_string(ps), n)
 
 ## TODO: Is there a way to combine this with methods for Base functions above ?
 for func in (:weight, )

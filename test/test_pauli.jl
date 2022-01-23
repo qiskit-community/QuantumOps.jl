@@ -95,7 +95,7 @@ end
 
 end
 
-@testset "Z4Group0" begin
+@testset "Z4Group0 Pauli" begin
     ms = Matrix.(Pauli.((0, 1, 2, 3)))
     zms = ((Z4Group0.(m) for m in ms)...,)
     @test zms == ms

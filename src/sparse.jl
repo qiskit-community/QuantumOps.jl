@@ -2,12 +2,13 @@
 #### OpTerm and OpSum backed by SparseVector
 ####
 
-using ..AbstractPaulis: PauliPhaseCounts
+# using ..AbstractPaulis: PauliPhaseCounts
 
 SparseArraysN.neutral(T::Type{<:AbstractOp}) = one(T)
 SparseArraysN.neutral(x::AbstractOp) = one(x)
 SparseArraysN.isneutral(x::AbstractOp) = isone(x)
 SparseArraysN.neutrals(T::Type{<:AbstractOp}, args...) = ones(T, args...)
+SparseArraysN.neutrals(T::Type{<:AbstractOp}, args::Integer...) = ones(T, args...)
 
 const SparseOpTerm = OpTerm{T, V} where {T<:AbstractOp, V<:SparseArraysN.SparseVector{T}}
 
